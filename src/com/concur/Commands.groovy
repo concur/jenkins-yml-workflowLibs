@@ -28,7 +28,7 @@ def runSteps(yml, branch = env.BRANCH_NAME) {
     "yml": yml,
   ])
 
-  def workflows = yml?.branches?."$branch"?.steps
+  def workflows = yml.branches?."$branch"?.steps
 
   assert workflows : """|Unable to determine steps to take for branch: ${branch}
                         |----------------------------------------
@@ -168,11 +168,11 @@ private executeParameterizedStep(workflow, sectionName, stepName, stepValues, ym
 
 // Workflow loader
 private loadWorkflows(fileName, yml) {
-  def repo                = yml?.tools?.buildhub?.workflows?.repo         ?: 'https://github.concur.com/jenkins-util/workflows.git'
-  def branch              = yml?.tools?.buildhub?.workflows?.branch       ?: yml?.tools?.buildhub?.workflows?.tag ?: 'master'
-  def credentialCriteria  = yml?.tools?.buildhub?.workflows?.credentials  ?: ['description' : 'Primary GitHub clone/checkout credentials', 'class' : CredentialTypes.usernamePassword]
-  def workflowDir         = yml?.tools?.buildhub?.workflows?.directory    ?: 'workflows'
-  def nodeLabel           = yml?.tools?.buildhub?.workflows?.label        ?: 'linux'
+  def repo                = yml.tools?.jenkins?.workflows?.repo         ?: env.WORKFLOW_REPOSITORY 'https://github.concur.com/jenkins-util/workflows.git'
+  def branch              = yml.tools?.jenkins?.workflows?.branch       ?: yml.tools?.jenkins?.workflows?.tag ?: 'master'
+  def credentialCriteria  = yml.tools?.jenkins?.workflows?.credentials  ?: ['description': env.WORKFLOW_GIT_CREDENTIAL_DESCRIPTION]
+  def workflowDir         = yml.tools?.jenkins?.workflows?.directory    ?: 'workflows'
+  def nodeLabel           = yml.tools?.jenkins?.workflows?.label        ?: 'linux'
 
   assert fileName : "fileName field has an invalid value."
   debugPrint('WorkflowLibs :: Commands :: loadWorkflows', ['fileName' : fileName, 'repo' : repo, 'branch' : branch, 'credentialCriteria' : credentialCriteria])
@@ -204,7 +204,7 @@ def checkBranch(yml, branch=env.BRANCH_NAME) {
   assert branch : "Branch name not set."
   debugPrint("WorkflowLibs :: Commands :: checkBranch :: branch", branch)
 
-  def patterns = yml?.tools?.github?.patterns
+  def patterns = yml.tools?.github?.patterns
   assert patterns
   debugPrint("WorkflowLibs :: Commands :: checkBranch :: patterns", patterns)
 
