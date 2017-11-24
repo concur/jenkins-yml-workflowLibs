@@ -9,7 +9,7 @@ This is a pipeline library for Jenkins 2.x that allows execution to be defined i
 
 ## Usage
 
-This must be added as a global pipeline library in Jenkins. 
+This must be added as a global pipeline library in Jenkins.
 
 ## Contributing
 
