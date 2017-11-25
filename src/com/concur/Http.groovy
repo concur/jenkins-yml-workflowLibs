@@ -13,6 +13,10 @@ def addToUriQueryString(uri, k, v) {
 }
 
 def sendSlackMessage(slackData=[:]) {
+  new com.concur.Commands().debugPrint('workflowLibs :: sendSlackMessage', [
+    'slackData'       : slackData,
+    'slackData.class' : slackData.getClass()
+  ])
   def slackPluginInstalled = new com.concur.Commands().getPluginVersion('slack')
   if (slackPluginInstalled) {
     slackSend(slackData)

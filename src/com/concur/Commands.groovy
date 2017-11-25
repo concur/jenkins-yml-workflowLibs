@@ -349,7 +349,6 @@ def getCredentialsWithCriteria(criteria) {
 
 // Get credentials for a given folder name
 private getFolderCredentials(folderName) {
-  debugPrint("WorkflowLibs :: Commands :: getFolderCredentials :: Getting credentials for folder", folderName)
   def folder = Jenkins.instance.getItemByFullName(folderName)
 
   AbstractFolder<?> folderAbs = AbstractFolder.class.cast(folder)
@@ -421,14 +420,15 @@ def getPipelineDataFile(fileName = 'pipelines.yml', format = 'yml', baseNode = '
       break;
   }
   if (dataMap?."${baseNode}"?.general?.debug) {
-    env.DebugMode = true // this being set allows for a lot of debugging output to be included.
+    env.DEBUG_MODE   = true // this being set allows for a lot of debugging output to be included.
+    env.DEBUG_LEVEL  = dataMap?."${baseNode}"?.general.debugLevel ?: 1
   }
   return dataMap[baseNode]
 }
 
 // check the environment to see if we are in debug mode
 def isDebug() {
-  return env.DebugMode?.toBoolean() ?: false
+  return env.DEBUG_MODE?.toBoolean() ?: false
 }
 
 /* usage examples
@@ -436,12 +436,15 @@ def isDebug() {
   new com.concur.Commands().debugPrint('workflows :: docker', ['docker image name : ${dockerImageName}'])
   new com.concur.Commands().debugPrint('workflows :: docker', ['docker image name': dockerImageName])
  */
-def debugPrint(title, msgdata, debugMode=null) {
+def debugPrint(title, msgdata, requiredDebugLevel=1, debugMode=null) {
   if (debugMode == null) {
     debugMode = isDebug()
   }
   if (debugMode) {
-    println "### \u001B[35mDebug output for $title\u001B[0m ###"
+    if (env.DEBUG_LEVEL <= requiredDebugLevel) {
+      return
+    }
+    println "### \u001B[35mDebug output for ${title}\u001B[0m ###"
     if (msgdata instanceof Map) {
       msgdata.each { data ->
         println "### \u001B[35mDebug >>> ${data.key}: ${data.value}\u001B[0m"

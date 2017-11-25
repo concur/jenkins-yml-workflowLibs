@@ -8,6 +8,7 @@ def call(buildStatus, channel = '', token = '', domain = env.DEFAULT_SLACK_DOMAI
 
   def concurGithub    = new com.concur.GitHubApi()
   def concurPipeline  = new com.concur.Commands()
+  def concurHttp      = new com.concur.Http()
 
   def orgAndRepo  = concurGithub.getGitHubOrgAndRepo()
   org             = org   ?: orgAndRepo.org
@@ -64,8 +65,9 @@ def call(buildStatus, channel = '', token = '', domain = env.DEFAULT_SLACK_DOMAI
       // NOTE: without a channel set, it will send using default channel for default token.
       slackData = [color: colorCode, message: summary]
     }
-    sendSlackMessage(slackData)
+    concurHttp.sendSlackMessage(slackData)
   } catch (java.lang.NoSuchMethodError | Exception e) {
     println "Not able to send slack notification. Please make sure that the plugin is installed and configured correctly."
+    println "Error: $e"
   }
 }
