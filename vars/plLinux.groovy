@@ -26,6 +26,8 @@ def call(duration = 1, unit = "HOURS", workspaceClean=true, Closure body) {
             docker.image('alpine:3.5').inside('-u 0:0'){
               sh "find ${linuxWS} -and -not -path ${linuxWS} -delete"
             }
+          } else {
+            cleanWs notFailBuild: true
           }
         }
       }

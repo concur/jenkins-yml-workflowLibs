@@ -21,6 +21,8 @@ This must be added as a global pipeline library in Jenkins.
 |-------------------------------------|-----------------------------------------------|-----------------------------------------------------------|
 | WORKFLOW_REPOSITORY                 | `git@github.com:reynn/jenkins-workflows.git`  | Points to a repository containing Groovy workflow files.  |
 | WORKFLOW_GIT_CREDENTIAL_DESCRIPTION | `GitHub SSH Private Key`                      | A description for checking out the `WORKFLOW_REPOSITORY`. |
+| DEFAULT_SLACK_DOMAIN                | `concur`                                      | The Slack team domain to send requests to.                |
+| DEFAULT_SLACK_TOKEN_DESC            | `Slack Token`                                 | A credential description for sending to the Slack API     |
 
 ## Concepts
 

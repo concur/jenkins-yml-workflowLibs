@@ -37,6 +37,8 @@ def call(duration = 1, unit = "HOURS", workspaceClean=true, Closure body) {
             dir(dirName) {
               deleteDir()
             }
+          } else {
+            cleanWs notFailBuild: true
           }
         }
       }
