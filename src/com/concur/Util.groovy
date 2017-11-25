@@ -19,10 +19,6 @@ def toJSON(content) {
 def parseYAML(stringContent) {
   assert stringContent : 'Unable to use parseYAML with no content'
   def utilityStepsAvailable = new com.concur.Commands().getPluginVersion('pipeline-utility-steps') ?: false
-  if (utilityStepsAvailable) {
-    return readYaml(text: stringContent)
-  } else {
-    @Grab(group='org.yaml', module='snakeyaml', version='1.19')
-    return new org.yaml.snakeyaml.Yaml().load(stringContent)
-  }
+  assert utilityStepsAvailable : "Please ensure the [Pipeline Utility Steps] plugin is installed in Jenkins."
+  return readYaml(text: stringContent)
 }
