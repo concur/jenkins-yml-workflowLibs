@@ -110,12 +110,12 @@ private executeWorkflows(workflows, yml) {
 
 private executeParameterizedStep(workflow, sectionName, stepName, stepValues, yml) {
   debugPrint('WorkflowLibs :: Commands :: executeParameterizedStep :: parameters', [
-    'workflow':workflow,
-    'sectionName': sectionName,
-    'stepName':stepName,
-    'stepValues':stepValues,
-    'yml':yml]
-  )
+    'workflow'    :workflow,
+    'sectionName' : sectionName,
+    'stepName'    :stepName,
+    'stepValues'  :stepValues,
+    'yml'         :yml
+  ])
   Boolean doubleMap = workflow.metaClass.respondsTo(workflow, stepName, Map, Map)
   Boolean singleMap = workflow.metaClass.respondsTo(workflow, stepName, Map)
   
@@ -216,7 +216,155 @@ def checkBranch(yml, branch=env.BRANCH_NAME) {
   return branchType
 }
 
-// ######### Helpers
+// ########################
+// # Jenkins Credentials
+// ########################
+
+/*
+* Get the credentials based on criteria defined in a map
+*
+* Map parameters:
+*
+*   @param class -  enum CredentialTypes of what kind of credential to search for
+*   @param id - jenkins id of the credential
+*   @param password - password of the credential
+*   @param description - description of the credential
+*
+* Other parameters can be passed and will be evaluated if they are properties of the credential type passed in the map
+*/
+def getCredentialsWithCriteria(criteria) {
+
+  debugPrint("WorkflowLibs :: ConcurCommands :: getCredentialsWithCriteria", criteria)
+
+  // Make sure properties isn't empty
+  assert criteria : "No criteria provided."
+
+  if (criteria.keySet().contains('class')) {
+    assert criteria."class".class != java.lang.String : "java.lang.String is not a valid class for credentials"
+    criteria."class" = criteria."class".class == CredentialTypes ? criteria."class"?.getValue() : criteria."class"
+    assert criteria."class" in CredentialTypes.getValues() : "Credential type ${criteria.'class'} is not supported or is invalid."
+  }
+
+  // Number of properties that that are in the map
+  def count = criteria.keySet().size()
+  def credentials = []
+
+  // Get all of the global credentials
+  def creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+    com.cloudbees.plugins.credentials.impl.BaseStandardCredentials.class,
+    jenkins.model.Jenkins.instance)
+  // Get credentials for the folder that the job is in
+  java.util.ArrayList folderCreds = new java.util.ArrayList()
+  def folderNames = env.JOB_NAME ?: ""
+  def folders = folderNames.split('/')
+  for (int i = 0; i < folders.size(); i++) {
+    def folderName = folders[0..i].join('/')
+    try {
+      for(n in getFolderCredentials(folderName)) {
+        folderCreds << n
+        debugPrint("WorkflowLibs :: ConcurCommands :: getCredentialsWithCriteria", folderCreds)
+      }
+    } catch (Exception e) {
+      debugPrint("WorkflowLibs :: ConcurCommands :: getCredentialsWithCriteria",
+      "Unable to get credentials for folder: ${folderName}")
+    }
+  }
+  // Separately loop through credentials provided by different credential providers
+  for(s in [folderCreds, creds]) {
+    // Filter the results based on description and class
+    for (c in s) {
+      def i = 0
+      if(count == c.getProperties().keySet().intersect(criteria.keySet()).size()) {
+        if(c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
+          for ( p in c.getProperties().keySet().intersect(criteria.keySet())) {
+            if (c."${p}" != criteria."${p}") {
+              break;
+            } else {
+              i++;
+            }
+          }
+        }
+      }
+      if (i == count) {
+        credentials << c
+      }
+    }
+  }
+  // Fail if no credentials are found that match the criteria
+  assert credentials : """No credentials found that match your criteria: ${criteria}"""
+  assert credentials.size() == 1 :  """
+  ${
+    println "Multiple credentials found for search criteria.\n"
+    println "Criteria:"
+    println criteria
+    println ""
+    println "Credentials:"
+    for(l in credentials) {
+      println "id: ${l.id} description: ${l.description}"
+    }
+  }
+  """
+  // Get the single credential
+  def credential = credentials[0]
+  assert credential.id : "Invalid credentials. The id property of your credential is blank or corrupted."
+  // Return the credentials
+  return credential
+}
+
+// Get credentials for a given folder name
+private getFolderCredentials(folderName) {
+  debugPrint("WorkflowLibs :: ConcurCommands :: getFolderCredentials :: Getting credentials for folder", folderName)
+  def folder = Jenkins.instance.getItemByFullName(folderName)
+
+  AbstractFolder<?> folderAbs = AbstractFolder.class.cast(folder)
+  FolderCredentialsProperty property = folderAbs.getProperties().get(FolderCredentialsProperty.class)
+  return property.getCredentials()
+}
+
+// Convert to a serializable list
+@NonCPS
+def jenkinsMap(gmap){
+  def safeList = []
+  gmap.each {
+    safeList.add(new java.util.AbstractMap.SimpleImmutableEntry(it.key, it.value))
+  }
+  safeList
+}
+
+// Enum for Credentials
+enum CredentialTypes {
+
+    usernamePassword (com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl),
+    sshPrivateKey (com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey),
+    stringCredentials (org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl),
+    fileCredentials (org.jenkinsci.plugins.plaincredentials.impl.FileCredentialsImpl)
+
+    final Class cValue
+
+    CredentialTypes(Class value) {
+      this.cValue = value
+    }
+
+    Class getValue() {
+      return this.cValue
+    }
+
+    String getKey() {
+      name()
+    }
+
+    static List getValues() {
+      List l = []
+      this.values().each {
+        l << it.getValue()
+      }
+      return l
+    }
+}
+
+// ########################
+// # Helpers
+// ########################
 
 // get a version number for the provided plugin name
 def getPluginVersion(pluginShortName) {

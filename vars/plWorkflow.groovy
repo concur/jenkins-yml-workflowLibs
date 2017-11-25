@@ -19,7 +19,7 @@ def call(body) {
   def timeoutUnitStr        = config.timeoutUnit
 
   // local script variables
-  def timedNode   = nodeType.toLowerCase().equals('linux') ? plLinux : plWindows
+  def timedNode = nodeType.toLowerCase().equals('linux') ? plLinux : plWindows
 
   timedNode timeoutDurationInt, timeoutUnitStr, {
     stage ('git: checkout') {
@@ -28,6 +28,7 @@ def call(body) {
       }
     }
 
+    println "Loading pipeline data file."
     def yml = concurPipeline.getPipelineDataFile(pipelineDataFilePath)
     concurPipeline.debugPrint('WorkflowLibs :: plWorkflow :: Parameters', [
       'nodeType'            : nodeType,

@@ -17,7 +17,7 @@ def call(duration = 1, unit = "HOURS", Closure body) {
         try {
           body()
         } catch (e) {
-          println "Execution error"
+          println "Execution error :: ${e}"
           throw e
         } finally {
           // Mount the workspace in the docker container.
