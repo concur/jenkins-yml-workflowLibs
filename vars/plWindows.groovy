@@ -1,6 +1,6 @@
 #!/usr/bin/groovy
 // vars/bhWindows.groovy
-def call(duration = 1, unit = "HOURS", Closure body) {
+def call(duration = 1, unit = "HOURS", workspaceClean=true, Closure body) {
 
   def concurPipeline = new com.concur.Commands()
 
@@ -32,9 +32,11 @@ def call(duration = 1, unit = "HOURS", Closure body) {
           throw e
         } finally {
           // Delete the workspace
-          echo "\u2756 Deleting the \u001B[35m ${dirName} \u001B[0m workspace."
-          dir(dirName) {
-            deleteDir()
+          if (workspaceClean) {
+            echo "\u2756 Deleting the \u001B[35m ${dirName} \u001B[0m workspace."
+            dir(dirName) {
+              deleteDir()
+            }
           }
         }
       }

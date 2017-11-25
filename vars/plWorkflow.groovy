@@ -10,8 +10,9 @@ def call(body) {
   def concurPipeline  = new com.concur.Commands()
 
   // variables from closure
-  def nodeType              = config.nodeType ?: 'linux'
-  def pipelineDataFilePath  = config.yamlPath ?: 'pipelines.yml'
+  def nodeType              = config.nodeType       ?: 'linux'
+  def pipelineDataFilePath  = config.yamlPath       ?: 'pipelines.yml'
+  def cleanWorkspace        = config.cleanWorkspace ?: true
 
   def slackNotify           = config.notify             == null ? true : config.notify
   def gitSubmodules         = config.useSubmodules      == null ? true : config.useSubmodules
@@ -21,7 +22,7 @@ def call(body) {
   // local script variables
   def timedNode = nodeType.toLowerCase().equals('linux') ? plLinux : plWindows
 
-  timedNode timeoutDurationInt, timeoutUnitStr, {
+  timedNode timeoutDurationInt, timeoutUnitStr, cleanWorkspace, {
     stage ('git: checkout') {
       plGitHubCheckout {
         withSubmodules = gitSubmodules
