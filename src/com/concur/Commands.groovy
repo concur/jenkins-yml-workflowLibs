@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 package com.concur
 
+import groovy.transform.Field;
 import jenkins.model.*;
 import org.yaml.snakeyaml.*;
 import com.cloudbees.hudson.plugins.folder.*;
