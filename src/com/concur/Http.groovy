@@ -1,3 +1,4 @@
+#!/usr/bin/env groovy
 package com.concur
 
 @NonCPS

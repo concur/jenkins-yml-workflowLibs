@@ -1,3 +1,6 @@
+#!/usr/bin/env groovy
+package com.concur
+
 // JSON
 def parseJSON(stringContent) {
   assert stringContent : 'Unable to use parseJSON with no content'
