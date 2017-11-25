@@ -177,9 +177,9 @@ private executeParameterizedStep(workflow, sectionName, stepName, stepValues, ym
 
 private getStageName(workflow, stages, workflowName, stepName, yml, args) {
   def stageName
-  Boolean canGenerate = workflow.metaClass.respondsTo(workflow, 'getStageName', Map, Map)
+  Boolean canGenerate = workflow.metaClass.respondsTo(workflow, 'getStageName', Map, Map, String)
   if (canGenerate) {
-    stageName = workflow.getStageName(yml, args)
+    stageName = workflow.getStageName(yml, args, stepName)
   } else {
     stageName = "${workflowName}: ${stepName}"
   }
