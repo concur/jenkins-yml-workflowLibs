@@ -82,7 +82,7 @@ def runSteps(yml, branch=env.BRANCH_NAME) {
   }
   try {
     workflowsList.each { workflow ->
-      executeWorkflow(workflowsList, yml)
+      executeWorkflow(workflow, yml)
     }
   } catch(e) {
     currentBuild.result = 'FAILED'
@@ -304,10 +304,7 @@ def getCredentialsWithCriteria(criteria) {
         folderCreds << n
         debugPrint("WorkflowLibs :: Commands :: getCredentialsWithCriteria", folderCreds)
       }
-    } catch (Exception e) {
-      debugPrint("WorkflowLibs :: Commands :: getCredentialsWithCriteria",
-      "Unable to get credentials for folder: ${folderName}")
-    }
+    } catch (Exception e) { }
   }
   // Separately loop through credentials provided by different credential providers
   for(s in [folderCreds, creds]) {
