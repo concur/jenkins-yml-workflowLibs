@@ -55,7 +55,7 @@ def call(buildStatus, channel = '', token = '', domain = 'concur-blue', org = ''
     if (channel != null && token != null && domain != null) {
       slackSend(color: colorCode, message: summary, token: token, teamDomain: domain, channel: channel)
     } else if (channel != null && domain != null) {
-      def cred = concurPipeline.getCredentialsWithCriteria(['description': 'Slack Integration Token']).id
+      def cred = concurPipeline.getCredentialsWithCriteria(['description': env.DEFAULT_SLACK_TOKEN_DESC]).id
       slackSend(color: colorCode, message: summary, tokenCredentialId: cred, teamDomain: domain, channel: channel)
     } else {
       // NOTE: without a channel set, it will send using default channel for default token.
