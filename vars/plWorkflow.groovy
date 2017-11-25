@@ -33,12 +33,12 @@ def call(body) {
     def yml = concurPipeline.getPipelineDataFile(pipelineDataFilePath)
     concurPipeline.debugPrint('WorkflowLibs :: plWorkflow :: Parameters', [
       'nodeType'        : nodeType,
-      'yamlPath'        : yamlPath,
+      'yamlPath'        : pipelineDataFilePath,
       'cleanWorkspace'  : cleanWorkspace,
-      'notify'          : notify,
-      'useSubmodules'   : useSubmodules,
-      'timeoutDuration' : timeoutDuration,
-      'timeoutUnit'     : timeoutUnit
+      'notify'          : slackNotify,
+      'useSubmodules'   : gitSubmodules,
+      'timeoutDuration' : timeoutDurationInt,
+      'timeoutUnit'     : timeoutUnitStr
     ])
 
     // pulling out slack map to add values to it in the event that the token doesn't exist
