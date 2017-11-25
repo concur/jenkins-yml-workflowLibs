@@ -10,7 +10,7 @@ def getCommitSHA(folder) {
     return sh(returnStdout: true, script: "git log -n 1 --pretty=format:%H ${folder}").trim()
   } else {
     bat "git log -n 1 --pretty=format:%%H ${folder} > lastSHA"
-    return readFile 'lastSHA'
+    return readFile('lastSHA')
   }
 }
 
