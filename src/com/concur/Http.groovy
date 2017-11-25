@@ -11,3 +11,10 @@ def addToUriQueryString(uri, k, v) {
   String value = java.net.URLEncoder.encode(v, "UTF-8")
   return uri.contains('?') ? "${uri}&${key}=${value}" : "${uri}?${key}=${value}"
 }
+
+def sendSlackMessage(slackData=[:]) {
+  def slackPluginInstalled = new com.concur.Commands().getPluginVersion('slack')
+  if (slackPluginInstalled) {
+    slackSend(slackData)
+  }
+}
