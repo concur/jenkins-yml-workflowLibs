@@ -12,8 +12,8 @@ def call(body) {
   // variables from closure
   def nodeType              = config.nodeType       ?: 'linux'
   def pipelineDataFilePath  = config.yamlPath       ?: 'pipelines.yml'
-  def cleanWorkspace        = config.cleanWorkspace ?: true
 
+  def cleanWorkspace        = config.cleanWorkspace     == null ? true : config.cleanWorkspace
   def slackNotify           = config.notify             == null ? true : config.notify
   def gitSubmodules         = config.useSubmodules      == null ? true : config.useSubmodules
   def timeoutDurationInt    = config.timeoutDuration
