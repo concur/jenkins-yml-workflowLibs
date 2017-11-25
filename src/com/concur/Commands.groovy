@@ -192,6 +192,7 @@ private getStageName(workflow, stages, workflowName, stepName) {
   } else {
     stages.add(stageName)
   }
+  return stageName
 }
 
 // Workflow loader
