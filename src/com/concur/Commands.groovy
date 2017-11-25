@@ -128,7 +128,7 @@ private executeParameterizedStep(workflow, sectionName, stepName, stepValues, ym
   ])
   Boolean doubleMap = workflow.metaClass.respondsTo(workflow, stepName, Map, Map)
   Boolean singleMap = workflow.metaClass.respondsTo(workflow, stepName, Map)
-  
+
   if (doubleMap) {
     debugPrint('WorkflowLibs :: Commands :: executeParameterizedStep',
       "Executing ${stepName} with yml and args".center(80, '-'))

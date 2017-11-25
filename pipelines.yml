@@ -5,6 +5,8 @@ pipelines:
     branches:
       patterns:
         feature: .+
+    slack:
+      channel: 'git-notifications'
   branches:
     feature:
       steps:

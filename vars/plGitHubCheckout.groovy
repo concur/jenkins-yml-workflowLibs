@@ -17,7 +17,7 @@ def call(body) {
   // Get any untility commands that we need
   def concurPipeline  = new Commands()
   def gitPipeline     = new Git()
-  
+
   concurPipeline.debugPrint('WorkflowLibs :: plGithubCheckout :: Custom', [
     'repo': config.repo,
     'credentials': config.credentials,

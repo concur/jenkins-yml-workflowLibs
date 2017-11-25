@@ -9,7 +9,7 @@ def call(duration = 1, unit = "HOURS", workspaceClean=true, Closure body) {
     unit      = unit      ?: 'HOURS'
     assert (duration instanceof Integer) : "duration must be a Integer"
     assert (unit instanceof String) : "unit must be a String"
-    
+
     timeout(time: duration, unit: unit.toUpperCase()) {
       ansiColor('xterm') {
         concurPipeline.debugPrint("bhLinux", ['duration' : duration, 'unit' : unit])

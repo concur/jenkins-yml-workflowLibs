@@ -1,6 +1,5 @@
 @Library("plWorkflowLibs@develop")_
 
-plWorkflow { 
+plWorkflow {
     cleanWorkspace=false
-    notify=false
 }
