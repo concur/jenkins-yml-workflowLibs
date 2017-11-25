@@ -81,49 +81,53 @@ def runSteps(yml, branch=env.BRANCH_NAME) {
              """.stripMargin())
   }
   try {
-    executeWorkflows(workflowsList, yml)
+    workflowsList.each { workflow ->
+      executeWorkflow(workflowsList, yml)
+    }
   } catch(e) {
     currentBuild.result = 'FAILED'
     throw e
   }
 }
 
-private executeWorkflows(workflows, yml) {
+private executeWorkflow(workflow, yml) {
   def stages = []
   def stageNum = 0
-  workflows.each { workflow ->
-    workflow.each { section ->
-      def workflowName = section.key
-      def workflowFile = loadWorkflows("${workflowName}", yml)
-      section.value.each { step ->
-        def stepName = step instanceof Map ? step.keySet().first() : step
-        def stageName = "${workflowName}: ${stepName}"
-        def existingStageNames = stages.findAll{ it == stageName }
-        if (existingStageNames.size() > 0) {
-          stages.add(stageName)
-          stageName = "${stageName} (${existingStageNames.size()+1})"
-        } else {
-          stages.add(stageName)
-        }
-        def stageStart = System.currentTimeMillis()
-        try {
-          stage(stageName) {
-            if (step instanceof String || step instanceof org.codehaus.groovy.runtime.GStringImpl) {
-              debugPrint('WorkflowLibs :: Commands :: executeWorkflows :: basic step', ['workflowName': workflowName,
-                                                            'stepName': step])
-              workflowFile."${step}"()
-            } else if (step instanceof Map) {
-              def params = step[stepName]
-              debugPrint('WorkflowLibs :: Commands :: executeWorkflows :: parameterized step', ['workflowName': workflowName,
-                                                                    'stepName': stepName,
-                                                                    'params': params])
-              executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
-            }
+  workflow.each { section ->
+    def workflowName = section.key
+    def workflowFile = loadWorkflows("${workflowName}", yml)
+    section.value.each { step ->
+      def stepName = step instanceof Map ? step.keySet().first() : step
+      def stageName = "${workflowName}: ${stepName}"
+      def existingStageNames = stages.findAll{ it == stageName }
+      if (existingStageNames.size() > 0) {
+        stages.add(stageName)
+        stageName = "${stageName} (${existingStageNames.size()+1})"
+      } else {
+        stages.add(stageName)
+      }
+      def stageStart = System.currentTimeMillis()
+      try {
+        stage(stageName) {
+          if (step instanceof String || step instanceof org.codehaus.groovy.runtime.GStringImpl) {
+            debugPrint('WorkflowLibs :: Commands :: executeWorkflows :: basic step', [
+              'workflowName': workflowName,
+              'stepName': step
+            ])
+            workflowFile."${step}"()
+          } else if (step instanceof Map) {
+            def params = step[stepName]
+            debugPrint('WorkflowLibs :: Commands :: executeWorkflows :: parameterized step', [
+              'workflowName': workflowName,
+              'stepName': stepName,
+              'params': params
+            ])
+            executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
           }
-        } catch(e) {
-          currentBuild.result = 'FAILED'
-          throw e
         }
+      } catch(e) {
+        currentBuild.result = 'FAILED'
+        throw e
       }
     }
   }
@@ -184,6 +188,10 @@ private executeParameterizedStep(workflow, sectionName, stepName, stepValues, ym
              |--------------------------------------------------------
              """.stripMargin())
   }
+}
+
+private getStageName(workflow) {
+
 }
 
 // Workflow loader
