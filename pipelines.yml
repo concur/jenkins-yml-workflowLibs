@@ -1,4 +1,6 @@
 pipelines:
+  general:
+    debug: true
   steps:
     - test:
       - work:

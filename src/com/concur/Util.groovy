@@ -22,6 +22,7 @@ def parseYAML(stringContent) {
   if (utilityStepsAvailable) {
     return readYaml(text: stringContent)
   } else {
+    @Grab(group='org.yaml', module='snakeyaml', version='1.19')
     return new org.yaml.snakeyaml.Yaml().load(stringContent)
   }
 }

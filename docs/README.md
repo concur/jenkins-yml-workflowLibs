@@ -4,8 +4,11 @@ This is a pipeline library for Jenkins 2.x that allows execution to be defined i
 
 ## Requirements
 
+### Plugins
+
 * [Pipeline Shared Groovy Libraries](https://wiki.jenkins.io/display/JENKINS/Pipeline+Shared+Groovy+Libraries+Plugin)
 * [Pipeline Remote Loader](https://wiki.jenkins.io/display/JENKINS/Pipeline+Remote+Loader+Plugin)
+* [Pipeline Utility Steps](https://plugins.jenkins.io/pipeline-utility-steps)
 * [AnsiColor](https://plugins.jenkins.io/ansicolor)
 
 ## Usage
