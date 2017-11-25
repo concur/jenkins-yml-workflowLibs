@@ -5,6 +5,8 @@ pipelines:
     branches:
       patterns:
         feature: .+
-  steps:
-    - test:
-      - work:
+branches:
+  feature:
+    steps:
+      - test:
+        - work:
