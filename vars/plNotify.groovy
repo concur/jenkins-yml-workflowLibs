@@ -4,7 +4,7 @@ import groovy.json.internal.Exceptions
 
 // Send Slack notifications to the interested channel
 // This is uses the configuration from the plugin on the Jenkins master if nothing is provided
-def call(buildStatus, channel = '', token = '', domain = env.DEFAULT_SLACK_DOMAIN, org = '', repo = '') {
+def call(buildStatus, useAttachments, channel = '', token = '', domain = env.DEFAULT_SLACK_DOMAIN, org = '', repo = '') {
 
   def concurGithub    = new com.concur.GitHubApi()
   def concurPipeline  = new com.concur.Commands()
@@ -27,29 +27,25 @@ def call(buildStatus, channel = '', token = '', domain = env.DEFAULT_SLACK_DOMAI
   domain      = domain      ?: null
 
   // Default values for parameters
-  def colorName = 'RED'
   def colorCode = '#DC143C'
   def subject   = "${buildStatus}"
   def summary   = "${subject}"
   def details   = [
-    "*Job:* ${env.JOB_NAME.replaceAll('%2F', '/')}",
-    "*Branch:* ${env.BRANCH_NAME}",
-    "*Build:* <${env.BUILD_URL}|${env.BUILD_NUMBER}>",
-    "*Author:* ${env.GIT_AUTHOR}",
-    "*Commit:* <http://github.concur.com/${org}/${repo}/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>"
+    "Job"     : "${env.JOB_NAME.replaceAll('%2F', '/')}",
+    "Branch"  : "${env.BRANCH_NAME}",
+    "Build"   : "<${env.BUILD_URL}|${env.BUILD_NUMBER}>",
+    "Author"  : "${env.GIT_AUTHOR}",
+    "Commit"  : "<http://github.concur.com/${org}/${repo}/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>"
   ]
 
   // Override default values based on build status
   if (buildStatus == 'STARTED') {
-    color     = 'BLUE'
     colorCode = '#87CEEB'
     subject   = "${buildStatus}\n"
     summary   = "${subject}*Build Number* <${env.BUILD_URL}|${env.BUILD_NUMBER}> started on *${env.JENKINS_URL.replaceAll('/$', "")}* for branch *${env.BRANCH_NAME}*"
   } else if (buildStatus == 'SUCCESS') {
-    color     = 'GREEN'
     colorCode = '#3CB371'
   } else {
-    color     = 'RED'
     colorCode = '#DC143C'
   }
 
@@ -64,6 +60,16 @@ def call(buildStatus, channel = '', token = '', domain = env.DEFAULT_SLACK_DOMAI
     } else {
       // NOTE: without a channel set, it will send using default channel for default token.
       slackData = [color: colorCode, message: summary]
+    }
+    if (buildStatus != 'STARTED' && useAttachments) {
+      net.sf.json.JSONArray attachments = new net.sf.json.JSONArray()
+      net.sf.json.JSONObject attachment = new net.sf.json.JSONObject();
+      attachment.put('text', summary)
+      attachment.put('color', colorCode)
+      attachment.put('fallback', "${summary}\n${details.collect { "*${it.key}*: ${it.value}" }.join('\n')}")
+      attachment.put('fields', details.collect { ["title": it.key, "value": it.value, "short": true] })
+      attachments.add(attachment)
+      slackData.put('attachments', attachments.toString())
     }
     concurHttp.sendSlackMessage(slackData)
   } catch (java.lang.NoSuchMethodError | Exception e) {

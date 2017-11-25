@@ -48,9 +48,9 @@ def call(body) {
       println "Sending Slack notification for build start..."
       assert slackData?.channel
       if (!slackData?.token) {
-        plNotify('STARTED', slackData?.channel)
+        plNotify('STARTED', (slackData?.useAttachments ?: true), slackData?.channel)
       } else {
-        plNotify('STARTED', slackData?.channel, slackData?.token)
+        plNotify('STARTED', (slackData?.useAttachments ?: true), slackData?.channel, slackData?.token)
       }
     }
 
@@ -67,9 +67,9 @@ def call(body) {
       currentBuild.result = currentBuild.result ?: 'FAILURE'
       if (slackNotify) {
         if (!slackData?.token) {
-          plNotify(currentBuild.result, slackData?.channel)
+          plNotify(currentBuild.result, (slackData?.useAttachments ?: true), slackData?.channel)
         } else {
-          plNotify(currentBuild.result, slackData?.channel, slackData?.token)
+          plNotify(currentBuild.result, (slackData?.useAttachments ?: true), slackData?.channel, slackData?.token)
         }
       }
     }
