@@ -10,5 +10,8 @@ pipelines:
       steps:
         - test:
           - work:
+              name: first
           - work:
+              name: second
           - work:
+              name: third
