@@ -88,7 +88,7 @@ private executeWorkflows(workflows, yml) {
         def stageStart = System.currentTimeMillis()
         try {
           stage(stageName) {
-            if (step instanceof String || step instanceof GStringImpl) {
+            if (step instanceof String || step instanceof org.codehaus.groovy.runtime.GStringImpl) {
               debugPrint('WorkflowLibs :: Commands :: executeWorkflows :: basic step', ['workflowName': workflowName,
                                                             'stepName': step])
               workflowFile."${step}"()
