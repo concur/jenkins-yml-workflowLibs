@@ -168,13 +168,14 @@ private executeParameterizedStep(workflow, sectionName, stepName, stepValues, ym
 
 // Workflow loader
 private loadWorkflows(fileName, yml) {
-  def repo                = yml.tools?.jenkins?.workflows?.repo         ?: env.WORKFLOW_REPOSITORY 'https://github.concur.com/jenkins-util/workflows.git'
+  def repo                = yml.tools?.jenkins?.workflows?.repo         ?: env.WORKFLOW_REPOSITORY
   def branch              = yml.tools?.jenkins?.workflows?.branch       ?: yml.tools?.jenkins?.workflows?.tag ?: 'master'
   def credentialCriteria  = yml.tools?.jenkins?.workflows?.credentials  ?: ['description': env.WORKFLOW_GIT_CREDENTIAL_DESCRIPTION]
   def workflowDir         = yml.tools?.jenkins?.workflows?.directory    ?: 'workflows'
   def nodeLabel           = yml.tools?.jenkins?.workflows?.label        ?: 'linux'
 
   assert fileName : "fileName field has an invalid value."
+
   debugPrint('WorkflowLibs :: Commands :: loadWorkflows', ['fileName' : fileName, 'repo' : repo, 'branch' : branch, 'credentialCriteria' : credentialCriteria])
 
   fileName = "${fileName}.groovy"
@@ -187,13 +188,14 @@ private loadWorkflows(fileName, yml) {
   if (localFileExists) {
     workflow = load localFile
   } else {
+    assert repo : "Repo to checkout for workflows not set under tools.jenkins.workflows.repo or as the environment variable: WORKFLOW_REPOSITORY."
     // only search for credential if needed
     def credentialsId = getCredentialsWithCriteria(credentialCriteria).id
     assert credentialsId
     debugPrint('WorkflowLibs :: Commands :: loadWorkflows :: credentials', credentialsId)
     workflow = fileLoader.fromGit(fileName,repo, branch, credentialsId, nodeLabel)
   }
-  assert workflow : "Workflow file ${fileName} not found or unable to load."
+  assert workflow : "Workflow file ${fileName} not found or unable to load from remote repo."
 
   return workflow
 }
