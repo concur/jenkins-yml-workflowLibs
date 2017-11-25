@@ -1,6 +1,10 @@
 pipelines:
   general:
     debug: true
+  tools:
+    branches:
+      patterns:
+        feature: .+
   steps:
     - test:
       - work:

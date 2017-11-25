@@ -214,12 +214,19 @@ private loadWorkflows(fileName, yml) {
 
 // Check branch pattern
 def checkBranch(yml, branch=env.BRANCH_NAME) {
-  assert yml    : "Couldn't find pipelines.yml"
-  assert branch : "Branch name not set."
+  assert yml    : "Couldn't find pipelines.yml."
+  assert branch : "Branch name not set. This should typically be set by the environment as BRANCH_NAME. Please ensure this is being called within a node."
   debugPrint("WorkflowLibs :: Commands :: checkBranch :: branch", branch)
 
-  def patterns = yml.tools?.github?.patterns
-  assert patterns
+  def patterns = yml.tools?.branches?.patterns
+  assert patterns : """|Define your branch patterns under tools.branches.patterns
+                       |---------------------------------------------------------
+                       |Example YML
+                       |pipelines:
+                       |  tools:
+                       |    branches:
+                       |      patterns:
+                       |        feature: .+""".stripMargin()
   debugPrint("WorkflowLibs :: Commands :: checkBranch :: patterns", patterns)
 
   def branchType = patterns.find {
