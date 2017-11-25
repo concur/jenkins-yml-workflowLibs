@@ -20,20 +20,28 @@ import org.codehaus.groovy.runtime.GStringImpl;
 
 // Run the workflow steps for the appropriate sections
 def runSteps(yml, branch=env.BRANCH_NAME) {
+  assert yml : """|No YML contents provided. An example pipelines.yml file would look like this:
+                  |------------------------------------------------------------------------------
+                  |pipelines:
+                  |  tools:
+                  |    branches:
+                  |      feature: .+
+                  |  branches:
+                  |    feature:
+                  |      steps:
+                  |        - script: 'ls -la'""".stripMargin()
   branch = checkBranch(yml,branch)
   assert branch : """|Unable to determine steps to take for branch ${env.BRANCH_NAME}
                      |----------------------------------------
-                     |Please ensure your yml file contains a section under tools.github.patterns
+                     |Please ensure your yml file contains a section under tools.branches.patterns
                      |pipelines:
                      |  tools:
-                     |    github:
+                     |    branches:
                      |      patterns:
                      |        master: master
                      |        develop: develop
                      |        feature: .+
                      |        """.stripMargin()
-
-  assert yml
 
   debugPrint("WorkflowLibs :: Commands :: runSteps", [
     "branch": branch,
@@ -216,7 +224,6 @@ private loadWorkflows(fileName, yml) {
 def checkBranch(yml, branch=env.BRANCH_NAME) {
   assert yml    : "Couldn't find pipelines.yml."
   assert branch : "Branch name not set. This should typically be set by the environment as BRANCH_NAME. Please ensure this is being called within a node."
-  debugPrint("WorkflowLibs :: Commands :: checkBranch :: branch", branch)
 
   def patterns = yml.tools?.branches?.patterns
   assert patterns : """|Define your branch patterns under tools.branches.patterns
@@ -227,11 +234,16 @@ def checkBranch(yml, branch=env.BRANCH_NAME) {
                        |    branches:
                        |      patterns:
                        |        feature: .+""".stripMargin()
-  debugPrint("WorkflowLibs :: Commands :: checkBranch :: patterns", patterns)
 
   def branchType = patterns.find {
     branch.matches(it.value)
   }.key
+
+  debugPrint("WorkflowLibs :: Commands :: checkBranch", [
+    'branch'    : branch,
+    'patterns'  : patterns,
+    'branchType': branchType
+  ])
 
   return branchType
 }
