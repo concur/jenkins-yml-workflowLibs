@@ -31,11 +31,11 @@ def call(buildStatus, useAttachments, channel = '', token = '', domain = env.DEF
   def subject   = "${buildStatus}"
   def summary   = "${subject}"
   def details   = [
-    "Job"     : "${env.JOB_NAME.replaceAll('%2F', '/')}",
-    "Branch"  : "${env.BRANCH_NAME}",
+    "Job"     : env.JOB_NAME.replaceAll('%2F', '/'),
+    "Branch"  : env.BRANCH_NAME,
     "Build"   : "<${env.BUILD_URL}|${env.BUILD_NUMBER}>",
-    "Author"  : "${env.GIT_AUTHOR}",
-    "Commit"  : "<http://github.concur.com/${org}/${repo}/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>"
+    "Commit"  : "<http://github.concur.com/${org}/${repo}/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>",
+    "Author"  : env.GIT_AUTHOR
   ]
 
   // Override default values based on build status
@@ -62,14 +62,14 @@ def call(buildStatus, useAttachments, channel = '', token = '', domain = env.DEF
       slackData = [color: colorCode, message: summary]
     }
     if (buildStatus != 'STARTED' && useAttachments) {
-      net.sf.json.JSONArray attachments = new net.sf.json.JSONArray()
-      net.sf.json.JSONObject attachment = new net.sf.json.JSONObject();
-      attachment.put('text', summary)
-      attachment.put('color', colorCode)
-      attachment.put('fallback', "${summary}\n${details.collect { "*${it.key}*: ${it.value}" }.join('\n')}")
-      attachment.put('fields', details.collect { ["title": it.key, "value": it.value, "short": true] })
-      attachments.add(attachment)
-      slackData.put('attachments', attachments.toString())
+      def attachments = [
+        ['text', summary],
+        ['color', colorCode],
+        ['fallback', "${summary}\n${details.collect { "*${it.key}*: ${it.value}" }.join('\n')}"],
+        ['fields', details.collect { ["title": it.key, "value": it.value, "short": true] }]
+      ]
+      slackData.remove('message')
+      slackData.put('attachments', new com.concur.Util().toJSON(attachments))
     }
     concurHttp.sendSlackMessage(slackData)
   } catch (java.lang.NoSuchMethodError | Exception e) {
