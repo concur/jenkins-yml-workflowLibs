@@ -11,6 +11,8 @@ import com.cloudbees.plugins.credentials.*;
 import com.cloudbees.plugins.credentials.domains.*;
 import org.codehaus.groovy.runtime.GStringImpl;
 
+@Field def concurUtil = new com.concur.Util()
+
 // ########################
 // Workflow Execution Methods
 // ########################
