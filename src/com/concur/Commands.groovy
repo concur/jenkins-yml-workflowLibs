@@ -98,14 +98,7 @@ private executeWorkflow(workflow, yml) {
     def workflowFile = loadWorkflows("${workflowName}", yml)
     section.value.each { step ->
       def stepName = step instanceof Map ? step.keySet().first() : step
-      def stageName = "${workflowName}: ${stepName}"
-      def existingStageNames = stages.findAll{ it == stageName }
-      if (existingStageNames.size() > 0) {
-        stages.add(stageName)
-        stageName = "${stageName} (${existingStageNames.size()+1})"
-      } else {
-        stages.add(stageName)
-      }
+      def stageName = getStageName(workflowFile, stages, workflowName, stepName)
       def stageStart = System.currentTimeMillis()
       try {
         stage(stageName) {
@@ -190,8 +183,15 @@ private executeParameterizedStep(workflow, sectionName, stepName, stepValues, ym
   }
 }
 
-private getStageName(workflow) {
-
+private getStageName(workflow, stages, workflowName, stepName) {
+  def stageName = "${workflowName}: ${stepName}"
+  def existingStageNames = stages.findAll{ it == stageName }
+  if (existingStageNames.size() > 0) {
+    stages.add(stageName)
+    stageName = "${stageName} (${existingStageNames.size()+1})"
+  } else {
+    stages.add(stageName)
+  }
 }
 
 // Workflow loader

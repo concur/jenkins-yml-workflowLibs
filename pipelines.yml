@@ -10,3 +10,5 @@ pipelines:
       steps:
         - test:
           - work:
+          - work:
+          - work:
