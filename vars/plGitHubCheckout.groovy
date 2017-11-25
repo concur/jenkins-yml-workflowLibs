@@ -15,7 +15,7 @@ def call(body) {
   withSubmodules  = config.withSubmodules == null ? false : config.withSubmodules
 
   // Get any untility commands that we need
-  def concurPipeline  = new ConcurCommands()
+  def concurPipeline  = new Commands()
   def gitPipeline     = new Git()
   
   concurPipeline.debugPrint('WorkflowLibs :: plGithubCheckout :: Custom', [

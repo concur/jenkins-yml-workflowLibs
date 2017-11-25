@@ -244,7 +244,7 @@ def checkBranch(yml, branch=env.BRANCH_NAME) {
 */
 def getCredentialsWithCriteria(criteria) {
 
-  debugPrint("WorkflowLibs :: ConcurCommands :: getCredentialsWithCriteria", criteria)
+  debugPrint("WorkflowLibs :: Commands :: getCredentialsWithCriteria", criteria)
 
   // Make sure properties isn't empty
   assert criteria : "No criteria provided."
@@ -272,10 +272,10 @@ def getCredentialsWithCriteria(criteria) {
     try {
       for(n in getFolderCredentials(folderName)) {
         folderCreds << n
-        debugPrint("WorkflowLibs :: ConcurCommands :: getCredentialsWithCriteria", folderCreds)
+        debugPrint("WorkflowLibs :: Commands :: getCredentialsWithCriteria", folderCreds)
       }
     } catch (Exception e) {
-      debugPrint("WorkflowLibs :: ConcurCommands :: getCredentialsWithCriteria",
+      debugPrint("WorkflowLibs :: Commands :: getCredentialsWithCriteria",
       "Unable to get credentials for folder: ${folderName}")
     }
   }
@@ -323,7 +323,7 @@ def getCredentialsWithCriteria(criteria) {
 
 // Get credentials for a given folder name
 private getFolderCredentials(folderName) {
-  debugPrint("WorkflowLibs :: ConcurCommands :: getFolderCredentials :: Getting credentials for folder", folderName)
+  debugPrint("WorkflowLibs :: Commands :: getFolderCredentials :: Getting credentials for folder", folderName)
   def folder = Jenkins.instance.getItemByFullName(folderName)
 
   AbstractFolder<?> folderAbs = AbstractFolder.class.cast(folder)
