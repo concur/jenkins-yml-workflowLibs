@@ -1,12 +1,22 @@
 #!/usr/bin/env groovy
 package com.concur
 
+import jenkins.model.*;
+import org.yaml.snakeyaml.*;
+import com.cloudbees.hudson.plugins.folder.*;
+import com.cloudbees.hudson.plugins.folder.properties.*;
+import com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider.FolderCredentialsProperty;
+import com.cloudbees.plugins.credentials.impl.*;
+import com.cloudbees.plugins.credentials.*;
+import com.cloudbees.plugins.credentials.domains.*;
+import org.codehaus.groovy.runtime.GStringImpl;
+
 // ########################
 // Workflow Execution Methods
 // ########################
 
 // Run the workflow steps for the appropriate sections
-def runSteps(yml, branch = env.BRANCH_NAME) {
+def runSteps(yml, branch=env.BRANCH_NAME) {
   branch = checkBranch(yml,branch)
   assert branch : """|Unable to determine steps to take for branch ${env.BRANCH_NAME}
                      |----------------------------------------
