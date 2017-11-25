@@ -2,7 +2,7 @@
 // vars/bhLinux.groovy
 def call(duration = 1, unit = "HOURS", Closure body) {
 
-  def concurPipeline = new com.concur.ConcurCommands()
+  def concurPipeline = new com.concur.Commands()
 
   node('linux') {
     duration  = duration  ?: 1
