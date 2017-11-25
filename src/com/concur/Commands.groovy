@@ -98,25 +98,17 @@ private executeWorkflow(workflow, yml) {
     def workflowFile = loadWorkflows("${workflowName}", yml)
     section.value.each { step ->
       def stepName = step instanceof Map ? step.keySet().first() : step
-      def stageName = getStageName(workflowFile, stages, workflowName, stepName)
       def stageStart = System.currentTimeMillis()
       try {
+        def params = step[stepName]
+        debugPrint('WorkflowLibs :: Commands :: executeWorkflows :: parameterized step', [
+          'workflowName': workflowName,
+          'stepName': stepName,
+          'params': params
+        ])
+        def stageName = getStageName(workflowFile, stages, workflowName, stepName, yml, params)
         stage(stageName) {
-          if (step instanceof String || step instanceof org.codehaus.groovy.runtime.GStringImpl) {
-            debugPrint('WorkflowLibs :: Commands :: executeWorkflows :: basic step', [
-              'workflowName': workflowName,
-              'stepName': step
-            ])
-            workflowFile."${step}"()
-          } else if (step instanceof Map) {
-            def params = step[stepName]
-            debugPrint('WorkflowLibs :: Commands :: executeWorkflows :: parameterized step', [
-              'workflowName': workflowName,
-              'stepName': stepName,
-              'params': params
-            ])
-            executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
-          }
+          executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
       } catch(e) {
         currentBuild.result = 'FAILED'
@@ -183,8 +175,14 @@ private executeParameterizedStep(workflow, sectionName, stepName, stepValues, ym
   }
 }
 
-private getStageName(workflow, stages, workflowName, stepName) {
-  def stageName = "${workflowName}: ${stepName}"
+private getStageName(workflow, stages, workflowName, stepName, yml, args) {
+  def stageName
+  Boolean canGenerate = workflow.metaClass.respondsTo(workflow, 'getStageName', Map, Map)
+  if (canGenerate) {
+    stageName = workflow.getStageName(yml, args)
+  } else {
+    stageName = "${workflowName}: ${stepName}"
+  }
   def existingStageNames = stages.findAll{ it == stageName }
   if (existingStageNames.size() > 0) {
     stages.add(stageName)
