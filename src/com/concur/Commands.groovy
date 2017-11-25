@@ -31,7 +31,7 @@ def runSteps(yml, branch=env.BRANCH_NAME) {
                   |      steps:
                   |        - script: 'ls -la'""".stripMargin()
   branch = checkBranch(yml,branch)
-  assert branch : """|Unable to determine steps to take for branch ${env.BRANCH_NAME}
+  assert branch : """|Unable to determine branch pattern for ${env.BRANCH_NAME}
                      |----------------------------------------
                      |Please ensure your yml file contains a section under tools.branches.patterns
                      |pipelines:
