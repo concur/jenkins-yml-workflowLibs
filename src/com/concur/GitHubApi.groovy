@@ -114,7 +114,7 @@ def createPullRequest(title,
 
   def currentPullRequest = getPullRequests(org, repo, fromBranch, toBranch)
   if (currentPullRequest.any()) {
-    concurPipeline.debugPrint("WorkflowLibs :: GitHubApi :: createPullRequest", [ "msg": "PR exists", "data": currentPullRequest ])
+    concurPipeline.debugPrint(["msg": "PR exists", "data": currentPullRequest ])
     if (currentPullRequest instanceof ArrayList) {
       return currentPullRequest[0]
     } else {

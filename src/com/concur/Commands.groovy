@@ -43,10 +43,7 @@ def runSteps(yml, branch=env.BRANCH_NAME) {
                      |        feature: .+
                      |        """.stripMargin()
 
-  debugPrint("WorkflowLibs :: Commands :: runSteps", [
-    "branch": branch,
-    "yml": yml,
-  ])
+  debugPrint(["branch": branch, "yml": yml,])
 
   def workflows = yml.branches?."$branch"?.steps
 
@@ -101,11 +98,7 @@ private executeWorkflow(workflow, yml) {
       def stageStart = System.currentTimeMillis()
       try {
         def params = step[stepName]
-        debugPrint('WorkflowLibs :: Commands :: executeWorkflows :: parameterized step', [
-          'workflowName': workflowName,
-          'stepName': stepName,
-          'params': params
-        ])
+        debugPrint(['workflowName': workflowName, 'stepName': stepName, 'params': params])
         def stageName = getStageName(workflowFile, stages, workflowName, stepName, yml, params)
         stage(stageName) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
@@ -119,7 +112,7 @@ private executeWorkflow(workflow, yml) {
 }
 
 private executeParameterizedStep(workflow, sectionName, stepName, stepValues, yml) {
-  debugPrint('WorkflowLibs :: Commands :: executeParameterizedStep :: parameters', [
+  debugPrint([
     'workflow'    :workflow,
     'sectionName' : sectionName,
     'stepName'    :stepName,
@@ -130,12 +123,10 @@ private executeParameterizedStep(workflow, sectionName, stepName, stepValues, ym
   Boolean singleMap = workflow.metaClass.respondsTo(workflow, stepName, Map)
 
   if (doubleMap) {
-    debugPrint('WorkflowLibs :: Commands :: executeParameterizedStep',
-      "Executing ${stepName} with yml and args".center(80, '-'))
+    debugPrint("Executing ${stepName} with yml and args".center(80, '-'))
     workflow."${stepName}"(yml, stepValues)
   } else if (singleMap) {
-    debugPrint('WorkflowLibs :: Commands :: executeParameterizedStep',
-      "Executing ${stepName} with only yml".center(80, '-'))
+    debugPrint("Executing ${stepName} with only yml".center(80, '-'))
     workflow."${stepName}"(yml)
   } else {
     error("""|Error while trying to execute workflow step: ${stepName}
@@ -203,12 +194,12 @@ private loadWorkflows(fileName, yml) {
 
   assert fileName : "fileName field has an invalid value."
 
-  debugPrint('WorkflowLibs :: Commands :: loadWorkflows', ['fileName' : fileName, 'repo' : repo, 'branch' : branch, 'credentialCriteria' : credentialCriteria])
+  debugPrint(['fileName' : fileName, 'repo' : repo, 'branch' : branch, 'credentialCriteria' : credentialCriteria])
 
   fileName = "${fileName}.groovy"
   def localFile = "${workflowDir}/${fileName}"
   def localFileExists = fileExists "${localFile}"
-  debugPrint('WorkflowLibs :: Commands :: loadWorkflows', ['localFile' : localFile,'localFileExists' : localFileExists])
+  debugPrint(['localFile' : localFile,'localFileExists' : localFileExists])
 
   def workflow
 
@@ -219,7 +210,7 @@ private loadWorkflows(fileName, yml) {
     // only search for credential if needed
     def credentialsId = getCredentialsWithCriteria(credentialCriteria).id
     assert credentialsId
-    debugPrint('WorkflowLibs :: Commands :: loadWorkflows :: credentials', credentialsId)
+    debugPrint(credentialsId)
     workflow = fileLoader.fromGit(fileName,repo, branch, credentialsId, nodeLabel)
   }
   assert workflow : "Workflow file ${fileName} not found or unable to load from remote repo."
@@ -246,11 +237,7 @@ def checkBranch(yml, branch=env.BRANCH_NAME) {
     branch.matches(it.value)
   }.key
 
-  debugPrint("WorkflowLibs :: Commands :: checkBranch", [
-    'branch'    : branch,
-    'patterns'  : patterns,
-    'branchType': branchType
-  ])
+  debugPrint(['branch' : branch, 'patterns' : patterns, 'branchType': branchType])
 
   return branchType
 }
@@ -273,7 +260,7 @@ def checkBranch(yml, branch=env.BRANCH_NAME) {
 */
 def getCredentialsWithCriteria(criteria) {
 
-  debugPrint("WorkflowLibs :: Commands :: getCredentialsWithCriteria", criteria)
+  debugPrint(criteria)
 
   // Make sure properties isn't empty
   assert criteria : "No criteria provided."
@@ -301,7 +288,7 @@ def getCredentialsWithCriteria(criteria) {
     try {
       for(n in getFolderCredentials(folderName)) {
         folderCreds << n
-        debugPrint("WorkflowLibs :: Commands :: getCredentialsWithCriteria", folderCreds)
+        debugPrint(folderCreds)
       }
     } catch (Exception e) { }
   }
@@ -436,7 +423,7 @@ def isDebug() {
   new com.concur.Commands().debugPrint('workflows :: docker', ['docker image name : ${dockerImageName}'])
   new com.concur.Commands().debugPrint('workflows :: docker', ['docker image name': dockerImageName])
  */
-def debugPrint(title, msgdata, requiredDebugLevel=1, debugMode=null) {
+def debugPrint(msgdata, requiredDebugLevel=1, debugMode=null) {
   if (debugMode == null) {
     debugMode = isDebug()
   }
@@ -444,7 +431,8 @@ def debugPrint(title, msgdata, requiredDebugLevel=1, debugMode=null) {
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
     }
-    println "### \u001B[35mDebug output for ${title}\u001B[0m ###"
+    def callingMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[2]
+    println "### \u001B[35mDebug output for [WorkflowLibs :: ${callingMethod.declaringClass} :: ${callingMethod.methodName} :: Line ${callingMethod.lineNumber}]\u001B[0m ###"
     if (msgdata instanceof Map) {
       msgdata.each { data ->
         println "### \u001B[35mDebug >>> ${data.key}: ${data.value}\u001B[0m"

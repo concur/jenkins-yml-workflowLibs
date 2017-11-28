@@ -26,22 +26,22 @@ def runGitShellCommand(gitCommand, winGitCommand, outfileName = 'file.tmp') {
   }
   if(isUnix()) {
     def command = "${gitCommand} > ${outfileName}"
-    concurPipeline.debugPrint("WorkflowLibs :: Git :: runGitShellCommand :: Linux", ['command': command])
+    concurPipeline.debugPrint(['command': command])
     sh command
   } else {
     def pwd = pwd()
     def command = "[System.IO.File]::WriteAllLines('${pwd}\\${outfileName}', \$(${winGitCommand}))"
-    concurPipeline.debugPrint("WorkflowLibs :: Git :: runGitShellCommand :: Windows", ['command': command])
+    concurPipeline.debugPrint(['command': command])
     bhPsh command
   }
   def fileContents = readFile outfileName
-  concurPipeline.debugPrint("WorkflowLibs :: Git :: readFile in runGitShellCommand", ["fileContents": fileContents])
+  concurPipeline.debugPrint(["fileContents": fileContents])
   return fileContents
 }
 
 // Save git properties to environment variables
 def saveGitProperties(scmVars) {
-  concurPipeline.debugPrint('WorkflowLibs :: Git :: saveGitProperties', "Getting info on Git commit")
+  concurPipeline.debugPrint("Getting info on Git commit")
 
   gitCommands = [
     'GIT_SHORT_COMMIT'    : 'git rev-parse --short HEAD',
@@ -70,7 +70,7 @@ def saveGitProperties(scmVars) {
       * GIT_PREVIOUS_SUCCESSFUL_COMMIT
       * GIT_URL
       */
-    concurPipeline.debugPrint('WorkflowLibs :: Git :: saveGitProperties', ['scmVars': scmVars])
+    concurPipeline.debugPrint(['scmVars': scmVars])
     scmVars.each { k, v ->
       env."${k}" = v
     }

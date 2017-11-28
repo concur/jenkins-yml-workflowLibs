@@ -18,7 +18,7 @@ def call(body) {
   def concurPipeline  = new Commands()
   def gitPipeline     = new Git()
 
-  concurPipeline.debugPrint('WorkflowLibs :: plGithubCheckout :: Custom', [
+  concurPipeline.debugPrint([
     'repo': config.repo,
     'credentials': config.credentials,
     'withSubmodules': config.withSubmodules
@@ -28,10 +28,10 @@ def call(body) {
 
   // Get the project
   if (repo != null && credentials != null) {
-    concurPipeline.debugPrint('WorkflowLibs :: plGithubCheckout :: Custom', "Checking out ${repo}")
+    concurPipeline.debugPrint("Checking out ${repo}")
     git credentialsId: credentials, url: repo
   } else if (withSubmodules) {
-    concurPipeline.debugPrint('WorkflowLibs :: plGithubCheckout :: withSubmodules', 'Checking out scm with submodules')
+    concurPipeline.debugPrint('Checking out scm with submodules')
     scmVars = checkout changelog: false,
         scm: [$class: 'GitSCM',
               branches: scm.branches,
@@ -48,7 +48,7 @@ def call(body) {
               userRemoteConfigs: scm.userRemoteConfigs
         ]
   } else {
-    concurPipeline.debugPrint('WorkflowLibs :: plGithubCheckout :: basic', 'Basic checkout from GitHub')
+    concurPipeline.debugPrint('Basic checkout from GitHub')
     scmVars = checkout scm
   }
   gitPipeline.saveGitProperties(scmVars)

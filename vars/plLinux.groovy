@@ -12,7 +12,7 @@ def call(duration = 1, unit = "HOURS", workspaceClean=true, Closure body) {
 
     timeout(time: duration, unit: unit.toUpperCase()) {
       ansiColor('xterm') {
-        concurPipeline.debugPrint("bhLinux", ['duration' : duration, 'unit' : unit])
+        concurPipeline.debugPrint(['duration' : duration, 'unit' : unit])
         String linuxWS = pwd()
         try {
           body()

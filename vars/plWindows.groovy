@@ -11,7 +11,7 @@ def call(duration = 1, unit = "HOURS", workspaceClean=true, Closure body) {
     assert (unit instanceof String) : "unit must be a String"
     timeout(time: duration, unit: unit.toUpperCase()) {
       ansiColor('xterm') {
-        concurPipeline.debugPrint("WorkflowLibs :: bhWindows", ['duration' : duration, 'unit' : unit])
+        concurPipeline.debugPrint(['duration' : duration, 'unit' : unit])
         def dirName = "C:\\jenkins\\workspace\\${UUID.randomUUID().toString().take(18)}"
         echo "\u2756 Using \u001B[35m ${dirName} \u001B[0m as the path for the workspace."
         try {

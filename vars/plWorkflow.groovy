@@ -31,7 +31,7 @@ def call(body) {
 
     println "Loading pipeline data file."
     def yml = concurPipeline.getPipelineDataFile(pipelineDataFilePath)
-    concurPipeline.debugPrint('WorkflowLibs :: plWorkflow :: Parameters', [
+    concurPipeline.debugPrint([
       'nodeType'        : nodeType,
       'yamlPath'        : pipelineDataFilePath,
       'cleanWorkspace'  : cleanWorkspace,
