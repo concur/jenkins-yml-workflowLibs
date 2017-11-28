@@ -431,7 +431,7 @@ def debugPrint(msgdata, requiredDebugLevel=1, debugMode=null) {
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
     }
-    def callingMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[2]
+    def callingMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
     println "### \u001B[35mDebug output for [WorkflowLibs :: ${callingMethod.declaringClass} :: ${callingMethod.methodName} :: Line ${callingMethod.lineNumber}]\u001B[0m ###"
     if (msgdata instanceof Map) {
       msgdata.each { data ->
