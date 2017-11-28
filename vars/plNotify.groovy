@@ -42,7 +42,7 @@ def call(buildStatus, useAttachments, channel = '', token = '', domain = env.DEF
   if (buildStatus == 'STARTED') {
     colorCode = '#87CEEB'
     subject   = "${buildStatus}\n"
-    summary   = "${subject}*Build Number* <${env.BUILD_URL}|${env.BUILD_NUMBER}> started on *${env.JENKINS_URL.replaceAll('/$', "")}* for branch *${env.BRANCH_NAME}*"
+    summary   = "${subject}*Build Number* <${env.BUILD_URL}|${env.BUILD_NUMBER}> started on ${env.JENKINS_URL.replaceAll('/$', "")} for branch *${env.BRANCH_NAME}*"
   } else if (buildStatus == 'SUCCESS') {
     colorCode = '#3CB371'
   } else {
