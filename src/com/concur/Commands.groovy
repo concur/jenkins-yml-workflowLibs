@@ -105,7 +105,7 @@ private executeWorkflow(workflow, yml) {
         }
       } catch(e) {
         currentBuild.result = 'FAILED'
-        throw e
+        error("Encountered an error while executing: ${workflowName}: ${stepName}\n\n${e}")
       }
     }
   }
