@@ -434,10 +434,10 @@ def debugPrint(msgdata, requiredDebugLevel=1, debugMode=null) {
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
     def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
-    println "### \u001B[35mDebug output for [\u001B[36m${title}\u001B[35m]\u001B[0m ###"
+    println "### \u001B[35mDebug output for [\u001B[34m${title}\u001B[35m]\u001B[0m ###"
     if (msgdata instanceof Map) {
       msgdata.each { data ->
-        println "### \u001B[35mDebug >>> \u001B[34m${data.key}: ${data.value}\u001B[0m"
+        println "### \u001B[35mDebug >>> \u001B[36m${data.key}: ${data.value}\u001B[0m"
       }
     } else if (msgdata instanceof List) {
       msgdata.each { msg ->
