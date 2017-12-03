@@ -109,8 +109,8 @@ private executeWorkflow(workflow, yml) {
         error("Encountered an error while executing: ${workflowName}: ${stepName}\n\n${e}")
       } finally {
         def stageEnd = System.currentTimeMillis()
-        def stageTime = stageEnd - stageStart
-        println "Stage [${stageName}] took (${stageTime})"
+        def stageTime = (stageEnd - stageStart)/1000
+        println "Stage [${stageName}] took ${stageTime} seconds"
       }
     }
   }
