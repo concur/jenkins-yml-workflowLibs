@@ -96,16 +96,21 @@ private executeWorkflow(workflow, yml) {
     section.value.each { step ->
       def stepName = step instanceof Map ? step.keySet().first() : step
       def stageStart = System.currentTimeMillis()
+      def stageName = ""
       try {
         def params = step[stepName]
         debugPrint(['workflowName': workflowName, 'stepName': stepName, 'params': params])
-        def stageName = getStageName(workflowFile, stages, workflowName, stepName, yml, params)
+        stageName = getStageName(workflowFile, stages, workflowName, stepName, yml, params)
         stage(stageName) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
       } catch(e) {
         currentBuild.result = 'FAILED'
         error("Encountered an error while executing: ${workflowName}: ${stepName}\n\n${e}")
+      } finally {
+        def stageEnd = System.currentTimeMillis()
+        def stageTime = stageEnd - stageStart
+        println "Stage [${stageName}] took (${stageTime})"
       }
     }
   }
