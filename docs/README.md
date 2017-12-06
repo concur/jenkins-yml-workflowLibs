@@ -30,6 +30,12 @@ This must be added as a global pipeline library in Jenkins.
 
 We use lookups for credentials instead of hardcoding credential IDs. This ensures if the Jenkins master has to be rebuilt from scratch jobs will not fail due to the credential no longer existing.
 
+### Workflows (jenkins-workflows) vs WorkflowLibs (jenkins-yml-workflowLibs)
+
+WorkflowLibs are a set of common code snippets that can be used accross many workflows, this could encapsulate code for publishing artifacts to Artifactory or Nexus, or it could be a method for replacing text in a string.
+
+Workflows are a series of steps for working with tools. We group the steps by overall tool, for instance Glide is a dependency manager for Golang so the steps for interacting with it are in the golang.groovy file.
+
 ## Contributing
 
 See our [contributing](/docs/CONTRIBUTING.md) guide.

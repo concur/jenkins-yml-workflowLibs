@@ -25,3 +25,23 @@ def parseYAML(stringContent) {
   assert utilityStepsAvailable : "Please ensure the [Pipeline Utility Steps] plugin is installed in Jenkins."
   return readYaml(text: stringContent)
 }
+
+// Text Replacement/Transformations
+private addCommonReplacements(providedOptions) {
+  // this will replace the existing map with everything from providedOptions
+  return (env.getEnvironment() << providedOptions)
+}
+
+def mustacheReplaceAll(str, replaceOptions=[:]) {
+  if (!str) { return "" }
+  replaceOptions = addCommonReplacements(replaceOptions)
+  new ConcurCommands().debugPrint(['replacements': replaceOptions, 'originalString': str])
+  replaceOptions.each { option ->
+    // if the value is null do not attempt a replacement
+    if (option.value) {
+      def pattern = ~/\{\{(?: )?(?i)${option.key}(?: )?\}\}/
+      str = str.replaceAll(pattern, option.value)
+    }
+  }
+  return str
+}

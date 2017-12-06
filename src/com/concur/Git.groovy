@@ -76,3 +76,103 @@ def saveGitProperties(scmVars) {
     }
   }
 }
+
+def getVersion(version = '0.1', scheme = "semantic", ignorePrevious = false) {
+  if (env.BUILDHUB_VERSION) {
+    println "Returning previously determined version."
+    return env.BUILDHUB_VERSION
+  }
+  try {
+    def outfileName = "version.tmp"
+    def gitCommand = 'git tag --sort -v:refname | head -1'
+    def winGitCommand = "\$(${gitCommand})[0]"
+
+    def tag = runGitShellCommand(gitCommand, winGitCommand, outfileName)
+
+    def buildNumber = timeSinceLatestTag()
+    if (tag == null || tag.size() == 0) {
+      println "no existing tag found using version ${version}.${buildNumber}"
+      env.BUILDHUB_VERSION = "${version}.${buildNumber}"
+      return "${version}.${buildNumber}"
+    }
+    // Getting the tag to check versioning scheme
+    tag = tag.replaceAll("\\s+","")
+
+    println "Tag: ${tag}"
+    println """Testing to see what versioning scheme is used on the previous tag and compare that to the ${version} option passed in
+          To force a different scheme than what was previously used, set the ignorePrevious option to true."""
+
+    String semverPatternString = '(?i)\\b(?<prefix>v)?(?<major>0|[1-9]\\d*)(?:\\.(?<minor>0|[1-9]\\d*)(?:\\.(?<patch>0|[1-9]\\d*))?)?(?:-(?<prerelease>[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*))?(?:\\+(?<build>[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*))?\\b'
+    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(semverPatternString)
+    // List of different versioning scheme regex patters to match against
+    def semver = pattern.matcher(tag)
+    println "Semver: " + semver
+    println "Semver matches: " + semver.matches()
+
+    // Checks to see if the version is compatible with Semantic versioning.
+    if (semver.matches()) { //new
+      println "Version ${tag} is semver compatible"
+      def tagPrefix = semver.group('prefix') ?: ''
+      def tagMajorVersion = semver.group('major') as int
+      def tagMinorVersion = ((semver.group('minor') ?: -1) as int) + 1 //Setting the value to -1 allows for a zero version
+      def tagPatchVersion = (semver.group('patch') ?: 0) as int
+      def retVersion = "${tagPrefix}${tagMajorVersion}.${tagMinorVersion}.${tagPatchVersion}-${buildNumber}"
+
+      println "Testing to see if current version ${version} is semver compatible"
+
+      def ver = pattern.matcher(version.trim())
+      if (ver.matches() && (version != '0.1.0')) {
+        println "Current version ${version} is semver compatible"
+        def prefix = ver.group('prefix') ?: ''
+        def majorVersion = ver.group('major') as int
+        def minorVersion = (ver.group('minor') ?: 0) as int
+        def patchVersion = (ver.group('patch') ?: 0) as int
+
+        if (majorVersion > tagMajorVersion ||
+          (majorVersion == tagMajorVersion &&
+            (minorVersion > tagMinorVersion) || (minorVersion == tagMinorVersion && patchVersion > tagPatchVersion)
+          )
+        ) {
+          println "Version is now ${version}. Using what was passed in."
+          retVersion = "${prefix}${majorVersion}.${minorVersion}.${patchVersion}-${buildNumber}"
+        }
+      }
+      env.BUILDHUB_VERSION = retVersion
+      return retVersion
+    }
+  } catch (e) {
+    error("""
+    |Unable to version. Please make sure your version type is correct and that you passed in the correct parameters.\n
+    |### Parameter Usage ###
+    |scheme - The versioning scheme to use, i.e. semantic, alphanumeric, date, etc...
+    |version - Version to use in this release, assuming that you don't want auto incrementing (Not implemented yet)
+    |ignorePrevious - Don't look at the last tag released and compare it to make sure you're incrementing (Not |implemented yet)\n
+    |### Parameters Used ###
+    |scheme: ${scheme}
+    |version: ${version}
+    |ignorePrevious: ${ignorePrevious}
+    """.stripMargin())
+  }
+}
+
+def timeSinceLatestTag() {
+  def outfileName = 'tags_date.txt'
+  def linuxGitCommand = 'git log --pretty="format:%ci" $(git tag --sort -v:refname) | head -1'
+  def winGitCommand = '$(git log --pretty="format:%ci" $(git tag --sort -v:refname))[0]'
+  def tagDateString = runGitShellCommand(linuxGitCommand, winGitCommand, outfileName)
+
+  concurPipeline.debugPrint("WorkflowLibs :: Git :: timeSinceLatestTag", ["Git tag data": tagDateString])
+
+  def tagDate = concurUtils.dateFromString(tagDateString)
+  def now = new Date()
+
+  def duration = groovy.time.TimeCategory.minus(now, tagDate)
+  concurPipeline.debugPrint("WorkflowLibs :: Git :: timeSinceLatestTag",
+    [
+      "duration": duration,
+      "type": duration.getClass()
+    ])
+  // pad these so that the length is consistent, this should also make things easier to read
+  def chunkedMilliseconds = duration.toMilliseconds().toString()
+  return chunkedMilliseconds
+}
