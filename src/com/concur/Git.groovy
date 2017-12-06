@@ -161,17 +161,16 @@ def timeSinceLatestTag() {
   def winGitCommand = '$(git log --pretty="format:%ci" $(git tag --sort -v:refname))[0]'
   def tagDateString = runGitShellCommand(linuxGitCommand, winGitCommand, outfileName)
 
-  concurPipeline.debugPrint("WorkflowLibs :: Git :: timeSinceLatestTag", ["Git tag data": tagDateString])
+  concurPipeline.debugPrint(["Git tag data": tagDateString])
 
   def tagDate = concurUtils.dateFromString(tagDateString)
   def now = new Date()
 
   def duration = groovy.time.TimeCategory.minus(now, tagDate)
-  concurPipeline.debugPrint("WorkflowLibs :: Git :: timeSinceLatestTag",
-    [
-      "duration": duration,
-      "type": duration.getClass()
-    ])
+  concurPipeline.debugPrint([
+    "duration": duration,
+    "type": duration.getClass()
+  ])
   // pad these so that the length is consistent, this should also make things easier to read
   def chunkedMilliseconds = duration.toMilliseconds().toString()
   return chunkedMilliseconds
