@@ -33,7 +33,6 @@ def call(body) {
     concurPipeline.debugPrint([
       'nodeType'        : nodeType,
       'yamlPath'        : pipelineDataFilePath,
-      'cleanWorkspace'  : cleanWorkspace,
       'notify'          : slackNotify,
       'useSubmodules'   : gitSubmodules,
       'timeoutDuration' : timeoutDurationInt,
