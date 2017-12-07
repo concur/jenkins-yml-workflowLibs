@@ -453,7 +453,7 @@ def isDebug() {
   new com.concur.Commands().debugPrint(['docker image name: ${dockerImageName}'])
   new com.concur.Commands().debugPrint(['docker image name': dockerImageName])
  */
-def debugPrint(Map msgdata, Int requiredDebugLevel=1, Bool debugMode=isDebug()) {
+def debugPrint(Map msgdata, int requiredDebugLevel=1, Bool debugMode=isDebug()) {
   if (debugMode == null) {
     debugMode = isDebug()
   }
@@ -472,7 +472,7 @@ def debugPrint(Map msgdata, Int requiredDebugLevel=1, Bool debugMode=isDebug()) 
   }
 }
 
-def debugPrint(List msgdata, Int requiredDebugLevel=1, Bool debugMode=isDebug()) {
+def debugPrint(List msgdata, int requiredDebugLevel=1, Bool debugMode=isDebug()) {
   if (debugMode == null) {
     debugMode = isDebug()
   }
@@ -491,7 +491,7 @@ def debugPrint(List msgdata, Int requiredDebugLevel=1, Bool debugMode=isDebug())
   }
 }
 
-def debugPrint(String msgdata, Int requiredDebugLevel=1, Bool debugMode=isDebug()) {
+def debugPrint(String msgdata, int requiredDebugLevel=1, Bool debugMode=isDebug()) {
   if (debugMode == null) {
     debugMode = isDebug()
   }
