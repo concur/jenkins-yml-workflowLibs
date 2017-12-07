@@ -209,14 +209,22 @@ private loadWorkflows(fileName, yml) {
   def workflow
 
   if (localFileExists) {
-    workflow = load localFile
+    try {
+      workflow = load localFile
+    } catch (java.io.NotSerializableException nse) {
+      error("Error loading workflow, this is most likely to be caused by a syntax error in the groovy file.")
+    }
   } else {
     assert repo : "Repo to checkout for workflows not set under tools.jenkins.workflows.repo or as the environment variable: WORKFLOW_REPOSITORY."
     // only search for credential if needed
     def credentialsId = getCredentialsWithCriteria(credentialCriteria).id
     assert credentialsId
     debugPrint(credentialsId)
-    workflow = fileLoader.fromGit(fileName,repo, branch, credentialsId, nodeLabel)
+    try {
+      workflow = fileLoader.fromGit(fileName,repo, branch, credentialsId, nodeLabel)
+    } catch (java.io.NotSerializableException nse) {
+      error("Error loading workflow, this is most likely to be caused by a syntax error in the groovy file.")
+    }
   }
   assert workflow : "Workflow file ${fileName} not found or unable to load from remote repo."
 
