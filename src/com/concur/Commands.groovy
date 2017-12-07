@@ -445,9 +445,7 @@ def getPipelineDataFile(String fileName = 'pipelines.yml', String format = 'yml'
 
 // check the environment to see if we are in debug mode
 def isDebug() {
-  def enabled = env.DEBUG_MODE?.toBoolean() ?: false
-  println "Debug mode is ${enabled ? 'enabled' : 'disabled'}"
-  return enabled
+  return env.DEBUG_MODE?.toBoolean() ?: false
 }
 
 /* usage examples
@@ -456,15 +454,12 @@ def isDebug() {
   new com.concur.Commands().debugPrint(['docker image name': dockerImageName])
  */
 public debugPrint(Map msgdata, int requiredDebugLevel=1, Boolean debugMode=null) {
-  println "Debug Print with Map"
   if (debugMode == null) {
     debugMode = isDebug()
   }
   if (debugMode) {
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
-    } else {
-      println "Not at the correct debug level"
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
@@ -474,18 +469,16 @@ public debugPrint(Map msgdata, int requiredDebugLevel=1, Boolean debugMode=null)
       println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data.key}: ${data.value}${Constants.Strings.clearColor}"
     }
     println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
-  } else {
-    println "debug mode is disabled"
   }
 }
 
-public debugPrint(List msgdata, int requiredDebugLevel=1, Boolean debugMode=isDebug()) {
-  println "Debug Print with List"
+public debugPrint(List msgdata, int requiredDebugLevel=1, Boolean debugMode=null) {
+  if (debugMode == null) {
+    debugMode = isDebug()
+  }
   if (debugMode) {
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
-    } else {
-      println "Not at the correct debug level"
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
@@ -495,18 +488,16 @@ public debugPrint(List msgdata, int requiredDebugLevel=1, Boolean debugMode=isDe
       println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data}${Constants.Strings.clearColor}"
     }
     println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
-  } else {
-    println "debug mode is disabled"
   }
 }
 
-public debugPrint(String msgdata, int requiredDebugLevel=1, Boolean debugMode=isDebug()) {
-  println "Debug Print with String"
+public debugPrint(String msgdata, int requiredDebugLevel=1, Boolean debugMode=null) {
+  if (debugMode == null) {
+    debugMode = isDebug()
+  }
   if (debugMode) {
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
-    } else {
-      println "Not at the correct debug level"
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
@@ -514,7 +505,5 @@ public debugPrint(String msgdata, int requiredDebugLevel=1, Boolean debugMode=is
     println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
     println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${msgdata}${Constants.Strings.clearColor}"
     println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
-  } else {
-    println "debug mode is disabled"
   }
 }
