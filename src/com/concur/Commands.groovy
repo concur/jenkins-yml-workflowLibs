@@ -456,12 +456,11 @@ def isDebug() {
   new com.concur.Commands().debugPrint(['docker image name': dockerImageName])
  */
 def debugPrint(Map msgdata, int requiredDebugLevel=1, Boolean debugMode=isDebug()) {
-  if (debugMode == null) {
-    debugMode = isDebug()
-  }
   if (debugMode) {
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
+    } else {
+      println "Not at the correct debug level"
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
@@ -471,16 +470,17 @@ def debugPrint(Map msgdata, int requiredDebugLevel=1, Boolean debugMode=isDebug(
       println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data.key}: ${data.value}${Constants.Strings.clearColor}"
     }
     println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
+  } else {
+    println "debug mode is disabled"
   }
 }
 
 def debugPrint(List msgdata, int requiredDebugLevel=1, Boolean debugMode=isDebug()) {
-  if (debugMode == null) {
-    debugMode = isDebug()
-  }
   if (debugMode) {
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
+    } else {
+      println "Not at the correct debug level"
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
@@ -490,16 +490,17 @@ def debugPrint(List msgdata, int requiredDebugLevel=1, Boolean debugMode=isDebug
       println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data}${Constants.Strings.clearColor}"
     }
     println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
+  } else {
+    println "debug mode is disabled"
   }
 }
 
 def debugPrint(String msgdata, int requiredDebugLevel=1, Boolean debugMode=isDebug()) {
-  if (debugMode == null) {
-    debugMode = isDebug()
-  }
   if (debugMode) {
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
+    } else {
+      println "Not at the correct debug level"
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
@@ -507,5 +508,7 @@ def debugPrint(String msgdata, int requiredDebugLevel=1, Boolean debugMode=isDeb
     println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
     println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${msgdata}${Constants.Strings.clearColor}"
     println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
+  } else {
+    println "debug mode is disabled"
   }
 }
