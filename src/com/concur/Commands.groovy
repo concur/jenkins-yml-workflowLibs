@@ -445,7 +445,9 @@ def getPipelineDataFile(String fileName = 'pipelines.yml', String format = 'yml'
 
 // check the environment to see if we are in debug mode
 def isDebug() {
-  return env.DEBUG_MODE?.toBoolean() ?: false
+  def enabled = env.DEBUG_MODE?.toBoolean() ?: false
+  println "Debug mode is ${enabled ? 'enabled' : 'disabled'}"
+  return enabled
 }
 
 /* usage examples
