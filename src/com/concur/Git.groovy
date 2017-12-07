@@ -77,7 +77,7 @@ def saveGitProperties(Map scmVars) {
   }
 }
 
-def getVersion(String version = '0.1', String scheme = "semantic", Bool ignorePrevious = false) {
+def getVersion(String version = '0.1', String scheme = "semantic", Boolean ignorePrevious = false) {
   if (env.BUILDHUB_VERSION) {
     println "Returning previously determined version."
     return env.BUILDHUB_VERSION

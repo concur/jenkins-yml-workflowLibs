@@ -10,7 +10,7 @@ import org.jenkinsci.plugins.github_branch_source.GitHubConfiguration;
 
 // Use this if you are making a request to Concur's central GitHub server, endpoint should be anything after api/v3
 def githubRequestWrapper(String method, String endpoint, Map postData=null, Map additionalHeaders=null,
-                         String credentialsId='', Bool outputResponse=false, Bool ignoreErrors=false) {
+                         String credentialsId='', Boolean outputResponse=false, Boolean ignoreErrors=false) {
   def githubApiUri = getGithubApiUrl()
   endpoint = "${githubApiUri}${endpoint}"
   if (outputResponse == null) {
@@ -100,7 +100,7 @@ def createPullRequest(String title,
                       String org,
                       String repo,
                       String summary='Created by Buildhub',
-                      Bool maintainer_can_modify=true) {
+                      Boolean maintainer_can_modify=true) {
   assert org        : "Cannot create a pull request without specifying a GitHub organization."
   assert repo       : "Cannot create a pull request without specifying a GitHub repository."
   assert title      : "Cannot create a pull request without specifying a title."
