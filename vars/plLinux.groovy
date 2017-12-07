@@ -1,6 +1,6 @@
 #!/usr/bin/groovy
 // vars/bhLinux.groovy
-def call(duration = 1, unit = "HOURS", workspaceClean=true, Closure body) {
+def call(duration = 1, unit = "HOURS", Closure body) {
 
   def concurPipeline = new com.concur.Commands()
 
@@ -21,13 +21,14 @@ def call(duration = 1, unit = "HOURS", workspaceClean=true, Closure body) {
           throw e
         } finally {
           // Mount the workspace in the docker container.
-          if (workspaceClean) {
+          try {
+            cleanWs
+          } catch (e) {
+            println "Failed to clean workspace, trying a more heavy handed approach"
             assert linuxWS.startsWith('/var/lib/jenkins/workspace') : "Can't delete workspace. ${linuxWS} is an invalid workspace path"
             docker.image('alpine:3.5').inside('-u 0:0'){
               sh "find ${linuxWS} -and -not -path ${linuxWS} -delete"
             }
-          } else {
-            cleanWs notFailBuild: true
           }
         }
       }

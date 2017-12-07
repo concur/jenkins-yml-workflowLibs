@@ -13,7 +13,6 @@ def call(body) {
   def nodeType              = config.nodeType       ?: 'linux'
   def pipelineDataFilePath  = config.yamlPath       ?: 'pipelines.yml'
 
-  def cleanWorkspace        = config.cleanWorkspace     == null ? true : config.cleanWorkspace
   def slackNotify           = config.notify             == null ? true : config.notify
   def gitSubmodules         = config.useSubmodules      == null ? true : config.useSubmodules
   def timeoutDurationInt    = config.timeoutDuration
@@ -22,7 +21,7 @@ def call(body) {
   // local script variables
   def timedNode = nodeType.toLowerCase().equals('linux') ? plLinux : plWindows
 
-  timedNode timeoutDurationInt, timeoutUnitStr, cleanWorkspace, {
+  timedNode timeoutDurationInt, timeoutUnitStr, {
     stage ('git: checkout') {
       plGitHubCheckout {
         withSubmodules = gitSubmodules
