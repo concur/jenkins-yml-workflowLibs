@@ -447,18 +447,18 @@ def debugPrint(msgdata, requiredDebugLevel=1, debugMode=null) {
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
     def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
-    println "### ${Constants.debugColor}Debug output for [${Constants.debugTitleColor}${title}${Constants.debugColor}]${Constants.clearColor} ###"
+    println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
     if (msgdata instanceof Map) {
       msgdata.each { data ->
-        println "### ${Constants.debugColor}Debug >>> ${Constants.debugMsgColor}${data.key}: ${data.value}${Constants.clearColor}"
+        println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data.key}: ${data.value}${Constants.Strings.clearColor}"
       }
     } else if (msgdata instanceof List) {
       msgdata.each { msg ->
-        println "### ${Constants.debugColor}Debug >>> ${Constants.debugMsgColor}${data}${Constants.clearColor}"
+        println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data}${Constants.Strings.clearColor}"
       }
     } else {
-      println "### ${Constants.debugColor}Debug >>> ${Constants.debugMsgColor}${msgdata}${Constants.clearColor}"
+      println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${msgdata}${Constants.Strings.clearColor}"
     }
-    println "### ${Constants.debugColor}End Debug${Constants.clearColor} ###"
+    println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
   }
 }
