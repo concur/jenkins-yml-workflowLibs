@@ -1,6 +1,25 @@
 #!/usr/bin/env groovy
 package com.concur
 
+// ########################
+// # Date/Time Utils
+// ########################
+
+// default format is to match how a Git tag date is formatted
+def dateFromString(dateString, format = 'yyyy-MM-dd HH:mm:ss Z') {
+  def parsedDate = new java.text.SimpleDateFormat(format).parse(dateString)
+  new Commands().debugPrint([
+    'dateString': dateString,
+    'format': format,
+    'parsedDate': parsedDate
+  ])
+  return parsedDate
+}
+
+// ########################
+// # File Utils
+// ########################
+
 // JSON
 def parseJSON(stringContent) {
   assert stringContent : 'Unable to use parseJSON with no content'
@@ -24,6 +43,15 @@ def parseYAML(stringContent) {
   def utilityStepsAvailable = new com.concur.Commands().getPluginVersion('pipeline-utility-steps') ?: false
   assert utilityStepsAvailable : "Please ensure the [Pipeline Utility Steps] plugin is installed in Jenkins."
   return readYaml(text: stringContent)
+}
+
+// convert a string to lower-case kebab-case
+def kebab(s) {
+  return s.toLowerCase().replaceAll("[\\W_]+", "-").replaceAll("(^-*|-*\$)", '')
+}
+
+def replaceLast(text, regex, replacement) {
+  return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
 }
 
 // Text Replacement/Transformations
