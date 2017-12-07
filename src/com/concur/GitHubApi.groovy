@@ -9,8 +9,8 @@ import org.jenkinsci.plugins.github_branch_source.GitHubConfiguration;
 @Field def concurUtil = new com.concur.Util()
 
 // Use this if you are making a request to Concur's central GitHub server, endpoint should be anything after api/v3
-def githubRequestWrapper(method, endpoint, postData=null, additionalHeaders=null,
-                         credentialsId='', outputResponse=null, ignoreErrors=false) {
+def githubRequestWrapper(String method, String endpoint, Map postData=null, Map additionalHeaders=null,
+                         String credentialsId='', Bool outputResponse=false, Bool ignoreErrors=false) {
   def githubApiUri = getGithubApiUrl()
   endpoint = "${githubApiUri}${endpoint}"
   if (outputResponse == null) {
@@ -50,7 +50,7 @@ def getGithubApiUrl() {
  *
  *   @param url -  URL of the GitHub repository
 */
-def getGitHubOrgAndRepo(url = '') {
+def getGitHubOrgAndRepo(String url = '') {
   if (!url) {
     url = scm.remoteRepositories[0].uris[0].toString()
   }
@@ -74,7 +74,7 @@ def getGitHubOrgAndRepo(url = '') {
   ]
 }
 
-def getPullRequests(org, repo, fromBranch='', baseBranch='', state='open', sort='created', direction='desc') {
+def getPullRequests(String org, String repo, String fromBranch='', String baseBranch='', String state='open', String sort='created', String direction='desc') {
   assert org : "Cannot get available pull requests without specifying a GitHub organization"
   assert repo : "Cannot get available pull requests without specifying a GitHub repository"
   String endpoint = "/repos/${org}/${repo}/pulls"
@@ -94,13 +94,13 @@ def getPullRequests(org, repo, fromBranch='', baseBranch='', state='open', sort=
 }
 
 // https://developer.github.com/v3/pulls/#create-a-pull-request
-def createPullRequest(title,
-                      fromBranch,
-                      toBranch,
-                      org,
-                      repo,
-                      summary='Created by Buildhub',
-                      maintainer_can_modify=true) {
+def createPullRequest(String title,
+                      String fromBranch,
+                      String toBranch,
+                      String org,
+                      String repo,
+                      String summary='Created by Buildhub',
+                      Bool maintainer_can_modify=true) {
   assert org        : "Cannot create a pull request without specifying a GitHub organization."
   assert repo       : "Cannot create a pull request without specifying a GitHub repository."
   assert title      : "Cannot create a pull request without specifying a title."

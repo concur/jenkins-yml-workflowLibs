@@ -6,7 +6,7 @@ import groovy.transform.Field;
 @Field def concurPipeline = new Commands()
 
 // Get the commit SHA for the last file or folder changed.
-def getCommitSHA(folder) {
+def getCommitSHA(String folder = '.') {
   if (isUnix()) {
     return sh(returnStdout: true, script: "git log -n 1 --pretty=format:%H ${folder}").trim()
   } else {
@@ -15,12 +15,12 @@ def getCommitSHA(folder) {
   }
 }
 
-def getFilesChanged(commitSha=env.GIT_COMMIT) {
+def getFilesChanged(String commitSha=env.GIT_COMMIT) {
   def gitCommand = "git diff-tree --no-commit-id --name-only -r ${env.GIT_COMMIT}"
   return runGitShellCommand(gitCommand, gitCommand, 'files_changed.tmp').trim().tokenize('\n')
 }
 
-def runGitShellCommand(gitCommand, winGitCommand, outfileName = 'file.tmp') {
+def runGitShellCommand(String gitCommand, String winGitCommand, String outfileName = 'file.tmp') {
   if (winGitCommand == null) {
     winGitCommand = gitCommand
   }
@@ -40,7 +40,7 @@ def runGitShellCommand(gitCommand, winGitCommand, outfileName = 'file.tmp') {
 }
 
 // Save git properties to environment variables
-def saveGitProperties(scmVars) {
+def saveGitProperties(Map scmVars) {
   concurPipeline.debugPrint("Getting info on Git commit")
 
   gitCommands = [
@@ -77,7 +77,7 @@ def saveGitProperties(scmVars) {
   }
 }
 
-def getVersion(version = '0.1', scheme = "semantic", ignorePrevious = false) {
+def getVersion(String version = '0.1', String scheme = "semantic", Bool ignorePrevious = false) {
   if (env.BUILDHUB_VERSION) {
     println "Returning previously determined version."
     return env.BUILDHUB_VERSION

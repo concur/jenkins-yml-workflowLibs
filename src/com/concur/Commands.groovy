@@ -19,7 +19,7 @@ import org.codehaus.groovy.runtime.GStringImpl;
 // ########################
 
 // Run the workflow steps for the appropriate sections
-def runSteps(yml, branch=env.BRANCH_NAME) {
+def runSteps(Map yml, String branch=env.BRANCH_NAME) {
   assert yml : """|No YML contents provided. An example pipelines.yml file would look like this:
                   |------------------------------------------------------------------------------
                   |pipelines:
@@ -87,7 +87,7 @@ def runSteps(yml, branch=env.BRANCH_NAME) {
   }
 }
 
-private executeWorkflow(workflow, yml) {
+private executeWorkflow(Map workflow, Map yml) {
   def stages = []
   def stageNum = 0
   workflow.each { section ->
@@ -118,11 +118,12 @@ private executeWorkflow(workflow, yml) {
 
 private executeParameterizedStep(workflow, sectionName, stepName, stepValues, yml) {
   debugPrint([
-    'workflow'    :workflow,
-    'sectionName' : sectionName,
-    'stepName'    :stepName,
-    'stepValues'  :stepValues,
-    'yml'         :yml
+    'workflow'      : workflow,
+    'workflow.class': workflow.getClass(),
+    'sectionName'   : sectionName,
+    'stepName'      : stepName,
+    'stepValues'    : stepValues,
+    'yml'           : yml
   ])
   Boolean doubleMap = workflow.metaClass.respondsTo(workflow, stepName, Map, Map)
   Boolean singleMap = workflow.metaClass.respondsTo(workflow, stepName, Map)
@@ -171,7 +172,7 @@ private executeParameterizedStep(workflow, sectionName, stepName, stepValues, ym
   }
 }
 
-private getStageName(workflow, stages, workflowName, stepName, yml, args) {
+private getStageName(workflow, List stages, String workflowName, String stepName, Map yml, Map args) {
   def stageName
   Boolean canGenerate = workflow.metaClass.respondsTo(workflow, 'getStageName', Map, Map, String)
   if (canGenerate) {
@@ -190,7 +191,7 @@ private getStageName(workflow, stages, workflowName, stepName, yml, args) {
 }
 
 // Workflow loader
-private loadWorkflows(fileName, yml) {
+private loadWorkflows(String fileName, Map yml) {
   def repo                = yml.tools?.jenkins?.workflows?.repo         ?: env.WORKFLOW_REPOSITORY
   def branch              = yml.tools?.jenkins?.workflows?.branch       ?: yml.tools?.jenkins?.workflows?.tag ?: 'master'
   def credentialCriteria  = yml.tools?.jenkins?.workflows?.credentials  ?: ['description': env.WORKFLOW_GIT_CREDENTIAL_DESCRIPTION]
@@ -248,7 +249,7 @@ private loadWorkflows(fileName, yml) {
 }
 
 // Check branch pattern
-def checkBranch(yml, branch=env.BRANCH_NAME) {
+def checkBranch(Map yml, String branch=env.BRANCH_NAME) {
   assert yml    : "Couldn't find pipelines.yml."
   assert branch : "Branch name not set. This should typically be set by the environment as BRANCH_NAME. Please ensure this is being called within a node."
 
@@ -287,7 +288,7 @@ def checkBranch(yml, branch=env.BRANCH_NAME) {
 *
 * Other parameters can be passed and will be evaluated if they are properties of the credential type passed in the map
 */
-def getCredentialsWithCriteria(criteria) {
+def getCredentialsWithCriteria(Map criteria) {
 
   debugPrint(criteria)
 
@@ -364,7 +365,7 @@ def getCredentialsWithCriteria(criteria) {
 }
 
 // Get credentials for a given folder name
-private getFolderCredentials(folderName) {
+private getFolderCredentials(String folderName) {
   def folder = Jenkins.instance.getItemByFullName(folderName)
 
   AbstractFolder<?> folderAbs = AbstractFolder.class.cast(folder)
@@ -374,7 +375,7 @@ private getFolderCredentials(folderName) {
 
 // Convert to a serializable list
 @NonCPS
-def jenkinsMap(gmap){
+def jenkinsMap(Map gmap){
   def safeList = []
   gmap.each {
     safeList.add(new java.util.AbstractMap.SimpleImmutableEntry(it.key, it.value))
@@ -418,12 +419,12 @@ enum CredentialTypes {
 // ########################
 
 // get a version number for the provided plugin name
-def getPluginVersion(pluginShortName) {
+def getPluginVersion(String pluginShortName) {
   assert pluginShortName : "Plugin name must be provided."
   return Jenkins.getInstance().pluginManager.getPlugin("${pluginShortName}")?.getVersion()
 }
 
-def getPipelineDataFile(fileName = 'pipelines.yml', format = 'yml', baseNode = 'pipelines') {
+def getPipelineDataFile(String fileName = 'pipelines.yml', String format = 'yml', String baseNode = 'pipelines') {
   def fileContents = readFile fileName
   def dataMap = null
   switch(format.toLowerCase()) {
@@ -448,11 +449,11 @@ def isDebug() {
 }
 
 /* usage examples
-  new com.concur.Commands().debugPrint('workflows :: docker', 'building docker image ...')
-  new com.concur.Commands().debugPrint('workflows :: docker', ['docker image name : ${dockerImageName}'])
-  new com.concur.Commands().debugPrint('workflows :: docker', ['docker image name': dockerImageName])
+  new com.concur.Commands().debugPrint('building docker image ...')
+  new com.concur.Commands().debugPrint(['docker image name: ${dockerImageName}'])
+  new com.concur.Commands().debugPrint(['docker image name': dockerImageName])
  */
-def debugPrint(msgdata, requiredDebugLevel=1, debugMode=null) {
+def debugPrint(Map msgdata, Int requiredDebugLevel=1, Bool debugMode=isDebug()) {
   if (debugMode == null) {
     debugMode = isDebug()
   }
@@ -464,17 +465,45 @@ def debugPrint(msgdata, requiredDebugLevel=1, debugMode=null) {
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
     def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
     println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
-    if (msgdata instanceof Map) {
-      msgdata.each { data ->
-        println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data.key}: ${data.value}${Constants.Strings.clearColor}"
-      }
-    } else if (msgdata instanceof List) {
-      msgdata.each { msg ->
-        println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data}${Constants.Strings.clearColor}"
-      }
-    } else {
-      println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${msgdata}${Constants.Strings.clearColor}"
+    msgdata.each { data ->
+      println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data.key}: ${data.value}${Constants.Strings.clearColor}"
     }
+    println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
+  }
+}
+
+def debugPrint(List msgdata, Int requiredDebugLevel=1, Bool debugMode=isDebug()) {
+  if (debugMode == null) {
+    debugMode = isDebug()
+  }
+  if (debugMode) {
+    if (env.DEBUG_LEVEL <= requiredDebugLevel) {
+      return
+    }
+    // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
+    def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
+    def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
+    println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
+    msgdata.each { data ->
+      println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data}${Constants.Strings.clearColor}"
+    }
+    println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
+  }
+}
+
+def debugPrint(String msgdata, Int requiredDebugLevel=1, Bool debugMode=isDebug()) {
+  if (debugMode == null) {
+    debugMode = isDebug()
+  }
+  if (debugMode) {
+    if (env.DEBUG_LEVEL <= requiredDebugLevel) {
+      return
+    }
+    // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
+    def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
+    def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
+    println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
+    println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${msgdata}${Constants.Strings.clearColor}"
     println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
   }
 }

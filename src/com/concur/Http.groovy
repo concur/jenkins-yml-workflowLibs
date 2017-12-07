@@ -2,17 +2,17 @@
 package com.concur
 
 @NonCPS
-def addRequestHeader(k, v, map) {
+def addRequestHeader(String k, String v, String map) {
   map.add(['name': k, 'value': v])
 }
 
-def addToUriQueryString(uri, k, v) {
+def addToUriQueryString(String uri, String k, String v) {
   String key = java.net.URLEncoder.encode(k, "UTF-8")
   String value = java.net.URLEncoder.encode(v, "UTF-8")
   return uri.contains('?') ? "${uri}&${key}=${value}" : "${uri}?${key}=${value}"
 }
 
-def sendSlackMessage(slackData=[:]) {
+def sendSlackMessage(Map slackData=[:]) {
   new com.concur.Commands().debugPrint('workflowLibs :: sendSlackMessage', [
     'slackData'       : slackData,
     'slackData.class' : slackData.getClass()
