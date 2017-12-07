@@ -106,7 +106,7 @@ private executeWorkflow(workflow, yml) {
         }
       } catch(e) {
         currentBuild.result = 'FAILED'
-        error("Encountered an error while executing: ${workflowName}: ${stepName}\n\n${e}")
+        error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e}\n${e.getStackTrace()}")
       } finally {
         def stageEnd = System.currentTimeMillis()
         def stageTime = (stageEnd - stageStart)/1000
