@@ -207,12 +207,28 @@ private loadWorkflows(fileName, yml) {
   debugPrint(['localFile' : localFile,'localFileExists' : localFileExists])
 
   def workflow
-
   if (localFileExists) {
     try {
       workflow = load localFile
     } catch (java.io.NotSerializableException nse) {
-      error("Error loading workflow, this is most likely to be caused by a syntax error in the groovy file.")
+      error("""${Constants.Strings.failColor}
+              |Error loading workflow, this is most likely to be caused by a syntax error in the groovy file.
+              |-----------------------------------------------------------------------------------------------
+              |Common errors include missing/incomplete or incomplete syntax.
+              |Examples
+              |1. `def x =` # the var needs to be set to something
+              |2. `def s = 'this is a string" # Open and close quotes should match. Single quote should be used unless you are doing interpolation.
+              |-----------------------------------------------------------------------------------------------
+              |Defining variable named the same as an existing variable
+              |Examples
+              |1. `def v = 1; def v = 3; # rename second variable if both are needed or drop the def to reassign the existing variable
+              |2. `concurPipeline = new com.concur.Commands(); def concurPipeline = new com.concur.Commands(); # If def is not used variable is global.
+              |-----------------------------------------------------------------------------------------------
+              |Using a library function without importing. Using a function from workflowLibs without defining a variable.
+              |1. `concurUtil.mustacheReplaceAll("Commit SHA - {{ commit_sha }}") # Ensure a definition for concurUtil exists eg `def concurUtil = new com.concur.Util()`
+              |2. 'Yaml().load("<<string content>>")' # The Snake YAML library needs to be imported first eg `import org.yaml.snakeyaml.*;`
+              ${Constants.Strings.clearColor}
+              """.stripMargin())
     }
   } else {
     assert repo : "Repo to checkout for workflows not set under tools.jenkins.workflows.repo or as the environment variable: WORKFLOW_REPOSITORY."
@@ -223,7 +239,7 @@ private loadWorkflows(fileName, yml) {
     try {
       workflow = fileLoader.fromGit(fileName,repo, branch, credentialsId, nodeLabel)
     } catch (java.io.NotSerializableException nse) {
-      error("Error loading workflow, this is most likely to be caused by a syntax error in the groovy file.")
+      error("Failed to load a workflow from ${repo}, please create an issue on the project in GitHub.")
     }
   }
   assert workflow : "Workflow file ${fileName} not found or unable to load from remote repo."

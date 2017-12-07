@@ -7,5 +7,6 @@ public class Constants {
     public static String debugColor = "\u001B[35m"
     public static String debugMsgColor = "\u001B[36m"
     public static String debugTitleColor = "\u001B[34m"
+    public static String failColor = "\u001B[31m"
   }
 }

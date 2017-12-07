@@ -163,7 +163,7 @@ def timeSinceLatestTag() {
 
   concurPipeline.debugPrint(["Git tag data": tagDateString])
 
-  def tagDate = concurUtils.dateFromString(tagDateString)
+  def tagDate = new com.concur.Util().dateFromString(tagDateString)
   def now = new Date()
 
   def duration = groovy.time.TimeCategory.minus(now, tagDate)
