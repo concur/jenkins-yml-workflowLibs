@@ -455,8 +455,11 @@ def isDebug() {
   new com.concur.Commands().debugPrint(['docker image name: ${dockerImageName}'])
   new com.concur.Commands().debugPrint(['docker image name': dockerImageName])
  */
-public debugPrint(Map msgdata, int requiredDebugLevel=1, Boolean debugMode=isDebug()) {
+public debugPrint(Map msgdata, int requiredDebugLevel=1, Boolean debugMode=null) {
   println "Debug Print with Map"
+  if (debugMode == null) {
+    debugMode = isDebug()
+  }
   if (debugMode) {
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
