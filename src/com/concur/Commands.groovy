@@ -104,6 +104,8 @@ private executeWorkflow(Map workflow, Map yml) {
         stage(stageName) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
+      } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException) {
+        println "${Constants.Strings.failColor}Build was cancelled${Constants.Strings.clearColor}"
       } catch(e) {
         currentBuild.result = 'FAILED'
         error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e}\n${e.getStackTrace()}")
