@@ -458,7 +458,6 @@ public debugPrint(String title, Map msgdata, int requiredDebugLevel=1, Boolean d
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
     }
-    def title = "${title}"
     println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
     msgdata.each { data ->
       println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data.key}: ${data.value}${Constants.Strings.clearColor}"
