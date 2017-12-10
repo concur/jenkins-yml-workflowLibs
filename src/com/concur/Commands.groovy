@@ -104,7 +104,7 @@ private executeWorkflow(Map workflow, Map yml) {
         stage(stageName) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
-      } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException) {
+      } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e1 | hudson.AbortException e2) {
         println "${Constants.Strings.failColor}Build was cancelled${Constants.Strings.clearColor}"
       } catch(e) {
         currentBuild.result = 'FAILED'
