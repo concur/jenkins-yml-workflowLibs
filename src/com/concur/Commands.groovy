@@ -104,11 +104,11 @@ private executeWorkflow(Map workflow, Map yml) {
         stage(stageName) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
-      } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e1 | hudson.AbortException e2) {
+      } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException e1) {
         println "${Constants.Strings.failColor}Build was cancelled${Constants.Strings.clearColor}"
-      } catch(e) {
+      } catch(e2) {
         currentBuild.result = 'FAILED'
-        error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e}\n${e.getStackTrace()}")
+        error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e2}\n${e2.getStackTrace()}")
       } finally {
         def stageEnd = System.currentTimeMillis()
         def stageTime = (stageEnd - stageStart)/1000
