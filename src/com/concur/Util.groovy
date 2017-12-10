@@ -1,6 +1,8 @@
 #!/usr/bin/env groovy
 package com.concur
 
+import org.codehaus.groovy.runtime.GStringImpl
+
 // ########################
 // # Date/Time Utils
 // ########################
@@ -66,6 +68,7 @@ def replaceLast(String text, String regex, String replacement) {
 // Text Replacement/Transformations
 private addCommonReplacements(Map providedOptions) {
   // this will replace the existing map with everything from providedOptions
+  
   return (env.getEnvironment() << providedOptions)
 }
 
@@ -81,4 +84,8 @@ def mustacheReplaceAll(String str, Map replaceOptions=[:]) {
     }
   }
   return str
+}
+
+def mustacheReplaceAll(GStringImpl str, Map replaceOptions=[:]) {
+  mustacheReplaceAll(str.toString(), replaceOptions)
 }

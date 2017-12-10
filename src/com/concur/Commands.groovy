@@ -450,6 +450,23 @@ def isDebug() {
   return env.DEBUG_MODE?.toBoolean() ?: false
 }
 
+public debugPrint(String title, Map msgdata, int requiredDebugLevel=1, Boolean debugMode=null) {
+  if (debugMode == null) {
+    debugMode = isDebug()
+  }
+  if (debugMode) {
+    if (env.DEBUG_LEVEL <= requiredDebugLevel) {
+      return
+    }
+    def title = "${title}"
+    println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
+    msgdata.each { data ->
+      println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data.key}: ${data.value}${Constants.Strings.clearColor}"
+    }
+    println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
+  }
+}
+
 /* usage examples
   new com.concur.Commands().debugPrint('building docker image ...')
   new com.concur.Commands().debugPrint(['docker image name: ${dockerImageName}'])
