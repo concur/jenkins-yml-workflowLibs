@@ -32,7 +32,17 @@ def parseJSON(String stringContent) {
 }
 
 def toJSON(Map content) {
-  assert content : "Nothing provided to convert to JSON, this should be any Array/List or Map."
+  assert content : "Nothing provided to convert to JSON, this should be any [String, Array/List or Map]."
+  return groovy.json.JsonOutput.toJson(content)
+}
+
+def toJSON(List content) {
+  assert content : "Nothing provided to convert to JSON, this should be any [String, Array/List or Map]."
+  return groovy.json.JsonOutput.toJson(content)
+}
+
+def toJSON(String content) {
+  assert content : "Nothing provided to convert to JSON, this should be any [String, Array/List or Map]."
   return groovy.json.JsonOutput.toJson(content)
 }
 
