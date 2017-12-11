@@ -307,7 +307,7 @@ def getCredentialsWithCriteria(Map criteria) {
   def credentials = []
 
   // Get all of the global credentials
-  def creds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+  def globalCreds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
     com.cloudbees.plugins.credentials.impl.BaseStandardCredentials.class,
     jenkins.model.Jenkins.instance)
   // Get credentials for the folder that the job is in
@@ -323,8 +323,12 @@ def getCredentialsWithCriteria(Map criteria) {
       }
     } catch (Exception e) { }
   }
+  debugPrint([
+    'folderCreds': folderCreds,
+    'globalCreds': globalCreds
+  ])
   // Separately loop through credentials provided by different credential providers
-  [folderCreds, creds].each { s ->
+  [folderCreds, globalCreds].each { s ->
     // Filter the results based on description and class
     s.each { c ->
       def i = 0
