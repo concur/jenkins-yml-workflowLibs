@@ -66,13 +66,13 @@ def replaceLast(String text, String regex, String replacement) {
 }
 
 // Text Replacement/Transformations
-private addCommonReplacements(Map providedOptions) {
+private addCommonReplacements(providedOptions) {
   // this will replace the existing map with everything from providedOptions
   
   return (env.getEnvironment() << providedOptions)
 }
 
-def mustacheReplaceAll(String str, Map replaceOptions=[:]) {
+def mustacheReplaceAll(str, replaceOptions=[:]) {
   if (!str) { return "" }
   replaceOptions = addCommonReplacements(replaceOptions)
   new Commands().debugPrint(['replacements': replaceOptions, 'originalString': str])
@@ -84,8 +84,4 @@ def mustacheReplaceAll(String str, Map replaceOptions=[:]) {
     }
   }
   return str
-}
-
-def mustacheReplaceAll(GStringImpl str, Map replaceOptions=[:]) {
-  mustacheReplaceAll(str.toString(), replaceOptions)
 }
