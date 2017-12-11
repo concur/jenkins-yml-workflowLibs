@@ -97,23 +97,23 @@ private executeWorkflow(Map workflow, Map yml) {
       def stepName = step instanceof Map ? step.keySet().first() : step
       def stageStart = System.currentTimeMillis()
       def stageName = ""
-      try {
+      // try {
         def params = step[stepName]
         debugPrint(['workflowName': workflowName, 'stepName': stepName, 'params': params])
         stageName = getStageName(workflowFile, stages, workflowName, stepName, yml, params)
         stage(stageName) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
-      } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException e1) {
-        println "${Constants.Strings.failColor}Build was cancelled${Constants.Strings.clearColor}"
-      } catch(e2) {
-        currentBuild.result = 'FAILED'
-        error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e2}\n${e2.getStackTrace()}")
-      } finally {
-        def stageEnd = System.currentTimeMillis()
-        def stageTime = (stageEnd - stageStart)/1000
-        println "Stage [${stageName}] took ${stageTime} seconds"
-      }
+      // } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException e1) {
+      //   println "${Constants.Strings.failColor}Build was cancelled${Constants.Strings.clearColor}"
+      // } catch(e2) {
+      //   currentBuild.result = 'FAILED'
+      //   error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e2}\n${e2.getStackTrace()}")
+      // } finally {
+      //   def stageEnd = System.currentTimeMillis()
+      //   def stageTime = (stageEnd - stageStart)/1000
+      //   println "Stage [${stageName}] took ${stageTime} seconds"
+      // }
     }
   }
 }

@@ -52,24 +52,24 @@ def call(body) {
       }
     }
 
-    try {
+    // try {
       // now build, based on the configuration provided
       println "Executing pipeline steps"
       concurPipeline.runSteps(yml)
 
       currentBuild.result = 'SUCCESS'
-    } catch (e) {
-      currentBuild.result = 'FAILURE'
-      throw e
-    } finally {
-      currentBuild.result = currentBuild.result ?: 'FAILURE'
-      if (slackNotify) {
-        if (!slackData?.token) {
-          plNotify(currentBuild.result, (slackData?.useAttachments ?: true), slackData?.channel)
-        } else {
-          plNotify(currentBuild.result, (slackData?.useAttachments ?: true), slackData?.channel, slackData?.token)
-        }
-      }
-    }
+    // } catch (e) {
+    //   currentBuild.result = 'FAILURE'
+    //   throw e
+    // } finally {
+    //   currentBuild.result = currentBuild.result ?: 'FAILURE'
+    //   if (slackNotify) {
+    //     if (!slackData?.token) {
+    //       plNotify(currentBuild.result, (slackData?.useAttachments ?: true), slackData?.channel)
+    //     } else {
+    //       plNotify(currentBuild.result, (slackData?.useAttachments ?: true), slackData?.channel, slackData?.token)
+    //     }
+    //   }
+    // }
   }
 }
