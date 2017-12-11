@@ -324,17 +324,17 @@ def getCredentialsWithCriteria(Map criteria) {
     } catch (Exception e) { }
   }
   debugPrint([
-    'folderCreds': folderCreds,
+    'folderCreds': folderCreds.collect { ['description': it.description, 'id': it.id] },
     'globalCreds': globalCreds.collect { ['description': it.description, 'id': it.id] }
   ])
   // Separately loop through credentials provided by different credential providers
-  [folderCreds, globalCreds].each { s ->
+  for (s in [folderCreds, creds]) {
     // Filter the results based on description and class
-    s.each { c ->
+    for (c in s) {
       def i = 0
-      if(count == c.getProperties().keySet().intersect(criteria.keySet()).size()) {
-        if(c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
-          c.getProperties().keySet().intersect(criteria.keySet()) { p ->
+      if (count == c.getProperties().keySet().intersect(criteria.keySet()).size()) {
+        if (c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
+          for (p in c.getProperties().keySet().intersect(criteria.keySet())) {
             if (c."${p}" != criteria."${p}") {
               break;
             } else {
