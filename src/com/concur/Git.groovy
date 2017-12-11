@@ -91,9 +91,9 @@ def getVersion(String version = '0.1', String scheme = "semantic", Boolean ignor
 
     def buildNumber = timeSinceLatestTag()
     if (tag == null || tag.size() == 0) {
-      println "no existing tag found using version ${version}.${buildNumber}"
-      env.BUILDHUB_VERSION = "${version}.${buildNumber}"
-      return "${version}.${buildNumber}"
+      println "no existing tag found using version ${version}-${buildNumber}"
+      env.BUILDHUB_VERSION = "${version}-${buildNumber}"
+      return "${version}-${buildNumber}"
     }
     // Getting the tag to check versioning scheme
     tag = tag.replaceAll("\\s+","")
