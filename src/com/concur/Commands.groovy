@@ -324,13 +324,14 @@ def getCredentialsWithCriteria(Map criteria) {
     } catch (Exception e) { }
   }
   // Separately loop through credentials provided by different credential providers
-  [folderCreds, creds].flatten().each { s ->
+  [folderCreds, creds].each { s ->
     // Filter the results based on description and class
+    s.each { c ->
       def i = 0
       if(count == s.getProperties().keySet().intersect(criteria.keySet()).size()) {
-        if(s.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
-          s.getProperties().keySet().intersect(criteria.keySet()) { p ->
-            if (s."${p}" != criteria."${p}") {
+        if(c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
+          c.getProperties().keySet().intersect(criteria.keySet()) { p ->
+            if (c."${p}" != criteria."${p}") {
               break;
             } else {
               i++;
@@ -341,6 +342,7 @@ def getCredentialsWithCriteria(Map criteria) {
       if (i == count) {
         credentials << c
       }
+    }
   }
   // Fail if no credentials are found that match the criteria
   assert credentials : """No credentials found that match your criteria: ${criteria}"""
