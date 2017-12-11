@@ -14,15 +14,15 @@ def call(duration = 1, unit = "HOURS", Closure body) {
       ansiColor('xterm') {
         concurPipeline.debugPrint(['duration' : duration, 'unit' : unit])
         String linuxWS = pwd()
-        // try {
+        try {
           body()
-        // } catch (e) {
-        //   println "Execution error :: ${e}"
-        //   throw e
-        // } finally {
-        //   // Mount the workspace in the docker container.
-        //   cleanWs
-        // }
+        } catch (e) {
+          println "Execution error :: ${e}"
+          throw e
+        } finally {
+          // Mount the workspace in the docker container.
+          cleanWs
+        }
       }
     }
   }

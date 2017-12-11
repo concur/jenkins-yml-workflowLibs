@@ -97,23 +97,23 @@ private executeWorkflow(Map workflow, Map yml) {
       def stepName = step instanceof Map ? step.keySet().first() : step
       def stageStart = System.currentTimeMillis()
       def stageName = ""
-      // try {
+      try {
         def params = step[stepName]
         debugPrint(['workflowName': workflowName, 'stepName': stepName, 'params': params])
         stageName = getStageName(workflowFile, stages, workflowName, stepName, yml, params)
         stage(stageName) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
-      // } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException e1) {
-      //   println "${Constants.Strings.failColor}Build was cancelled${Constants.Strings.clearColor}"
-      // } catch(e2) {
-      //   currentBuild.result = 'FAILED'
-      //   error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e2}\n${e2.getStackTrace()}")
-      // } finally {
-      //   def stageEnd = System.currentTimeMillis()
-      //   def stageTime = (stageEnd - stageStart)/1000
-      //   println "Stage [${stageName}] took ${stageTime} seconds"
-      // }
+      } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException e1) {
+        println "${Constants.Strings.failColor}Build was cancelled${Constants.Strings.clearColor}"
+      } catch(e2) {
+        currentBuild.result = 'FAILED'
+        error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e2}\n${e2.getStackTrace()}")
+      } finally {
+        def stageEnd = System.currentTimeMillis()
+        def stageTime = (stageEnd - stageStart)/1000
+        println "Stage [${stageName}] took ${stageTime} seconds"
+      }
     }
   }
 }
@@ -121,7 +121,6 @@ private executeWorkflow(Map workflow, Map yml) {
 private executeParameterizedStep(workflow, sectionName, stepName, stepValues, yml) {
   debugPrint([
     'workflow'      : workflow,
-    'workflow.class': workflow.getClass(),
     'sectionName'   : sectionName,
     'stepName'      : stepName,
     'stepValues'    : stepValues,
@@ -131,10 +130,10 @@ private executeParameterizedStep(workflow, sectionName, stepName, stepValues, ym
   Boolean singleMap = workflow.metaClass.respondsTo(workflow, stepName, Map)
 
   if (doubleMap) {
-    debugPrint("Executing ${stepName} with yml and args".center(80, '-'))
+    debugPrint("Executing ${stepName} with yml and args".center(80, '-'), 2)
     workflow."${stepName}"(yml, stepValues)
   } else if (singleMap) {
-    debugPrint("Executing ${stepName} with only yml".center(80, '-'))
+    debugPrint("Executing ${stepName} with only yml".center(80, '-'), 2)
     workflow."${stepName}"(yml)
   } else {
     error("""|Error while trying to execute workflow step: ${stepName}
@@ -202,7 +201,7 @@ private loadWorkflows(String fileName, Map yml) {
 
   assert fileName : "fileName field has an invalid value."
 
-  debugPrint(['fileName' : fileName, 'repo' : repo, 'branch' : branch, 'credentialCriteria' : credentialCriteria])
+  debugPrint(['fileName' : fileName, 'repo' : repo, 'branch' : branch, 'credentialCriteria' : credentialCriteria], 2)
 
   fileName = "${fileName}.groovy"
   def localFile = "${workflowDir}/${fileName}"
@@ -253,7 +252,7 @@ private loadWorkflows(String fileName, Map yml) {
 // Check branch pattern
 def checkBranch(Map yml, String branch=env.BRANCH_NAME) {
   assert yml    : "Couldn't find pipelines.yml."
-  assert branch : "Branch name not set. This should typically be set by the environment as BRANCH_NAME. Please ensure this is being called within a node."
+  assert branch : "Branch name not set. This should typically be set by the environment as BRANCH_NAME. Please ensure this is being called within a node and that you are in a job type that provides sets the environment variable automatically such as a Multibranch pipeline."
 
   def patterns = yml.tools?.branches?.patterns
   assert patterns : """|Define your branch patterns under tools.branches.patterns
@@ -269,7 +268,7 @@ def checkBranch(Map yml, String branch=env.BRANCH_NAME) {
     branch.matches(it.value)
   }.key
 
-  debugPrint(['branch' : branch, 'patterns' : patterns, 'branchType': branchType])
+  debugPrint(['branch' : branch, 'patterns' : patterns, 'branchType': branchType], 2)
 
   return branchType
 }
@@ -318,21 +317,20 @@ def getCredentialsWithCriteria(Map criteria) {
   for (int i = 0; i < folders.size(); i++) {
     def folderName = folders[0..i].join('/')
     try {
-      for(n in getFolderCredentials(folderName)) {
+      getFolderCredentials(folderName).each { n ->
         folderCreds << n
-        debugPrint(folderCreds)
+        debugPrint(folderCreds, 2)
       }
     } catch (Exception e) { }
   }
   // Separately loop through credentials provided by different credential providers
-  for(s in [folderCreds, creds]) {
+  [folderCreds, creds].flatten().each { s ->
     // Filter the results based on description and class
-    for (c in s) {
       def i = 0
-      if(count == c.getProperties().keySet().intersect(criteria.keySet()).size()) {
-        if(c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
-          for ( p in c.getProperties().keySet().intersect(criteria.keySet())) {
-            if (c."${p}" != criteria."${p}") {
+      if(count == s.getProperties().keySet().intersect(criteria.keySet()).size()) {
+        if(s.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
+          s.getProperties().keySet().intersect(criteria.keySet()) { p ->
+            if (s."${p}" != criteria."${p}") {
               break;
             } else {
               i++;
@@ -343,11 +341,10 @@ def getCredentialsWithCriteria(Map criteria) {
       if (i == count) {
         credentials << c
       }
-    }
   }
   // Fail if no credentials are found that match the criteria
   assert credentials : """No credentials found that match your criteria: ${criteria}"""
-  assert credentials.size() == 1 :  """
+  assert credentials.size() == 1 : """
   ${
     println "Multiple credentials found for search criteria.\n"
     println "Criteria:"
@@ -368,11 +365,11 @@ def getCredentialsWithCriteria(Map criteria) {
 
 // Get credentials for a given folder name
 private getFolderCredentials(String folderName) {
-  def folder = Jenkins.instance.getItemByFullName(folderName)
-
-  AbstractFolder<?> folderAbs = AbstractFolder.class.cast(folder)
-  FolderCredentialsProperty property = folderAbs.getProperties().get(FolderCredentialsProperty.class)
-  return property.getCredentials()
+  return AbstractFolder.class
+                       .cast(Jenkins.instance.getItemByFullName(folderName))
+                       .getProperties()
+                       .get(FolderCredentialsProperty.class)
+                       .getCredentials()
 }
 
 // Convert to a serializable list
