@@ -21,7 +21,7 @@ def call(duration = 1, unit = "HOURS", Closure body) {
           throw e
         } finally {
           // Mount the workspace in the docker container.
-          cleanWs
+          cleanWs notFailBuild: true
         }
       }
     }
