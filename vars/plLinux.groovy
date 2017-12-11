@@ -14,23 +14,15 @@ def call(duration = 1, unit = "HOURS", Closure body) {
       ansiColor('xterm') {
         concurPipeline.debugPrint(['duration' : duration, 'unit' : unit])
         String linuxWS = pwd()
-        try {
+        // try {
           body()
-        } catch (e) {
-          println "Execution error :: ${e}"
-          throw e
-        } finally {
-          // Mount the workspace in the docker container.
-          try {
-            cleanWs
-          } catch (e) {
-            println "Failed to clean workspace, trying a more heavy handed approach"
-            assert linuxWS.startsWith('/var/lib/jenkins/workspace') : "Can't delete workspace. ${linuxWS} is an invalid workspace path"
-            docker.image('alpine:3.5').inside('-u 0:0'){
-              sh "find ${linuxWS} -and -not -path ${linuxWS} -delete"
-            }
-          }
-        }
+        // } catch (e) {
+        //   println "Execution error :: ${e}"
+        //   throw e
+        // } finally {
+        //   // Mount the workspace in the docker container.
+        //   cleanWs
+        // }
       }
     }
   }
