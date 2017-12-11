@@ -325,7 +325,7 @@ def getCredentialsWithCriteria(Map criteria) {
   }
   debugPrint([
     'folderCreds': folderCreds,
-    'globalCreds': globalCreds
+    'globalCreds': globalCreds.collect { ['description': it.description, 'id': it.id] }
   ])
   // Separately loop through credentials provided by different credential providers
   [folderCreds, globalCreds].each { s ->
