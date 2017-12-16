@@ -105,7 +105,7 @@ private executeWorkflow(Map workflow, Map yml) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
       } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException e1) {
-        println "${Constants.Strings.failColor}Build was cancelled${Constants.Strings.clearColor}"
+        println "${Constants.Colors.fail}Build was cancelled${Constants.Colors.CLEAR}"
       } catch(e2) {
         currentBuild.result = 'FAILED'
         error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e2}\n${e2.getStackTrace()}")
@@ -213,7 +213,7 @@ private loadWorkflows(String fileName, Map yml) {
     try {
       workflow = load localFile
     } catch (java.io.NotSerializableException nse) {
-      error("""${Constants.Strings.failColor}
+      error("""${Constants.Colors.fail}
               |Error loading workflow, this is most likely to be caused by a syntax error in the groovy file.
               |-----------------------------------------------------------------------------------------------
               |Common errors include missing/incomplete or incomplete syntax.
@@ -229,7 +229,7 @@ private loadWorkflows(String fileName, Map yml) {
               |Using a library function without importing. Using a function from workflowLibs without defining a variable.
               |1. `concurUtil.mustacheReplaceAll("Commit SHA - {{ commit_sha }}") # Ensure a definition for concurUtil exists eg `def concurUtil = new com.concur.Util()`
               |2. 'Yaml().load("<<string content>>")' # The Snake YAML library needs to be imported first eg `import org.yaml.snakeyaml.*;`
-              ${Constants.Strings.clearColor}
+              ${Constants.Colors.CLEAR}
               """.stripMargin())
     }
   } else {
@@ -241,7 +241,7 @@ private loadWorkflows(String fileName, Map yml) {
     try {
       workflow = fileLoader.fromGit(fileName,repo, branch, credentialsId, nodeLabel)
     } catch (java.io.NotSerializableException nse) {
-      error("Failed to load a workflow from ${repo}, please create an issue on the project in GitHub.")
+      error("Failed to load a workflow from ${repo}, please create an issue on the project in GitHub (https://github.com/concur/jenkins-workflow).")
     }
   }
   assert workflow : "Workflow file ${fileName} not found or unable to load from remote repo."
@@ -461,11 +461,11 @@ public debugPrint(String title, Map msgdata, int requiredDebugLevel=1, Boolean d
     if (env.DEBUG_LEVEL <= requiredDebugLevel) {
       return
     }
-    println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
+    println "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
     msgdata.each { data ->
-      println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data.key}: ${data.value}${Constants.Strings.clearColor}"
+      println "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}"
     }
-    println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
+    println "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
   }
 }
 
@@ -485,11 +485,11 @@ public debugPrint(Map msgdata, int requiredDebugLevel=1, Boolean debugMode=null)
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
     def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
-    println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
+    println "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
     msgdata.each { data ->
-      println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data.key}: ${data.value}${Constants.Strings.clearColor}"
+      println "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}"
     }
-    println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
+    println "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
   }
 }
 
@@ -504,11 +504,11 @@ public debugPrint(List msgdata, int requiredDebugLevel=1, Boolean debugMode=null
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
     def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
-    println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
+    println "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
     msgdata.each { data ->
-      println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${data}${Constants.Strings.clearColor}"
+      println "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data}${Constants.Colors.CLEAR}"
     }
-    println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
+    println "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
   }
 }
 
@@ -523,8 +523,8 @@ public debugPrint(String msgdata, int requiredDebugLevel=1, Boolean debugMode=nu
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
     def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
     def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
-    println "### ${Constants.Strings.debugColor}Debug output for [${Constants.Strings.debugTitleColor}${title}${Constants.Strings.debugColor}]${Constants.Strings.clearColor} ###"
-    println "### ${Constants.Strings.debugColor}Debug >>> ${Constants.Strings.debugMsgColor}${msgdata}${Constants.Strings.clearColor}"
-    println "### ${Constants.Strings.debugColor}End Debug${Constants.Strings.clearColor} ###"
+    println "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
+    println "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${msgdata}${Constants.Colors.CLEAR}"
+    println "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
   }
 }

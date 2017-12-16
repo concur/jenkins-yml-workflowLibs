@@ -68,8 +68,9 @@ def replaceLast(String text, String regex, String replacement) {
 // Text Replacement/Transformations
 private addCommonReplacements(providedOptions) {
   // this will replace the existing map with everything from providedOptions
-  
-  return (env.getEnvironment() << providedOptions)
+  return ([
+    'BUILD_VERSION': new com.concur.Git().getVersion()
+  ] << env.getEnvironment() << providedOptions)
 }
 
 def mustacheReplaceAll(str, replaceOptions=[:]) {
