@@ -70,7 +70,7 @@ private addCommonReplacements(providedOptions) {
   // this will replace the existing map with everything from providedOptions
   return ([
     'BUILD_VERSION' : new com.concur.Git().getVersion(),
-    'TIMESTAMP'     : new Date().format(env."${Constants.Env.DATEFORMAT}" ?: 'yyyyMMdd-Hmmss')
+    'TIMESTAMP'     : new Date().format(env."${Constants.Env.DATE_FORMAT}" ?: 'yyyyMMdd-Hmmss')
   ] << env.getEnvironment() << providedOptions)
 }
 
