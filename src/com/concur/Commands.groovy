@@ -492,7 +492,9 @@ private getDebugMessageTitle() {
 
 private debugPrintMessage(String msg, int requiredDebugLevel=1) {
   if (isDebug()) {
-    if ((env."${Constants.Env.DEBUG_LEVEL}" as int) <= requiredDebugLevel) {
+    int setDebugLevel = env."${Constants.Env.DEBUG_LEVEL}" as int
+    println "setDebugLevel [${setDebugLevel}] required for print level [${requiredDebugLevel}]"
+    if (setDebugLevel <= requiredDebugLevel) {
       println msg
     }
   }
