@@ -439,8 +439,8 @@ def getPipelineDataFile(String fileName = 'pipelines.yml', String format = 'yml'
       break;
   }
   if (dataMap?."${baseNode}"?.general?.debug) {
-    env."${Constants.Env.DEBUG}"   = true // this being set allows for a lot of debugging output to be included.
-    env."${Constants.Env.DEBUG_LEVEL}"  = dataMap?."${baseNode}"?.general.debugLevel ?: 1
+    env."${Constants.Env.DEBUG}"        = true // this being set allows for a lot of debugging output to be included.
+    env."${Constants.Env.DEBUG_LEVEL}"  = (dataMap?."${baseNode}"?.general.debugLevel as int) ?: 1
   }
   return dataMap[baseNode]
 }
