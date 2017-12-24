@@ -77,13 +77,8 @@ def runSteps(Map yml, String branch=env.BRANCH_NAME) {
              |      script: "echo 'Hello World'"
              """.stripMargin())
   }
-  try {
-    workflowsList.each { workflow ->
-      executeWorkflow(workflow, yml)
-    }
-  } catch(e) {
-    currentBuild.result = 'FAILED'
-    throw e
+  workflowsList.each { workflow ->
+    executeWorkflow(workflow, yml)
   }
 }
 
@@ -105,9 +100,8 @@ private executeWorkflow(Map workflow, Map yml) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
       } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException e1) {
-        println "${Constants.Colors.fail}Build was cancelled${Constants.Colors.CLEAR}"
+        println "${Constants.Colors.RED}Build was cancelled${Constants.Colors.CLEAR}"
       } catch(e2) {
-        currentBuild.result = 'FAILED'
         error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e2}\n${e2.getStackTrace()}")
       } finally {
         def stageEnd = System.currentTimeMillis()
@@ -213,7 +207,7 @@ private loadWorkflows(String fileName, Map yml) {
     try {
       workflow = load localFile
     } catch (java.io.NotSerializableException nse) {
-      error("""${Constants.Colors.fail}
+      error("""${Constants.Colors.RED}
               |Error loading workflow, this is most likely to be caused by a syntax error in the groovy file.
               |-----------------------------------------------------------------------------------------------
               |Common errors include missing/incomplete or incomplete syntax.
