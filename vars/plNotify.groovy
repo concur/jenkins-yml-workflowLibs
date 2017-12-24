@@ -4,19 +4,15 @@ import groovy.json.internal.Exceptions
 
 // Send Slack notifications to the interested channel
 // This is uses the configuration from the plugin on the Jenkins master if nothing is provided
-def call(buildStatus, useAttachments, channel = '', token = '', domain = env.DEFAULT_SLACK_DOMAIN, org = '', repo = '') {
+def call(buildStatus, useAttachments, channel = '', token = '', domain = env.DEFAULT_SLACK_DOMAIN, host = env.GIT_HOST, org = env.GIT_ORG, repo = env.GIT_REPO) {
 
   def concurGit       = new com.concur.Git()
   def concurPipeline  = new com.concur.Commands()
   def concurHttp      = new com.concur.Http()
 
-  def orgAndRepo  = concurGit.getGitData()
-  org             = org   ?: orgAndRepo.org
-  repo            = repo  ?: orgAndRepo.repo
-
   // No need to proceed if there is no org or repo
   if( !org || !repo) {
-    println "\u001B[31mNot able to send a slack notification. No org or repo defined.\\u001B[0m"
+    println "${Constants.Colors.RED}Not able to send a slack notification. No org or repo defined.${Constants.Colors.CLEAR}"
     return
   }
 
@@ -34,7 +30,7 @@ def call(buildStatus, useAttachments, channel = '', token = '', domain = env.DEF
     "Job"     : env.JOB_NAME.replaceAll('%2F', '/'),
     "Branch"  : env.BRANCH_NAME,
     "Build"   : "<${env.BUILD_URL}|${env.BUILD_NUMBER}>",
-    "Commit"  : "<http://github.concur.com/${org}/${repo}/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>",
+    "Commit"  : "<http://${host}/${org}/${repo}/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>",
     "Author"  : env.GIT_AUTHOR
   ]
 
