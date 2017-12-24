@@ -43,37 +43,6 @@ def getGithubApiUrl() {
   }.apiUri
 }
 
-/*
- * Get the GitHub Org and Repo
- *
- * String parameter:
- *
- *   @param url -  URL of the GitHub repository
-*/
-def getGitHubOrgAndRepo(String url = '') {
-  if (!url) {
-    url = scm.remoteRepositories[0].uris[0].toString()
-  }
-  def org = ''
-  def repo = ''
-  if (url.startsWith('https://')) {
-    def scmList = new java.net.URI(url).getPath().toString().replaceAll(/\.git|\//,' ').split(' ')
-    org = scmList[1]
-    repo = scmList[2]
-  } else if (url.startsWith('git@')) {
-    def scmList = url.replaceAll(/\.git/, '').split(':')[1].split('/')
-    org = scmList[0]
-    repo = scmList[1]
-  } else {
-    error("Provided URI is not Git compatible: ${url}")
-  }
-
-  return [
-    "org": org,
-    "repo": repo
-  ]
-}
-
 def getPullRequests(String org, String repo, String fromBranch='', String baseBranch='', String state='open', String sort='created', String direction='desc') {
   assert org : "Cannot get available pull requests without specifying a GitHub organization"
   assert repo : "Cannot get available pull requests without specifying a GitHub repository"

@@ -6,11 +6,11 @@ import groovy.json.internal.Exceptions
 // This is uses the configuration from the plugin on the Jenkins master if nothing is provided
 def call(buildStatus, useAttachments, channel = '', token = '', domain = env.DEFAULT_SLACK_DOMAIN, org = '', repo = '') {
 
-  def concurGithub    = new com.concur.GitHubApi()
+  def concurGit       = new com.concur.Git()
   def concurPipeline  = new com.concur.Commands()
   def concurHttp      = new com.concur.Http()
 
-  def orgAndRepo  = concurGithub.getGitHubOrgAndRepo()
+  def orgAndRepo  = concurGit.getGitData()
   org             = org   ?: orgAndRepo.org
   repo            = repo  ?: orgAndRepo.repo
 

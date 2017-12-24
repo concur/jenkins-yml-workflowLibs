@@ -77,6 +77,39 @@ def saveGitProperties(Map scmVars) {
   }
 }
 
+/*
+ * Get the Git org, repo and host
+ *
+ * String parameter:
+ *
+ *   @param url -  URL of the Git repository
+*/
+def getGitData(String url = '') {
+  if (!url) {
+    url = scm.remoteRepositories[0].uris[0].toString()
+  }
+  def org
+  def repo
+  def gitHost
+  if (url.startsWith('https://')) {
+    def gitUrl = new java.net.URI(url)
+    def scmList = gitUrl.getPath().toString().replaceAll(/\.git|\//,' ').split(' ')
+    host  = gitUrl.host
+    org   = scmList[1]
+    repo  = scmList[2]
+  } else if (url.startsWith('git@')) {
+    return getGitData(url.replace('git@', 'https://').replace(':', '/'))
+  } else {
+    error("Provided URI is not Git compatible: ${url}")
+  }
+
+  return [
+    'host': host,
+    'org' : org,
+    'repo': repo
+  ]
+}
+
 def getVersion(String version = '0.1', String scheme = "semantic", Boolean ignorePrevious = false) {
   if (env."${Constants.Env.VERSION}") {
     println "Returning previously determined version."
