@@ -101,6 +101,9 @@ private executeWorkflow(Map workflow, Map yml) {
         }
       } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException e1) {
         println "${Constants.Colors.RED}Build was cancelled${Constants.Colors.CLEAR}"
+        error("""${Constants.Colors.RED}Error while executing step: ${workflowName}/${stepName}
+                |------------------------
+                |${e1}""".stripMargin())
       } catch(e2) {
         error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e2}\n${e2.getStackTrace()}")
       } finally {
