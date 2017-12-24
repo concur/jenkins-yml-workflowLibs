@@ -62,6 +62,12 @@ def saveGitProperties(Map scmVars) {
     }
   }
 
+  def gitData = getGitData()
+
+  gitData.each {
+    env."GIT_${it.key.toUpperCase()}" = it.value
+  }
+
   if (scmVars) {
     /** from `checkout scm` should provide the following
       * GIT_BRANCH

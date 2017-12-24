@@ -19,8 +19,8 @@ def call(body) {
   def gitPipeline     = new Git()
 
   concurPipeline.debugPrint([
-    'repo': config.repo,
-    'credentials': config.credentials,
+    'repo'          : config.repo,
+    'credentials'   : config.credentials,
     'withSubmodules': config.withSubmodules
   ])
 
