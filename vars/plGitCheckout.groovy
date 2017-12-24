@@ -1,5 +1,5 @@
 #!/usr/bin/groovy
-// vars/plGithubCheckout.groovy
+// vars/plGitCheckout.groovy
 // evaluate the body block, and collect configuration into the object
 import com.concur.*;
 

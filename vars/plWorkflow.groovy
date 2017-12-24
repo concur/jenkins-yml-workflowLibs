@@ -25,7 +25,7 @@ def call(body) {
 
   timedNode timeoutDurationInt, timeoutUnitStr, {
     stage ('git: checkout') {
-      plGitHubCheckout {
+      plGitCheckout {
         withSubmodules = gitSubmodules
       }
     }
