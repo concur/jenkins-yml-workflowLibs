@@ -450,20 +450,12 @@ def isDebug() {
   return env."${Constants.Env.DEBUG}"?.toBoolean() ?: false
 }
 
-public debugPrint(String title, Map msgdata, int requiredDebugLevel=1, Boolean debugMode=null) {
-  if (debugMode == null) {
-    debugMode = isDebug()
+public debugPrint(String title, Map msgdata, int requiredDebugLevel=1) {
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+  msgdata.each { data ->
+    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}", requiredDebugLevel)
   }
-  if (debugMode) {
-    if (env."${Constants.Env.DEBUG_LEVEL}" <= requiredDebugLevel) {
-      return
-    }
-    println "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
-    msgdata.each { data ->
-      println "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}"
-    }
-    println "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
-  }
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", requiredDebugLevel)
 }
 
 /* usage examples
@@ -471,57 +463,37 @@ public debugPrint(String title, Map msgdata, int requiredDebugLevel=1, Boolean d
   new com.concur.Commands().debugPrint(['docker image name: ${dockerImageName}'])
   new com.concur.Commands().debugPrint(['docker image name': dockerImageName])
  */
-public debugPrint(Map msgdata, int requiredDebugLevel=1, Boolean debugMode=null) {
-  if (debugMode == null) {
-    debugMode = isDebug()
+public debugPrint(Map msgdata, int requiredDebugLevel=1) {
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+  msgdata.each { data ->
+    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}", requiredDebugLevel)
   }
-  if (debugMode) {
-    if ((env."${Constants.Env.DEBUG_LEVEL}" as int) <= requiredDebugLevel) {
-      return
-    }
-    // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
-    def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
-    def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
-    println "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
-    msgdata.each { data ->
-      println "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}"
-    }
-    println "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
-  }
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", requiredDebugLevel)
 }
 
-public debugPrint(List msgdata, int requiredDebugLevel=1, Boolean debugMode=null) {
-  if (debugMode == null) {
-    debugMode = isDebug()
+public debugPrint(List msgdata, int requiredDebugLevel=1) {
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+  msgdata.each { data ->
+    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data}${Constants.Colors.CLEAR}", requiredDebugLevel)
   }
-  if (debugMode) {
-    if ((env."${Constants.Env.DEBUG_LEVEL}" as int) <= requiredDebugLevel) {
-      return
-    }
-    // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
-    def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
-    def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
-    println "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
-    msgdata.each { data ->
-      println "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data}${Constants.Colors.CLEAR}"
-    }
-    println "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
-  }
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", requiredDebugLevel)
 }
 
-public debugPrint(String msgdata, int requiredDebugLevel=1, Boolean debugMode=null) {
-  if (debugMode == null) {
-    debugMode = isDebug()
-  }
-  if (debugMode) {
+public debugPrint(String msgdata, int requiredDebugLevel=1) {
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${msgdata}${Constants.Colors.CLEAR}", requiredDebugLevel)
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+}
+
+private getDebugMessageTitle() {
+  def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[2]
+  return "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
+}
+
+private debugPrintMessage(String msg, int requiredDebugLevel=1) {
+  if (isDebug()) {
     if ((env."${Constants.Env.DEBUG_LEVEL}" as int) <= requiredDebugLevel) {
-      return
+      println msg
     }
-    // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
-    def cMethod = org.codehaus.groovy.runtime.StackTraceUtils.sanitize(new Throwable()).stackTrace[1]
-    def title = "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
-    println "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
-    println "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${msgdata}${Constants.Colors.CLEAR}"
-    println "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
   }
 }
