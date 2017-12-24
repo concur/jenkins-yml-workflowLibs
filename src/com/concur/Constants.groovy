@@ -25,4 +25,10 @@ public class Constants {
     public static String MAGENTA_ON_BLACK = "\u001B[0;35;40m"
     public static String CYAN_ON_BLACK    = "\u001B[0;36;40m"
   }
+  public class Env {
+    public static String VERSION      = "BUILDHUB_VERSION"
+    public static String DEBUG        = "DEBUG_MODE"
+    public static String DEBUG_LEVEL  = "DEBUG_LEVEL"
+    public static String DATE_FORMAT  = "DATE_FORMAT"
+  }
 }

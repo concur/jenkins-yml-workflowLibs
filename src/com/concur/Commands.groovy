@@ -442,15 +442,15 @@ def getPipelineDataFile(String fileName = 'pipelines.yml', String format = 'yml'
       break;
   }
   if (dataMap?."${baseNode}"?.general?.debug) {
-    env.DEBUG_MODE   = true // this being set allows for a lot of debugging output to be included.
-    env.DEBUG_LEVEL  = dataMap?."${baseNode}"?.general.debugLevel ?: 1
+    env."${Constants.Env.DEBUG}"   = true // this being set allows for a lot of debugging output to be included.
+    env."${Constants.Env.DEBUG_LEVEL}"  = dataMap?."${baseNode}"?.general.debugLevel ?: 1
   }
   return dataMap[baseNode]
 }
 
 // check the environment to see if we are in debug mode
 def isDebug() {
-  return env.DEBUG_MODE?.toBoolean() ?: false
+  return env."${Constants.Env.DEBUG}"?.toBoolean() ?: false
 }
 
 public debugPrint(String title, Map msgdata, int requiredDebugLevel=1, Boolean debugMode=null) {
@@ -458,7 +458,7 @@ public debugPrint(String title, Map msgdata, int requiredDebugLevel=1, Boolean d
     debugMode = isDebug()
   }
   if (debugMode) {
-    if (env.DEBUG_LEVEL <= requiredDebugLevel) {
+    if (env."${Constants.Env.DEBUG_LEVEL}" <= requiredDebugLevel) {
       return
     }
     println "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
@@ -479,7 +479,7 @@ public debugPrint(Map msgdata, int requiredDebugLevel=1, Boolean debugMode=null)
     debugMode = isDebug()
   }
   if (debugMode) {
-    if (env.DEBUG_LEVEL <= requiredDebugLevel) {
+    if (env."${Constants.Env.DEBUG_LEVEL}" <= requiredDebugLevel) {
       return
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
@@ -498,7 +498,7 @@ public debugPrint(List msgdata, int requiredDebugLevel=1, Boolean debugMode=null
     debugMode = isDebug()
   }
   if (debugMode) {
-    if (env.DEBUG_LEVEL <= requiredDebugLevel) {
+    if (env."${Constants.Env.DEBUG_LEVEL}" <= requiredDebugLevel) {
       return
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
@@ -517,7 +517,7 @@ public debugPrint(String msgdata, int requiredDebugLevel=1, Boolean debugMode=nu
     debugMode = isDebug()
   }
   if (debugMode) {
-    if (env.DEBUG_LEVEL <= requiredDebugLevel) {
+    if (env."${Constants.Env.DEBUG_LEVEL}" <= requiredDebugLevel) {
       return
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.

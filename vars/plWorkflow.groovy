@@ -39,6 +39,10 @@ def call(body) {
       'timeoutUnit'     : timeoutUnitStr
     ])
 
+    if (yml.general?.dateFormat) {
+      env."${Constants.Env.DATE_FORMAT}" = yml.general.dateFormat
+    }
+
     // pulling out slack map to add values to it in the event that the token doesn't exist
     def slackData = yml?.tools?.slack
 

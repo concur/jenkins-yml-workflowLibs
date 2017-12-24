@@ -6,11 +6,11 @@ import groovy.transform.Field;
 @Field def concurPipeline = new Commands()
 
 // Get the commit SHA for the last file or folder changed.
-def getCommitSHA(String folder = '.') {
+def getCommitSHA(String folder='.', int depth=1) {
   if (isUnix()) {
-    return sh(returnStdout: true, script: "git log -n 1 --pretty=format:%H ${folder}").trim()
+    return sh(returnStdout: true, script: "git log -n ${depth} --pretty=format:%H ${folder}").trim()
   } else {
-    bat "git log -n 1 --pretty=format:%%H ${folder} > lastSHA"
+    bat "git log -n ${depth} --pretty=format:%%H ${folder} > lastSHA"
     return readFile('lastSHA')
   }
 }
@@ -78,9 +78,9 @@ def saveGitProperties(Map scmVars) {
 }
 
 def getVersion(String version = '0.1', String scheme = "semantic", Boolean ignorePrevious = false) {
-  if (env.BUILDHUB_VERSION) {
+  if (env."${Constants.Env.VERSION}") {
     println "Returning previously determined version."
-    return env.BUILDHUB_VERSION
+    return env."${Constants.Env.VERSION}"
   }
   try {
     def outfileName = "version.tmp"
@@ -92,7 +92,7 @@ def getVersion(String version = '0.1', String scheme = "semantic", Boolean ignor
     def buildNumber = timeSinceLatestTag()
     if (tag == null || tag.size() == 0) {
       println "no existing tag found using version ${version}-${buildNumber}"
-      env.BUILDHUB_VERSION = "${version}-${buildNumber}"
+      env."${Constants.Env.VERSION}" = "${version}-${buildNumber}"
       return "${version}-${buildNumber}"
     }
     // Getting the tag to check versioning scheme
@@ -137,7 +137,7 @@ def getVersion(String version = '0.1', String scheme = "semantic", Boolean ignor
           retVersion = "${prefix}${majorVersion}.${minorVersion}.${patchVersion}-${buildNumber}"
         }
       }
-      env.BUILDHUB_VERSION = retVersion
+      env."${Constants.Env.VERSION}" = retVersion
       return retVersion
     }
   } catch (e) {
