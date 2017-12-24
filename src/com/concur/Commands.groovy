@@ -476,7 +476,7 @@ public debugPrint(Map msgdata, int requiredDebugLevel=1, Boolean debugMode=null)
     debugMode = isDebug()
   }
   if (debugMode) {
-    if (env."${Constants.Env.DEBUG_LEVEL}" <= requiredDebugLevel) {
+    if ((env."${Constants.Env.DEBUG_LEVEL}" as int) <= requiredDebugLevel) {
       return
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
@@ -495,7 +495,7 @@ public debugPrint(List msgdata, int requiredDebugLevel=1, Boolean debugMode=null
     debugMode = isDebug()
   }
   if (debugMode) {
-    if (env."${Constants.Env.DEBUG_LEVEL}" <= requiredDebugLevel) {
+    if ((env."${Constants.Env.DEBUG_LEVEL}" as int) <= requiredDebugLevel) {
       return
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
@@ -514,7 +514,7 @@ public debugPrint(String msgdata, int requiredDebugLevel=1, Boolean debugMode=nu
     debugMode = isDebug()
   }
   if (debugMode) {
-    if (env."${Constants.Env.DEBUG_LEVEL}" <= requiredDebugLevel) {
+    if ((env."${Constants.Env.DEBUG_LEVEL}" as int) <= requiredDebugLevel) {
       return
     }
     // This will get information on the method that called debugPrint so we can use it as the title instead of a static title.
