@@ -77,7 +77,7 @@ private addCommonReplacements(providedOptions) {
 def mustacheReplaceAll(str, replaceOptions=[:]) {
   if (!str) { return "" }
   replaceOptions = addCommonReplacements(replaceOptions)
-  new Commands().debugPrint(['replacements': replaceOptions, 'originalString': str])
+  new Commands().debugPrint(['replacements': replaceOptions, 'originalString': str], 2)
   replaceOptions.each { option ->
     // if the value is null do not attempt a replacement
     if (option.value) {
