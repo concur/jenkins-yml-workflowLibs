@@ -1,5 +1,7 @@
 #!/usr/bin/env groovy
 
+import com.concur.*;
+
 def call(body) {
   // evaluate the body block, and collect configuration into the object
   def config = [:]
@@ -7,7 +9,7 @@ def call(body) {
   body.delegate = config
   body()
 
-  def concurPipeline  = new com.concur.Commands()
+  def concurPipeline  = new Commands()
 
   // variables from closure
   def nodeType              = config.nodeType       ?: 'linux'
