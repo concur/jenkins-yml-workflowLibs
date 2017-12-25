@@ -1,0 +1,19 @@
+pipelines:
+  general:
+    debug: true
+  tools:
+    branches:
+      patterns:
+        feature: .+
+    slack:
+      channel: 'git-notifications'
+  branches:
+    feature:
+      steps:
+        - test:
+          - work:
+              name: first
+          - work:
+              name: second
+          - work:
+              name: third
