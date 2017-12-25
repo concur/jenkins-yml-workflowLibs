@@ -457,11 +457,12 @@ def isDebug() {
 }
 
 public debugPrint(String title, Map msgdata, int debugLevelToPrint=1) {
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", debugLevelToPrint)
+  def str = "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
   msgdata.each { data ->
-    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}", debugLevelToPrint)
+    str += "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}"
   }
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", debugLevelToPrint)
+  str += "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
+  debugPrintMessage(str, debugLevelToPrint)
 }
 
 /* usage examples
@@ -470,25 +471,27 @@ public debugPrint(String title, Map msgdata, int debugLevelToPrint=1) {
   new com.concur.Commands().debugPrint(['docker image name': dockerImageName])
  */
 public debugPrint(Map msgdata, int debugLevelToPrint=1) {
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", debugLevelToPrint)
+  def str = "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
   msgdata.each { data ->
-    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}", debugLevelToPrint)
+    str += "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}"
   }
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", debugLevelToPrint)
+  str += "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
+  debugPrintMessage(str, debugLevelToPrint)
 }
 
 public debugPrint(List msgdata, int debugLevelToPrint=1) {
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", debugLevelToPrint)
+  def str = "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
   msgdata.each { data ->
-    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data}${Constants.Colors.CLEAR}", debugLevelToPrint)
+    str += "\n### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data}${Constants.Colors.CLEAR}"
   }
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", debugLevelToPrint)
+  str += "\n### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
+  debugPrintMessage(str, debugLevelToPrint)
 }
 
 public debugPrint(String msgdata, int debugLevelToPrint=1) {
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", debugLevelToPrint)
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${msgdata}${Constants.Colors.CLEAR}", debugLevelToPrint)
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", debugLevelToPrint)
+  debugPrintMessage("""### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###
+                      |### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${msgdata}${Constants.Colors.CLEAR}
+                      |### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###""".stripMargin(), debugLevelToPrint)
 }
 
 private getDebugMessageTitle() {
