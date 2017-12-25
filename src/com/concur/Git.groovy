@@ -116,7 +116,7 @@ def getGitData(String url = '') {
   ]
 }
 
-def getVersion(String version = '0.1', String scheme = "semantic", Boolean ignorePrevious = false) {
+def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ignorePrevious = false) {
   if (env."${Constants.Env.VERSION}") {
     println "Returning previously determined version."
     return env."${Constants.Env.VERSION}"

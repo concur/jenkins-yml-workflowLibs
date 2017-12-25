@@ -66,7 +66,8 @@ def installGoPkg(String cmd, String repo) {
     'cmd' : cmd,
     'repo': repo
   ])
-  repo = repo.replace('https://', '').replace('git@', '').replace(':', '/')
+  // ensure the repo doesn't contain any extraneous data
+  repo = repo.replace('https://', '').replace('git@', '').replace(':', '/').replace('.git', '')
   def installed = binAvailable(cmd)
   if (installed) {
     println "$cmd is not installed, attempting to install via ${repo}..."
@@ -79,7 +80,7 @@ def installGoPkg(String cmd, String repo) {
 }
 
 def binAvailable(String bin) {
-  return (sh(returnStatus: true, script: "which $cmd") > 0)
+  return (sh(returnStatus: true, script: "which $bin") > 0)
 }
 
 // ######################
