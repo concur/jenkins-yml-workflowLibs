@@ -81,6 +81,8 @@ def saveGitProperties(Map scmVars) {
       env."${k}" = v
     }
   }
+
+  env.GIT_PREVIOUS_COMMIT = getCommitSHA('.')
 }
 
 /*
