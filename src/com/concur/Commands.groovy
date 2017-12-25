@@ -459,9 +459,9 @@ def isDebug() {
 public debugPrint(String title, Map msgdata, int debugLevelToPrint=1) {
   def str = "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
   msgdata.each { data ->
-    str += "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}"
+    str += "\n### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}"
   }
-  str += "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
+  str += "\n### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
   debugPrintMessage(str, debugLevelToPrint)
 }
 
@@ -473,9 +473,9 @@ public debugPrint(String title, Map msgdata, int debugLevelToPrint=1) {
 public debugPrint(Map msgdata, int debugLevelToPrint=1) {
   def str = "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
   msgdata.each { data ->
-    str += "### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}"
+    str += "\n### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}"
   }
-  str += "### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
+  str += "\n### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###"
   debugPrintMessage(str, debugLevelToPrint)
 }
 
