@@ -4,7 +4,7 @@ package com.concur
 public class Constants {
   public class Colors {
     public static String CLEAR    = "\u001B[0m"
-    
+
     public static String RED      = "\u001B[31m"
     public static String GREEN    = "\u001B[32m"
     public static String YELLOW   = "\u001B[33m"
@@ -20,12 +20,13 @@ public class Constants {
     public static String BRIGHT_MAGENTA = "\u001B[35;1m"
     public static String BRIGHT_CYAN    = "\u001B[36;1m"
 
-    public static String RED_ON_BLACK     = "\u001B[0;31;40m"
-    public static String GREEN_ON_BLACK   = "\u001B[0;32;40m"
-    public static String YELLOW_ON_BLACK  = "\u001B[0;33;40m"
-    public static String BLUE_ON_BLACK    = "\u001B[0;34;40m"
-    public static String MAGENTA_ON_BLACK = "\u001B[0;35;40m"
-    public static String CYAN_ON_BLACK    = "\u001B[0;36;40m"
+    public static String RED_ON_BLACK     = '\u001B[0;31;40m'
+    public static String GREEN_ON_BLACK   = '\u001B[0;32;40m'
+    public static String YELLOW_ON_BLACK  = '\u001B[0;33;40m'
+    public static String BLUE_ON_BLACK    = '\u001B[0;34;40m'
+    public static String MAGENTA_ON_BLACK = '\u001B[0;35;40m'
+    public static String CYAN_ON_BLACK    = '\u001B[0;36;40m'
+    public static String WHITE_ON_BLACK   = '\u001B[0;37;40m'
     public static String ORANGE_ON_BLACK  = '\u001B[38;5;214;48;5;0m'
   }
   public static class Strings {
