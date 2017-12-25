@@ -56,6 +56,36 @@ def parseYAML(String stringContent) {
   return readYaml(text: stringContent)
 }
 
+// ######################
+// Linux Helpers
+// ######################
+
+// Usage: installGoPkg('glide', 'github.com/Masterminds/glide')
+def installGoPkg(String cmd, String repo) {
+  new com.concur.Commands().debugPrint([
+    'cmd' : cmd,
+    'repo': repo
+  ])
+  repo = repo.replace('https://', '').replace('git@', '').replace(':', '/')
+  def installed = binAvailable(cmd)
+  if (installed) {
+    println "$cmd is not installed, attempting to install via ${repo}..."
+    def goAvailable = binAvailable('go')
+    if (goAvailable) {
+      error("Go is not available so we cannot install $repo")
+    }
+    sh "go get -v $repo"
+  }
+}
+
+def binAvailable(String bin) {
+  return (sh(returnStatus: true, script: "which $cmd") > 0)
+}
+
+// ######################
+// String Manipulation
+// ######################
+
 // convert a string to lower-case kebab-case
 def kebab(String s) {
   return s.toLowerCase().replaceAll("[\\W_]+", "-").replaceAll("(^-*|-*\$)", '')

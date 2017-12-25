@@ -450,12 +450,12 @@ def isDebug() {
   return env."${Constants.Env.DEBUG}"?.toBoolean() ?: false
 }
 
-public debugPrint(String title, Map msgdata, int requiredDebugLevel=1) {
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+public debugPrint(String title, Map msgdata, int debugLevelToPrint=1) {
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", debugLevelToPrint)
   msgdata.each { data ->
-    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}", requiredDebugLevel)
+    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}", debugLevelToPrint)
   }
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", debugLevelToPrint)
 }
 
 /* usage examples
@@ -463,26 +463,26 @@ public debugPrint(String title, Map msgdata, int requiredDebugLevel=1) {
   new com.concur.Commands().debugPrint(['docker image name: ${dockerImageName}'])
   new com.concur.Commands().debugPrint(['docker image name': dockerImageName])
  */
-public debugPrint(Map msgdata, int requiredDebugLevel=1) {
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+public debugPrint(Map msgdata, int debugLevelToPrint=1) {
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", debugLevelToPrint)
   msgdata.each { data ->
-    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}", requiredDebugLevel)
+    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data.key}: ${data.value}${Constants.Colors.CLEAR}", debugLevelToPrint)
   }
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", debugLevelToPrint)
 }
 
-public debugPrint(List msgdata, int requiredDebugLevel=1) {
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+public debugPrint(List msgdata, int debugLevelToPrint=1) {
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", debugLevelToPrint)
   msgdata.each { data ->
-    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data}${Constants.Colors.CLEAR}", requiredDebugLevel)
+    debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${data}${Constants.Colors.CLEAR}", debugLevelToPrint)
   }
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", debugLevelToPrint)
 }
 
-public debugPrint(String msgdata, int requiredDebugLevel=1) {
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", requiredDebugLevel)
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${msgdata}${Constants.Colors.CLEAR}", requiredDebugLevel)
-  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", requiredDebugLevel)
+public debugPrint(String msgdata, int debugLevelToPrint=1) {
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###", debugLevelToPrint)
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${msgdata}${Constants.Colors.CLEAR}", debugLevelToPrint)
+  debugPrintMessage("### ${Constants.Colors.MAGENTA}End Debug${Constants.Colors.CLEAR} ###", debugLevelToPrint)
 }
 
 private getDebugMessageTitle() {
@@ -490,12 +490,15 @@ private getDebugMessageTitle() {
   return "WorkflowLibs :: ${cMethod.declaringClass} :: ${cMethod.methodName} :: Line ${cMethod.lineNumber}"
 }
 
-private debugPrintMessage(String msg, int requiredDebugLevel=1) {
+private debugPrintMessage(String msg, int debugLevelToPrint=1) {
   if (isDebug()) {
-    int setDebugLevel = env."${Constants.Env.DEBUG_LEVEL}" as int
-    println "setDebugLevel [${setDebugLevel}] required for print level [${requiredDebugLevel}]"
-    if (setDebugLevel <= requiredDebugLevel) {
+    if (debugShouldPrint(debugLevelToPrint)) {
       println msg
     }
   }
+}
+
+private debugShouldPrint(int debugLevelToPrint) {
+  int currentRequestedLevel = env."${Constants.Env.DEBUG_LEVEL}" as int
+  return (debugLevelToPrint <= currentRequestedLevel)
 }
