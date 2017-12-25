@@ -65,8 +65,9 @@ def call(body) {
 
       currentBuild.result = 'SUCCESS'
     } catch (e) {
-      currentBuild.result = 'FAILURE'
-      throw e
+      error("""WorkflowLibs :: plWorkflow :: Pipeline execution failed while running steps
+              |-------------------------------------
+              |$e""".stripMargin())
     } finally {
       currentBuild.result = currentBuild.result ?: 'FAILURE'
       if (slackNotify) {

@@ -209,6 +209,9 @@ private loadWorkflows(String fileName, Map yml) {
   if (localFileExists) {
     try {
       workflow = load localFile
+      println """${'*'*80}
+                |${Constants.Colors.YELLOW_ON_BLACK}Loaded Custom Workflow [${Constants.Colors.CYAN_ON_BLACK}${localFile}${Constants.Colors.YELLOW_ON_BLACK}].${Constants.Colors.CLEAR}
+                |${'*'*80}""".stripMargin()
     } catch (java.io.NotSerializableException nse) {
       error("""${Constants.Colors.RED}
               |Error loading workflow, this is most likely to be caused by a syntax error in the groovy file.
@@ -236,7 +239,10 @@ private loadWorkflows(String fileName, Map yml) {
     assert credentialsId
     debugPrint(credentialsId)
     try {
-      workflow = fileLoader.fromGit(fileName,repo, branch, credentialsId, nodeLabel)
+      workflow = fileLoader.fromGit(fileName, repo, branch, credentialsId, nodeLabel)
+      println """${'*'*80}
+                |${Constants.Colors.WHITE_ON_BLACK}Loaded Workflow [${Constants.Colors.CYAN_ON_BLACK}${fileName}${Constants.Colors.WHITE_ON_BLACK}] from remote [${Constants.Colors.CLEAR}${repo}${Constants.Colors.WHITE_ON_BLACK}].${Constants.Colors.CLEAR}
+                |${'*'*80}""".stripMargin()
     } catch (java.io.NotSerializableException nse) {
       error("Failed to load a workflow from ${repo}, please create an issue on the project in GitHub (https://github.com/concur/jenkins-workflow).")
     }
@@ -288,7 +294,7 @@ def checkBranch(Map yml, String branch=env.BRANCH_NAME) {
 */
 def getCredentialsWithCriteria(Map criteria) {
 
-  debugPrint(criteria)
+  debugPrint(criteria, 2)
 
   // Make sure properties isn't empty
   assert criteria : "No criteria provided."
