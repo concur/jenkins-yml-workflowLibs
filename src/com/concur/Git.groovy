@@ -108,11 +108,7 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
     return env."${Constants.Env.VERSION}"
   }
   try {
-    def outfileName = "version.tmp"
-    def gitCommand = 'git tag --sort -v:refname | head -1'
-    def winGitCommand = "\$(${gitCommand})[0]"
-
-    def tag = runGitShellCommand(gitCommand, winGitCommand, outfileName)
+    def tag = runGitShellCommand('git tag --sort -v:refname | head -1', '$(git tag --sort -v:refname)[0]')
 
     def buildNumber = timeSinceLatestTag()
     if (tag == null || tag.size() == 0) {
@@ -181,10 +177,10 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
 }
 
 def timeSinceLatestTag() {
-  def outfileName = 'tags_date.txt'
-  def linuxGitCommand = 'git log --pretty="format:%ci" $(git tag --sort -v:refname) | head -1'
-  def winGitCommand = '$(git log --pretty="format:%ci" $(git tag --sort -v:refname))[0]'
-  def tagDateString = runGitShellCommand(linuxGitCommand, winGitCommand, outfileName)
+  def tagDateString = runGitShellCommand(
+    'git log --pretty="format:%ci" $(git tag --sort -v:refname) | head -1',
+    '$(git log --pretty="format:%ci" $(git tag --sort -v:refname))[0]'
+  )
 
   concurPipeline.debugPrint(["Git tag data": tagDateString])
 
