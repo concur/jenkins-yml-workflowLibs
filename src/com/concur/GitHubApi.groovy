@@ -70,7 +70,7 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
   }
 
   withCredentials([string(credentialsId: credentialId, variable: 'accessToken')]) {
-    def headers = ['Authorization': "bearer $accessToken")
+    def headers = ['Authorization': "bearer $accessToken"]
     return httpRequest(acceptType: 'APPLICATION_JSON',
                       contentType: 'APPLICATION_JSON',
                       customHeaders: headers,
