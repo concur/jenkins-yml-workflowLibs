@@ -154,7 +154,12 @@ def createPullRequest(String title,
   }
   def currentPullRequest = getPullRequests(credentialData, owner, repo, host, fromBranch, toBranch)
   if (currentPullRequest.any()) {
-    concurPipeline.debugPrint(["msg": "PR exists", "data": currentPullRequest ])
+    println """workflowLibs :: GitHubApi :: createPullRequest :: A pull request already exists for the branches specified:
+              |---------------------------------
+              |Title: ${currentPullRequest.title}
+              |PR Number: ${currentPullRequest.number}
+              |Destination Branch: ${currentPullRequest.baseRefName}
+              |From Branch: ${currentPullRequest.headRefName}""".stripMargin()
     if (currentPullRequest instanceof ArrayList) {
       return currentPullRequest[0]
     } else {
