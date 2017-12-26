@@ -42,7 +42,7 @@ def githubRequestWrapper(String method, String endpoint, Map postData=null, Map 
                      validResponseCodes: validResponseCodes)
 }
 
-def githubGraphqlRequestWrapper(String query, Map variables=null, String host=null, String credentialId=null, Boolean outputResponse=false, Boolean ignoreErrors=null) {
+def githubGraphqlRequestWrapper(String query, Map variables=null, String host=null, String credentialId=null, Boolean outputResponse=false, Boolean ignoreSslErrors=false) {
   if (!host) {
     def gitDataHost = new Git().getGitData().host
     if (gitDataHost == 'github.com') {
@@ -62,7 +62,7 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
   concurPipeline.debugPrint('WorkflowLibs :: GitHubApi :: githubGraphqlRequestWrapper', [
     "host"            : host,
     "outputResponse"  : outputResponse,
-    "ignoreErrors"    : ignoreErrors,
+    "ignoreSslErrors" : ignoreSslErrors,
     "graphQlQuery"    : graphQlQuery])
   
   if (!credentialId) {
@@ -75,11 +75,10 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
                       contentType: 'APPLICATION_JSON',
                       customHeaders: headers,
                       url: host,
-                      ignoreSslErrors: ignoreErrors,
+                      ignoreSslErrors: ignoreSslErrors,
                       httpMode: 'POST',
                       requestBody: groovy.json.JsonOutput.toJson(graphQlQuery),
-                      consoleLogResponseBody: outputResponse,
-                      validResponseCodes: validResponseCodes)
+                      consoleLogResponseBody: outputResponse)
   }
 }
 
