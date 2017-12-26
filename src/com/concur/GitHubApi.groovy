@@ -117,7 +117,7 @@ def getPullRequests(Map credentialData, String org='', String repo='', String ho
                    }
                  }'''
 
-  def variables = [
+  Map variables = [
     'org'     : org,
     'repo'    : repo,
     'headRef' : fromBranch,
@@ -125,22 +125,26 @@ def getPullRequests(Map credentialData, String org='', String repo='', String ho
     'state'   : state
   ]
 
+  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData)
+
   concurPipeline.debugPrint([
-    'org'       : org,
-    'repo'      : repo,
-    'host'      : host,
-    'query'     : query,
-    'variables' : variables,
+    'org'           : org,
+    'repo'          : repo,
+    'host'          : host,
+    'query'         : query,
+    'variables'     : variables,
+    'credentialId'  : credentialId,
 
-    'org.class'       : org.getClass(),
-    'repo.class'      : repo.getClass(),
-    'host.class'      : host.getClass(),
-    'query.class'     : query.getClass(),
-    'variables.class' : variables.getClass()
-
+    'org.class'           : org.getClass(),
+    'repo.class'          : repo.getClass(),
+    'host.class'          : host.getClass(),
+    'query.class'         : query.getClass(),
+    'variables.class'     : variables.getClass(),
+    'credentialId.class'  : credentialId.getClass(),
   ])
 
-  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData)
+
+  // githubGraphqlRequestWrapper(String query, Map variables=null, String host=null, String credentialId=null, Boolean outputResponse=false, Boolean ignoreErrors=null)
 
   def results = githubGraphqlRequestWrapper(query, variables, host, credentialId)
   return concurUtil.parseJSON(results.content)?.data?.repository?.pullRequests?.nodes
