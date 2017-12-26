@@ -83,7 +83,7 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
   }
 }
 
-def getPullRequests(String org='', String repo='', String host='', String fromBranch='', String baseBranch='', String state='OPEN', Map credentialData=null) {
+def getPullRequests(Map credentialData, String org='', String repo='', String host='', String fromBranch='', String baseBranch='', String state='OPEN') {
   def gitData = new Git().getGitData()
   if (!org) {
     org   = gitData.org
@@ -125,7 +125,9 @@ def getPullRequests(String org='', String repo='', String host='', String fromBr
     'state'   : state
   ]
 
-  def results = githubGraphqlRequestWrapper(query, variables, credentialId=null)
+  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData)
+
+  def results = githubGraphqlRequestWrapper(query, variables, credentialId)
   return concurUtil.parseJSON(results.content)?.data?.repository?.pullRequests?.nodes
 }
 
