@@ -125,6 +125,21 @@ def getPullRequests(Map credentialData, String org='', String repo='', String ho
     'state'   : state
   ]
 
+  concurPipeline.debugPrint([
+    'org'       : org,
+    'repo'      : repo,
+    'host'      : host,
+    'query'     : query,
+    'variables' : variables,
+
+    'org.class'       : org.getClass(),
+    'repo.class'      : repo.getClass(),
+    'host.class'      : host.getClass(),
+    'query.class'     : query.getClass(),
+    'variables.class' : variables.getClass()
+
+  ])
+
   def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData)
 
   def results = githubGraphqlRequestWrapper(query, variables, host, credentialId)
