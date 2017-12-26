@@ -106,7 +106,7 @@ def getGitData(String url = '') {
     org   = scmList[1]
     repo  = scmList[2]
   } else if (url.startsWith('git@')) {
-    return getGitData(url.replace('git@', 'https://').replace(':', '/'))
+    return getGitData(url.replace(':', '/').replace('git@', 'https://'))
   } else {
     error("Provided URI is not Git compatible: ${url}")
   }
