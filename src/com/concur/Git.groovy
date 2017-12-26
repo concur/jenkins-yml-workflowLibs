@@ -7,36 +7,27 @@ import groovy.transform.Field;
 
 // Get the commit SHA for the last file or folder changed.
 def getCommitSHA(String folder='.', int depth=1) {
-  if (isUnix()) {
-    return sh(returnStdout: true, script: "git log -n ${depth} --pretty=format:%H ${folder}").trim()
-  } else {
-    bat "git log -n ${depth} --pretty=format:%%H ${folder} > lastSHA"
-    return readFile('lastSHA')
-  }
+  return runGitShellCommand("git log -n ${depth} --pretty=format:%H ${folder}")
 }
 
-def getFilesChanged(String commitSha=env.GIT_COMMIT) {
-  def gitCommand = "git diff-tree --no-commit-id --name-only -r ${env.GIT_COMMIT}"
-  return runGitShellCommand(gitCommand, gitCommand, 'files_changed.tmp').trim().tokenize('\n')
+def getFilesChanged(String commitSha='') {
+  if (!commitSha) { commitSha = env.GIT_COMMIT }
+  return runGitShellCommand("git diff-tree --no-commit-id --name-only -r ${commitSha}").tokenize('\n')
 }
 
-def runGitShellCommand(String gitCommand, String winGitCommand, String outfileName = 'file.tmp') {
-  if (winGitCommand == null) {
+def runGitShellCommand(String gitCommand, String winGitCommand='') {
+  if (!winGitCommand) {
     winGitCommand = gitCommand
   }
+  concurPipeline.debugPrint([
+    'gitCommand'    : gitCommand,
+    'winGitCommand' : winGitCommand
+  ], 2)
   if(isUnix()) {
-    def command = "${gitCommand} > ${outfileName}"
-    concurPipeline.debugPrint(['command': command])
-    sh command
+    return sh(returnStdout: true, script: gitCommand).trim()
   } else {
-    def pwd = pwd()
-    def command = "[System.IO.File]::WriteAllLines('${pwd}\\${outfileName}', \$(${winGitCommand}))"
-    concurPipeline.debugPrint(['command': command])
-    bhPsh command
+    return powershell(returnStdout: true, script: winGitCommand).trim()
   }
-  def fileContents = readFile outfileName
-  concurPipeline.debugPrint(["fileContents": fileContents])
-  return fileContents
 }
 
 // Save git properties to environment variables
@@ -51,15 +42,8 @@ def saveGitProperties(Map scmVars) {
     'GIT_AUTHOR'          : 'git show -s --pretty=%an'
   ]
 
-  if (isUnix()) {
-    concurPipeline.jenkinsMap(gitCommands).each {
-      env."${it.key}" = sh(returnStdout: true, script: "${it.value}").trim()
-    }
-  } else {
-    concurPipeline.jenkinsMap(gitCommands).each {
-      bat "${it.value.replace('%', '%%')} > ${it.key}"
-      env."${it.key}" = readFile("${it.key}").trim()
-    }
+  concurPipeline.jenkinsMap(gitCommands).each {
+    env."${it.key}" = runGitShellCommand(it.value)
   }
 
   def gitData = getGitData()
