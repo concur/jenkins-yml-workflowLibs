@@ -32,14 +32,15 @@ def githubRequestWrapper(String method, String endpoint, Map postData=null, Map 
   }
 
   return httpRequest(acceptType: 'APPLICATION_JSON',
-                     contentType: 'APPLICATION_JSON',
-                     customHeaders: additionalHeaders,
-                     url: endpoint,
-                     ignoreSslErrors: ignoreErrors,
-                     httpMode: method.toUpperCase(),
-                     requestBody: groovy.json.JsonOutput.toJson(postData),
-                     consoleLogResponseBody: outputResponse,
-                     validResponseCodes: validResponseCodes)
+                    contentType: 'APPLICATION_JSON',
+                    customHeaders: additionalHeaders,
+                    url: endpoint,
+                    ignoreSslErrors: ignoreErrors,
+                    httpMode: method.toUpperCase(),
+                    quiet: true,
+                    requestBody: groovy.json.JsonOutput.toJson(postData),
+                    consoleLogResponseBody: outputResponse,
+                    validResponseCodes: validResponseCodes)
 }
 
 def githubGraphqlRequestWrapper(String query, Map variables=null, String host=null, String credentialId=null, Boolean outputResponse=false, Boolean ignoreSslErrors=false) {
@@ -70,13 +71,14 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
   }
 
   withCredentials([string(credentialsId: credentialId, variable: 'accessToken')]) {
-    def headers = ['Authorization': "bearer $accessToken"]
+    def headers = [['name':'Authorization', 'value': "bearer $accessToken"]]
     return httpRequest(acceptType: 'APPLICATION_JSON',
                       contentType: 'APPLICATION_JSON',
                       customHeaders: headers,
                       url: host,
                       ignoreSslErrors: ignoreSslErrors,
                       httpMode: 'POST',
+                      quiet: true,
                       requestBody: groovy.json.JsonOutput.toJson(graphQlQuery),
                       consoleLogResponseBody: outputResponse)
   }
