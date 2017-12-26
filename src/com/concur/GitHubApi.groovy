@@ -4,25 +4,32 @@ package com.concur
 import groovy.transform.Field;
 import org.jenkinsci.plugins.github_branch_source.GitHubConfiguration;
 
-@Field def concurPipeline = new com.concur.Commands()
-@Field def concurHttp = new com.concur.Http()
-@Field def concurUtil = new com.concur.Util()
+@Field def concurPipeline = new Commands()
+@Field def concurHttp     = new Http()
+@Field def concurUtil     = new Util()
 
 // Use this if you are making a request to Concur's central GitHub server, endpoint should be anything after api/v3
 def githubRequestWrapper(String method, String endpoint, Map postData=null, Map additionalHeaders=null,
-                         String credentialsId='', Boolean outputResponse=false, Boolean ignoreErrors=false) {
-  def githubApiUri = getGithubApiUrl()
-  endpoint = "${githubApiUri}${endpoint}"
+                         String credentialsId='', Boolean outputResponse=false, Boolean ignoreErrors=false, String host=null) {
+  if (!host) {
+    host = new Git().getGitData().host
+  }
+  // ensure the host doesn't contain a slash at the end
+  if (host[-1] == '/') {
+    host = host[0..-2]
+  }
+  endpoint = "$host/$endpoint"
+
   if (outputResponse == null) {
     outputResponse = concurPipeline.isDebug()
   }
 
   def validResponseCodes = '100:399'
-    if (ignoreErrors) {
-      // there are times with the GitHub API in particular where a 404 is acceptable result,
-      // this will ensure the httpRequest plugin does not fail the build in for acceptable 404s
-      validResponseCodes = '100:599'
-    }
+  if (ignoreErrors) {
+    // there are times with the GitHub API in particular where a 404 is acceptable result,
+    // this will ensure the httpRequest plugin does not fail the build in for acceptable 404s
+    validResponseCodes = '100:599'
+  }
 
   return httpRequest(acceptType: 'APPLICATION_JSON',
                      contentType: 'APPLICATION_JSON',
@@ -35,31 +42,91 @@ def githubRequestWrapper(String method, String endpoint, Map postData=null, Map 
                      validResponseCodes: validResponseCodes)
 }
 
-@NonCPS
-def getGithubApiUrl() {
-  def githubEndpoints = new GitHubConfiguration().getEndpoints()
-  def endpoint = githubEndpoints.find {
-    it.getName() == 'Concur.GitHub.Enterprise'
-  }.apiUri
+def githubGraphqlRequestWrapper(String query, Map variables=null, String host=null, String credentialId=null, Boolean outputResponse=false, Boolean ignoreErrors=null) {
+  if (!host) {
+    def gitDataHost = new Git().getGitData().host
+    if (gitDataHost == 'github.com') {
+      host = 'https://api.github.com/graphql'
+    } else {
+      host = "https://$gitDataHost/api/graphql"
+    }
+  }
+  // GraphQL endpoint is static and there is only one so doesn't need to be further variablized.
+  if (outputResponse == null) {
+    outputResponse = concurPipeline.isDebug()
+  }
+  def graphQlQuery = ["query": query]
+  if (variables) {
+    graphQlQuery['variables'] = variables
+  }
+  concurPipeline.debugPrint('WorkflowLibs :: GitHubApi :: githubGraphqlRequestWrapper', [
+    "host"            : host,
+    "outputResponse"  : outputResponse,
+    "ignoreErrors"    : ignoreErrors,
+    "graphQlQuery"    : graphQlQuery])
+  
+  if (!credentialId) {
+    error('workflowLibs :: GitHubApi :: githubGraphqlRequestWrapper :: No credentials provided to authenticate with GitHub, this is required for GraphQL requests.')
+  }
+
+  withCredentials([string(credentialsId: credentialId, variable: 'accessToken')]) {
+    def headers = ['Authorization': "bearer $accessToken")
+    return httpRequest(acceptType: 'APPLICATION_JSON',
+                      contentType: 'APPLICATION_JSON',
+                      customHeaders: headers,
+                      url: host,
+                      ignoreSslErrors: ignoreErrors,
+                      httpMode: 'POST',
+                      requestBody: groovy.json.JsonOutput.toJson(graphQlQuery),
+                      consoleLogResponseBody: outputResponse,
+                      validResponseCodes: validResponseCodes)
+  }
 }
 
-def getPullRequests(String org, String repo, String fromBranch='', String baseBranch='', String state='open', String sort='created', String direction='desc') {
-  assert org : "Cannot get available pull requests without specifying a GitHub organization"
-  assert repo : "Cannot get available pull requests without specifying a GitHub repository"
-  String endpoint = "/repos/${org}/${repo}/pulls"
-  if (fromBranch) {
-    fromBranch = (fromBranch =~ /:/) ? fromBranch : "${org}:${fromBranch}"
-    endpoint = concurHttp.addToUriQueryString(endpoint, 'head', fromBranch)
+def getPullRequests(String org='', String repo='', String host='', String fromBranch='', String baseBranch='', String state='OPEN', Map credentialData=null) {
+  def gitData = new Git()getGitData()
+  if (!org) {
+    org   = gitData.org
   }
-  if (baseBranch) {
-    endpoint = concurHttp.addToUriQueryString(endpoint, 'base', baseBranch)
-  }
-  endpoint = concurHttp.addToUriQueryString(endpoint, 'state', state)
-  endpoint = concurHttp.addToUriQueryString(endpoint, 'sort', sort)
-  endpoint = concurHttp.addToUriQueryString(endpoint, 'direction', direction)
 
-  def results = githubRequestWrapper('GET', endpoint)
-  return concurUtil.parseJSON(results.content)
+  if (!repo) {
+    repo  = gitData.repo
+  }
+
+  if (!host) {
+    host  = gitData.host
+  }
+
+  def query = '''query ($org: String!, $repo: String!, $state:PullRequestState!, $headRef: String, $baseRef: String) {
+                   repository(name: $repo, owner: $org) {
+                     pullRequests(last: 20, baseRefName: $baseRef, headRefName: $headRef, states: [$state]) {
+                       nodes {
+                         id
+                         number
+                         title
+                         headRefName
+                         baseRefName
+                         labels(first: 10) {
+                           nodes {
+                             name
+                           }
+                         }
+                         mergeable
+                       }
+                     }
+                   }
+                 }'''
+
+  def variables = [
+    'org'     : org,
+    'repo'    : repo,
+    'headRef' : fromBranch,
+    'baseRef' : baseBranch,
+    'state'   : state
+  ]
+
+  def results = githubGraphqlRequestWrapper(query, variables, credentialId=null)
+  return concurUtil.parseJSON(results.content)?.data?.repository?.pullRequests?.nodes
 }
 
 // https://developer.github.com/v3/pulls/#create-a-pull-request
