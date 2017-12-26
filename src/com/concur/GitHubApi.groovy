@@ -87,15 +87,11 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
 def getPullRequests(Map credentialData, String org='', String repo='', String host='', String fromBranch='', String baseBranch='', String state='OPEN') {
   def gitData = new Git().getGitData()
   if (!org) {
-    org   = gitData.org
+    org = gitData.org
   }
 
   if (!repo) {
-    repo  = gitData.repo
-  }
-
-  if (!host) {
-    host  = gitData.host
+    repo = gitData.repo
   }
 
   def query = '''query ($org: String!, $repo: String!, $state:PullRequestState!, $headRef: String, $baseRef: String) {
@@ -134,14 +130,7 @@ def getPullRequests(Map credentialData, String org='', String repo='', String ho
     'host'          : host,
     'query'         : query,
     'variables'     : variables,
-    'credentialId'  : credentialId,
-
-    'org.class'           : org.getClass(),
-    'repo.class'          : repo.getClass(),
-    'host.class'          : host.getClass(),
-    'query.class'         : query.getClass(),
-    'variables.class'     : variables.getClass(),
-    'credentialId.class'  : credentialId.getClass(),
+    'credentialId'  : credentialId
   ])
 
 
