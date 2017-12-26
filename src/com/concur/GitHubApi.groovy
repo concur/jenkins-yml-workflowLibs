@@ -84,7 +84,7 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
 }
 
 def getPullRequests(String org='', String repo='', String host='', String fromBranch='', String baseBranch='', String state='OPEN', Map credentialData=null) {
-  def gitData = new Git()getGitData()
+  def gitData = new Git().getGitData()
   if (!org) {
     org   = gitData.org
   }
