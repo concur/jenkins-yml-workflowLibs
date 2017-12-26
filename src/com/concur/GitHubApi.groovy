@@ -84,18 +84,18 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
   }
 }
 
-def getPullRequests(Map credentialData, String org='', String repo='', String host='', String fromBranch='', String baseBranch='', String state='OPEN') {
+def getPullRequests(Map credentialData, String owner='', String repo='', String host='', String fromBranch='', String baseBranch='', String state='OPEN') {
   def gitData = new Git().getGitData()
-  if (!org) {
-    org = gitData.org
+  if (!owner) {
+    owner = gitData.org
   }
 
   if (!repo) {
     repo = gitData.repo
   }
 
-  def query = '''query ($org: String!, $repo: String!, $state:PullRequestState!, $headRef: String, $baseRef: String) {
-                   repository(name: $repo, owner: $org) {
+  def query = '''query ($owner: String!, $repo: String!, $state:PullRequestState!, $headRef: String, $baseRef: String) {
+                   repository(name: $repo, owner: $owner) {
                      pullRequests(last: 20, baseRefName: $baseRef, headRefName: $headRef, states: [$state]) {
                        nodes {
                          id
@@ -115,12 +115,16 @@ def getPullRequests(Map credentialData, String org='', String repo='', String ho
                  }'''
 
   Map variables = [
-    'org'     : org,
+    'owner'   : owner,
     'repo'    : repo,
-    'headRef' : fromBranch,
-    'baseRef' : baseBranch,
     'state'   : state
   ]
+  if (fromBranch) {
+    variables['headRef'] = fromBranch
+  }
+  if (baseBranch) {
+    variables['baseRef'] = baseBranch
+  }
 
   def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
 
