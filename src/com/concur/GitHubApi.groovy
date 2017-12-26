@@ -125,7 +125,7 @@ def getPullRequests(Map credentialData, String org='', String repo='', String ho
     'state'   : state
   ]
 
-  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData)
+  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
 
   concurPipeline.debugPrint([
     'org'           : org,
