@@ -128,18 +128,6 @@ def getPullRequests(Map credentialData, String owner='', String repo='', String 
 
   def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
 
-  concurPipeline.debugPrint([
-    'owner'         : owner,
-    'repo'          : repo,
-    'host'          : host,
-    'query'         : query,
-    'variables'     : variables,
-    'credentialId'  : credentialId
-  ])
-
-
-  // githubGraphqlRequestWrapper(String query, Map variables=null, String host=null, String credentialId=null, Boolean outputResponse=false, Boolean ignoreErrors=null)
-
   def results = githubGraphqlRequestWrapper(query, variables, host, credentialId)
   return concurUtil.parseJSON(results.content)?.data?.repository?.pullRequests?.nodes
 }
@@ -148,11 +136,13 @@ def getPullRequests(Map credentialData, String owner='', String repo='', String 
 def createPullRequest(String title,
                       String fromBranch,
                       String toBranch,
-                      String org,
+                      String owner,
                       String repo,
-                      String summary='Created by Buildhub',
+                      String host,
+                      Map credentialData,
+                      String summary="Automatically created at ${env.BUILD_URL}",
                       Boolean maintainer_can_modify=true) {
-  assert org        : "Cannot create a pull request without specifying a GitHub organization."
+  assert owner      : "Cannot create a pull request without specifying a GitHub organization."
   assert repo       : "Cannot create a pull request without specifying a GitHub repository."
   assert title      : "Cannot create a pull request without specifying a title."
   assert fromBranch : "Cannot create a pull request without specifying what branch to pull from [fromBranch]."
@@ -162,8 +152,7 @@ def createPullRequest(String title,
     println "Skipping Pull Request creation from a fork. A Pull Request already exists."
     return
   }
-
-  def currentPullRequest = getPullRequests(org, repo, fromBranch, toBranch)
+  def currentPullRequest = getPullRequests(credentialData, owner, repo, host, fromBranch, toBranch)
   if (currentPullRequest.any()) {
     concurPipeline.debugPrint(["msg": "PR exists", "data": currentPullRequest ])
     if (currentPullRequest instanceof ArrayList) {
@@ -179,14 +168,6 @@ def createPullRequest(String title,
     "base"                  : toBranch,
     "maintainer_can_modify" : maintainer_can_modify
   ]
-  def response = githubRequestWrapper('POST', "/repos/${org}/${repo}/pulls", postData)
-
-  switch (response.status) {
-    case 422: println("There is already an existing Pull Request.") // Formula 422 response
-      throw javax.ws.rs.core.Response.Status.CONFLICT
-    case 404: println "Unable to find Organization/User or repository."
-      throw javax.ws.rs.core.Response.Status.NOT_FOUND
-    case 201 | 200:
-      return concurUtil.parseJSON(response.content)
-  }
+  def response = githubRequestWrapper('POST', "/repos/${owner}/${repo}/pulls", postData)
+  return concurUtil.parseJSON(response.content)
 }
