@@ -381,6 +381,8 @@ private intersectCredentials(Map criteria, List credentialList) {
     if (i == count) {
       println "Adding ${c.description} to the credential list"
       credentials << c
+    } else {
+      println "Did not add ${c.description} to the list because count $count does not equal $i"
     }
   }
   println """
