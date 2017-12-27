@@ -162,7 +162,8 @@ def getReleases(Map credentialData, String owner='', String repo='', String host
 
   Map variables = [
     'owner'   : owner,
-    'repo'    : repo
+    'repo'    : repo,
+    'limit'   : limit
   ]
 
   def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
