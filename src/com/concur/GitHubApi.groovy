@@ -132,7 +132,7 @@ def getPullRequests(Map credentialData, String owner='', String repo='', String 
   return concurUtil.parseJSON(results.content)?.data?.repository?.pullRequests?.nodes
 }
 
-def getReleases(Map credentialData, String owner='', String repo='', String host='') {
+def getReleases(Map credentialData, String owner='', String repo='', String host='', int limit=10) {
   def gitData = new Git().getGitData()
   if (!owner) {
     owner = gitData.org
@@ -142,9 +142,9 @@ def getReleases(Map credentialData, String owner='', String repo='', String host
     repo = gitData.repo
   }
 
-  def query = '''query ($repo: String!, $owner: String!) {
+  def query = '''query ($repo: String!, $owner: String!, $limit: Int!) {
                   repository(name: $repo, owner: $owner) {
-                    releases(last: 10) {
+                    releases(last: $limit) {
                       nodes {
                         tag {
                           name
