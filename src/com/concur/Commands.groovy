@@ -339,10 +339,10 @@ def getCredentialsWithCriteria(Map criteria) {
     if (count == s.getProperties().keySet().intersect(criteria.keySet()).size()) {
       if (s.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
         s.getProperties().keySet().intersect(criteria.keySet()).each { p ->
-          if (s."$p" != criteria."$p") {
-            break;
-          } else {
+          if (s."$p" == criteria."$p") {
             i++;
+          } else {
+            continue
           }
         }
       }
