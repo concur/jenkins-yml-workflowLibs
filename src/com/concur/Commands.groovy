@@ -363,7 +363,7 @@ private intersectCredentials(Map criteria, List credentialList) {
   def credentials = []
   def count = criteria.keySet().size()
   def i = 0
-  for (s in credentialList) {
+  for (c in credentialList) {
     if (count == c.getProperties().keySet().intersect(criteria.keySet()).size()) {
       if (c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
         for (p in c.getProperties().keySet().intersect(criteria.keySet())) {
