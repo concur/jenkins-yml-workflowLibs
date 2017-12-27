@@ -128,7 +128,7 @@ def getPullRequests(Map credentialData, String owner='', String repo='', String 
 
   def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
 
-  debugPrint([
+  concurPipeline.debugPrint([
     'query'     : query,
     'variables' : variables,
     'host'      : host
