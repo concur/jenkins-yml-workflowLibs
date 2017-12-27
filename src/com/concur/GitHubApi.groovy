@@ -84,7 +84,7 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
   }
 }
 
-def getPullRequests(Map credentialData, String owner='', String repo='', String host='', String fromBranch='', String baseBranch='', String state='OPEN') {
+def getPullRequests(String credentialId, String owner='', String repo='', String host='', String fromBranch='', String baseBranch='', String state='OPEN') {
   def gitData = new Git().getGitData()
   if (!owner) {
     owner = gitData.org
@@ -125,8 +125,6 @@ def getPullRequests(Map credentialData, String owner='', String repo='', String 
   if (baseBranch) {
     variables['baseRef'] = baseBranch
   }
-
-  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
 
   concurPipeline.debugPrint([
     'query'     : query,
@@ -198,7 +196,9 @@ def createPullRequest(String title,
     println "Skipping Pull Request creation from a fork. A Pull Request already exists."
     return
   }
-  def currentPullRequest = getPullRequests(credentialData, owner, repo, host, fromBranch, toBranch)
+  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
+
+  def currentPullRequest = getPullRequests(credentialId, owner, repo, host, fromBranch, toBranch)
   if (currentPullRequest.any()) {
     println """workflowLibs :: GitHubApi :: createPullRequest :: A pull request already exists for the branches specified:
               |---------------------------------
@@ -219,6 +219,9 @@ def createPullRequest(String title,
     "base"                  : toBranch,
     "maintainer_can_modify" : maintainer_can_modify
   ]
-  def response = githubRequestWrapper('POST', "/repos/${owner}/${repo}/pulls", postData)
+  
+  // def githubRequestWrapper(String method, String endpoint, Map postData=null, Map additionalHeaders=null,
+  //                        String credentialsId='', Boolean outputResponse=false, Boolean ignoreErrors=false, String host=null) {
+  def response = githubRequestWrapper('POST', "/repos/${owner}/${repo}/pulls", postData, null, credentialId, false, false, host)
   return concurUtil.parseJSON(response.content)
 }
