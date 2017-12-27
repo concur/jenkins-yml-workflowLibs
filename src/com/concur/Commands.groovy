@@ -339,7 +339,7 @@ def getCredentialsWithCriteria(Map criteria) {
     if (count == s.getProperties().keySet().intersect(criteria.keySet()).size()) {
       if (s.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
         for (p in s.getProperties().keySet().intersect(criteria.keySet())) {
-          if (s.p != criteria.p) {
+          if (s."$p" != criteria."$p") {
             break;
           } else {
             i++;
