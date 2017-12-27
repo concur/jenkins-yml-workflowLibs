@@ -176,7 +176,7 @@ private getStageName(workflow, List stages, String workflowName, String stepName
   if (canGenerate) {
     stageName = workflow.getStageName(yml, args, stepName)
     if (!stageName) {
-      "$workflowName: $stepName"
+      stageName = "$workflowName: $stepName"
     }
   } else {
     stageName = "$workflowName: $stepName"
