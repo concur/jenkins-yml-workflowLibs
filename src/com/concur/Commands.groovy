@@ -363,19 +363,20 @@ private intersectCredentials(Map criteria, List credentialList) {
   def credentials = []
   def count = criteria.keySet().size()
   def i = 0
-  credentialList.each { s ->
-    if (count == s.getProperties().keySet().intersect(criteria.keySet()).size()) {
-      if (s.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
-        s.getProperties().keySet().intersect(criteria.keySet()).each { p ->
-          if (s."$p" == criteria."$p") {
-            println "criteria.\"$p\" :: ${criteria."$p"}"
-            println "s.\"$p\" :: ${s."$p"}"
-            credentials << s
+  for (s in credentialList) {
+    if (count == c.getProperties().keySet().intersect(criteria.keySet()).size()) {
+      if (c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
+        for (p in c.getProperties().keySet().intersect(criteria.keySet())) {
+          if (c."${p}" != criteria."${p}") {
+            break;
           } else {
-            return
+            i++;
           }
         }
       }
+    }
+    if (i == count) {
+      credentials << c
     }
   }
   println """
