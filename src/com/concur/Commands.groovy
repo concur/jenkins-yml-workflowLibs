@@ -369,7 +369,7 @@ private intersectCredentials(Map criteria, List credentialList) {
         for (p in c.getProperties().keySet().intersect(criteria.keySet())) {
           println "Testing $p"
           if (c."${p}" != criteria."${p}") {
-            println "${c."${p}} does not match ${criteria."${p}"}"
+            println "${c."${p}"} does not match ${criteria."${p}"}"
             break
           } else {
             i++
