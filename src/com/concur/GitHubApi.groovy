@@ -169,7 +169,7 @@ def getReleases(Map credentialData, String owner='', String repo='', String host
   def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
 
   def results = githubGraphqlRequestWrapper(query, variables, host, credentialId)
-  return concurUtil.parseJSON(results.content)
+  return concurUtil.parseJSON(results.content)?.data?.repository?.releases?.nodes
 }
 
 // https://developer.github.com/v3/pulls/#create-a-pull-request
