@@ -333,12 +333,12 @@ def getCredentialsWithCriteria(Map criteria) {
     'globalCreds': globalCreds.collect { ['description': it.description, 'id': it.id] }
   ])
   // Separately loop through credentials provided by different credential providers
-  for (s in [folderCreds, globalCreds].flatten()) {
+  [folderCreds, globalCreds].flatten().each { s ->
     // Filter the results based on description and class
     def i = 0
     if (count == s.getProperties().keySet().intersect(criteria.keySet()).size()) {
       if (s.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
-        for (p in s.getProperties().keySet().intersect(criteria.keySet())) {
+        s.getProperties().keySet().intersect(criteria.keySet()).each { p ->
           if (s."$p" != criteria."$p") {
             break;
           } else {
