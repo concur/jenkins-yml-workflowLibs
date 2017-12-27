@@ -112,49 +112,45 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
 
     def buildNumber = timeSinceLatestTag()
     if (tag == null || tag.size() == 0) {
-      println "no existing tag found using version ${version}-${buildNumber}"
+      println "no existing tag found using version: ${version}-${buildNumber}"
       env."${Constants.Env.VERSION}" = "${version}-${buildNumber}"
       return "${version}-${buildNumber}"
     }
     // Getting the tag to check versioning scheme
     tag = tag.replaceAll("\\s+","")
 
-    println "Tag: ${tag}"
-    println """Testing to see what versioning scheme is used on the previous tag and compare that to the ${version} option passed in
-          To force a different scheme than what was previously used, set the ignorePrevious option to true."""
-
     String semverPatternString = '(?i)\\b(?<prefix>v)?(?<major>0|[1-9]\\d*)(?:\\.(?<minor>0|[1-9]\\d*)(?:\\.(?<patch>0|[1-9]\\d*))?)?(?:-(?<prerelease>[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*))?(?:\\+(?<build>[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*))?\\b'
     java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(semverPatternString)
+
     // List of different versioning scheme regex patters to match against
-    def semver = pattern.matcher(tag)
-    println "Semver: " + semver
-    println "Semver matches: " + semver.matches()
+    def tagSemver     = pattern.matcher(tag)
+    def versionSemver = pattern.matcher(version.trim())
+
+    concurPipeline.debugPrint([
+      'tag'               : tag,
+      'tag is semver'     : tagSemver.matches(),
+      'version'           : version,
+      'version is semver' : versionSemver.matches()
+    ])
 
     // Checks to see if the version is compatible with Semantic versioning.
-    if (semver.matches()) { //new
-      println "Version ${tag} is semver compatible"
-      def tagPrefix = semver.group('prefix') ?: ''
-      def tagMajorVersion = semver.group('major') as int
-      def tagMinorVersion = ((semver.group('minor') ?: -1) as int) + 1 //Setting the value to -1 allows for a zero version
-      def tagPatchVersion = (semver.group('patch') ?: 0) as int
+    if (tagSemver.matches()) { //new
+      def tagPrefix = tagSemver.group('prefix') ?: ''
+      def tagMajorVersion = tagSemver.group('major') as int
+      def tagMinorVersion = ((tagSemver.group('minor') ?: -1) as int) + 1 //Setting the value to -1 allows for a zero version
+      def tagPatchVersion = (tagSemver.group('patch') ?: 0) as int
       def retVersion = "${tagPrefix}${tagMajorVersion}.${tagMinorVersion}.${tagPatchVersion}-${buildNumber}"
-
-      println "Testing to see if current version ${version} is semver compatible"
-
-      def ver = pattern.matcher(version.trim())
-      if (ver.matches() && (version != '0.1.0')) {
-        println "Current version ${version} is semver compatible"
-        def prefix = ver.group('prefix') ?: ''
-        def majorVersion = ver.group('major') as int
-        def minorVersion = (ver.group('minor') ?: 0) as int
-        def patchVersion = (ver.group('patch') ?: 0) as int
+      if (versionSemver.matches() && (version != '0.1.0')) {
+        def prefix = versionSemver.group('prefix') ?: ''
+        def majorVersion = versionSemver.group('major') as int
+        def minorVersion = (versionSemver.group('minor') ?: 0) as int
+        def patchVersion = (versionSemver.group('patch') ?: 0) as int
 
         if (majorVersion > tagMajorVersion ||
           (majorVersion == tagMajorVersion &&
             (minorVersion > tagMinorVersion) || (minorVersion == tagMinorVersion && patchVersion > tagPatchVersion)
           )
         ) {
-          println "Version is now ${version}. Using what was passed in."
           retVersion = "${prefix}${majorVersion}.${minorVersion}.${patchVersion}-${buildNumber}"
         }
       }
