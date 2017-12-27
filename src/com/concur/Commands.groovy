@@ -247,7 +247,7 @@ private loadWorkflows(String fileName, Map yml) {
                 |${Constants.Colors.WHITE_ON_BLACK}Loaded Workflow [${Constants.Colors.CYAN_ON_BLACK}${fileName}${Constants.Colors.WHITE_ON_BLACK}] from remote [${Constants.Colors.CLEAR}${repo}${Constants.Colors.WHITE_ON_BLACK}].${Constants.Colors.CLEAR}
                 |${'*'*80}""".stripMargin()
     } catch (java.io.NotSerializableException nse) {
-      error("Failed to load a workflow from $repo, please create an issue on the project in GitHub (https://github.com/concur/jenkins-workflow).")
+      error("Failed to load the [$fileName] workflow from $repo, please create an issue on the project in GitHub (https://github.com/concur/jenkins-workflow).")
     }
   }
   assert workflow : "Workflow file $fileName not found or unable to load from remote repo."
