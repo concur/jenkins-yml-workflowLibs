@@ -372,12 +372,14 @@ private intersectCredentials(Map criteria, List credentialList) {
             println "${c."${p}"} does not match ${criteria."${p}"}"
             break
           } else {
+            println "${c."${p}"} does match ${criteria."${p}"}"
             i++
           }
         }
       }
     }
     if (i == count) {
+      println "Adding ${c.description} to the credential list"
       credentials << c
     }
   }
