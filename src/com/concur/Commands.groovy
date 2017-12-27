@@ -367,28 +367,19 @@ private intersectCredentials(Map criteria, List credentialList) {
     if (count == c.getProperties().keySet().intersect(criteria.keySet()).size()) {
       if (c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
         for (p in c.getProperties().keySet().intersect(criteria.keySet())) {
-          println "Testing $p"
           if (c."${p}" != criteria."${p}") {
-            println "${c."${p}"} does not match ${criteria."${p}"}"
             break
           } else {
-            println "${c."${p}"} does match ${criteria."${p}"}"
             i++
           }
         }
       }
     }
     if (i == count) {
-      println "Adding ${c.description} to the credential list"
       credentials << c
     } else {
-      println "Did not add ${c.description} to the list because count $count does not equal $i"
     }
   }
-  println """
-  | criteria      : $criteria
-  | credentialList: $credentialList
-  | credentials   : $credentials""".stripMargin()
   return credentials
 }
 
