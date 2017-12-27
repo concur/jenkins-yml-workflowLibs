@@ -341,9 +341,7 @@ def getCredentialsWithCriteria(Map criteria) {
         s.getProperties().keySet().intersect(criteria.keySet()).each { p ->
           if (s."$p" == criteria."$p") {
             i++;
-          } else {
-            continue
-          }
+          } else { return }
         }
       }
     }
