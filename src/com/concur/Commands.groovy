@@ -307,47 +307,36 @@ def getCredentialsWithCriteria(Map criteria) {
     assert criteria."class" in CredentialTypes.getValues() : "Credential type ${criteria.'class'} is not supported or is invalid."
   }
 
-  // Number of properties that that are in the map
-  def count = criteria.keySet().size()
   def credentials = []
 
   // Get all of the global credentials
   def globalCreds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
     com.cloudbees.plugins.credentials.impl.BaseStandardCredentials.class,
     jenkins.model.Jenkins.instance)
-  // Get credentials for the folder that the job is in
-  java.util.ArrayList folderCreds = new java.util.ArrayList()
-  def folderNames = env.JOB_NAME ?: ""
-  def folders = folderNames.split('/')
-  for (int i = 0; i < folders.size(); i++) {
-    def folderName = folders[0..i].join('/')
-    try {
-      getFolderCredentials(folderName).each { n ->
-        folderCreds << n
-        debugPrint(folderCreds, 2)
-      }
-    } catch (Exception e) { }
-  }
   debugPrint([
-    'folderCreds': folderCreds.collect { ['description': it.description, 'id': it.id] },
     'globalCreds': globalCreds.collect { ['description': it.description, 'id': it.id] }
   ])
-  // Separately loop through credentials provided by different credential providers
-  [folderCreds, globalCreds].flatten().each { s ->
-    // Filter the results based on description and class
-    def i = 0
-    if (count == s.getProperties().keySet().intersect(criteria.keySet()).size()) {
-      if (s.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
-        s.getProperties().keySet().intersect(criteria.keySet()).each { p ->
-          if (s."$p" == criteria."$p") {
-            i++;
-          } else { return }
+  credentials = intersectCredentials(criteria, globalCreds)
+
+  // Only search through folder credentials if we can't find a global
+  if (!credentials) {
+    // Get credentials for the folder that the job is in
+    java.util.ArrayList folderCreds = new java.util.ArrayList()
+    def folderNames = env.JOB_NAME ?: ""
+    def folders = folderNames.split('/')
+    for (int i = 0; i < folders.size(); i++) {
+      def folderName = folders[0..i].join('/')
+      try {
+        getFolderCredentials(folderName).each { n ->
+          folderCreds << n
+          debugPrint(folderCreds, 2)
         }
-      }
+      } catch (Exception e) { }
     }
-    if (i == count) {
-      credentials << s
-    }
+    debugPrint([
+      'folderCreds': folderCreds.collect { ['description': it.description, 'id': it.id] },
+    ])
+    credentials = intersectCredentials(criteria, folderCreds)
   }
   // Fail if no credentials are found that match the criteria
   assert credentials : """No credentials found that match your criteria: ${criteria}"""
@@ -368,6 +357,27 @@ def getCredentialsWithCriteria(Map criteria) {
   assert credential.id : "Invalid credentials. The id property of your credential is blank or corrupted."
   // Return the credentials
   return credential
+}
+
+private intersectCredentials(Map criteria, List credentialList) {
+  def credentials = []
+  def count = criteria.keySet().size()
+  def i = 0
+  credentialList.each { s ->
+    if (count == s.getProperties().keySet().intersect(criteria.keySet()).size()) {
+      if (s.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
+        s.getProperties().keySet().intersect(criteria.keySet()).each { p ->
+          if (s."$p" == criteria."$p") {
+            i++;
+          } else { return }
+        }
+      }
+    }
+    if (i == count) {
+      credentials << s
+    }
+  }
+  return credentials
 }
 
 // Get credentials for a given folder name
