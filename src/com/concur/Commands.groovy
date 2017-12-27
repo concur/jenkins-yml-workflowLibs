@@ -175,13 +175,16 @@ private getStageName(workflow, List stages, String workflowName, String stepName
   Boolean canGenerate = workflow.metaClass.respondsTo(workflow, 'getStageName', Map, Map, String)
   if (canGenerate) {
     stageName = workflow.getStageName(yml, args, stepName)
+    if (!stageName) {
+      "$workflowName: $stepName"
+    }
   } else {
-    stageName = "${workflowName}: ${stepName}"
+    stageName = "$workflowName: $stepName"
   }
   def existingStageNames = stages.findAll{ it == stageName }
   if (existingStageNames.size() > 0) {
     stages.add(stageName)
-    stageName = "${stageName} (${existingStageNames.size()+1})"
+    stageName = "$stageName (${existingStageNames.size()+1})"
   } else {
     stages.add(stageName)
   }
@@ -201,8 +204,8 @@ private loadWorkflows(String fileName, Map yml) {
   debugPrint(['fileName' : fileName, 'repo' : repo, 'branch' : branch, 'credentialCriteria' : credentialCriteria], 2)
 
   fileName = "${fileName}.groovy"
-  def localFile = "${workflowDir}/${fileName}"
-  def localFileExists = fileExists "${localFile}"
+  def localFile = "$workflowDir/$fileName"
+  def localFileExists = fileExists localFile
   debugPrint(['localFile' : localFile,'localFileExists' : localFileExists])
 
   def workflow
@@ -210,7 +213,7 @@ private loadWorkflows(String fileName, Map yml) {
     try {
       workflow = load localFile
       println """${'*'*80}
-                |${Constants.Colors.YELLOW_ON_BLACK}Loaded Custom Workflow [${Constants.Colors.CYAN_ON_BLACK}${localFile}${Constants.Colors.YELLOW_ON_BLACK}].${Constants.Colors.CLEAR}
+                |${Constants.Colors.YELLOW_ON_BLACK}Loaded Custom Workflow [${Constants.Colors.CYAN_ON_BLACK}$localFile${Constants.Colors.YELLOW_ON_BLACK}].${Constants.Colors.CLEAR}
                 |${'*'*80}""".stripMargin()
     } catch (java.io.NotSerializableException nse) {
       error("""${Constants.Colors.RED}
@@ -233,7 +236,7 @@ private loadWorkflows(String fileName, Map yml) {
               """.stripMargin())
     }
   } else {
-    assert repo : "Repo to checkout for workflows not set under tools.jenkins.workflows.repo or as the environment variable: WORKFLOW_REPOSITORY."
+    assert repo : 'Repo to checkout for workflows not set under tools.jenkins.workflows.repo or as the environment variable: WORKFLOW_REPOSITORY.'
     // only search for credential if needed
     def credentialsId = getCredentialsWithCriteria(credentialCriteria).id
     assert credentialsId
@@ -244,18 +247,18 @@ private loadWorkflows(String fileName, Map yml) {
                 |${Constants.Colors.WHITE_ON_BLACK}Loaded Workflow [${Constants.Colors.CYAN_ON_BLACK}${fileName}${Constants.Colors.WHITE_ON_BLACK}] from remote [${Constants.Colors.CLEAR}${repo}${Constants.Colors.WHITE_ON_BLACK}].${Constants.Colors.CLEAR}
                 |${'*'*80}""".stripMargin()
     } catch (java.io.NotSerializableException nse) {
-      error("Failed to load a workflow from ${repo}, please create an issue on the project in GitHub (https://github.com/concur/jenkins-workflow).")
+      error("Failed to load a workflow from $repo, please create an issue on the project in GitHub (https://github.com/concur/jenkins-workflow).")
     }
   }
-  assert workflow : "Workflow file ${fileName} not found or unable to load from remote repo."
+  assert workflow : "Workflow file $fileName not found or unable to load from remote repo."
 
   return workflow
 }
 
 // Check branch pattern
 def checkBranch(Map yml, String branch=env.BRANCH_NAME) {
-  assert yml    : "Couldn't find pipelines.yml."
-  assert branch : "Branch name not set. This should typically be set by the environment as BRANCH_NAME. Please ensure this is being called within a node and that you are in a job type that provides sets the environment variable automatically such as a Multibranch pipeline."
+  assert yml    : 'Couldn\'t find pipelines.yml.'
+  assert branch : 'Branch name not set. This should typically be set by the environment as BRANCH_NAME. Please ensure this is being called within a node and that you are in a job type that provides sets the environment variable automatically such as a Multibranch pipeline.'
 
   def patterns = yml.tools?.branches?.patterns
   assert patterns : """|Define your branch patterns under tools.branches.patterns
@@ -293,11 +296,10 @@ def checkBranch(Map yml, String branch=env.BRANCH_NAME) {
 * Other parameters can be passed and will be evaluated if they are properties of the credential type passed in the map
 */
 def getCredentialsWithCriteria(Map criteria) {
+  // Make sure criteria isn't empty
+  assert criteria : 'WorkflowLibs :: Commands :: getCredentialsWithCriteria :: No criteria provided to search for, please use this function with a Map like such `new com.concur.Commands().getCredentialsWithCriteria([\'description\': \'example credential description\']`.'
 
   debugPrint(criteria, 2)
-
-  // Make sure properties isn't empty
-  assert criteria : "No criteria provided."
 
   if (criteria.keySet().contains('class')) {
     assert criteria."class".class != java.lang.String : "java.lang.String is not a valid class for credentials"
@@ -331,24 +333,22 @@ def getCredentialsWithCriteria(Map criteria) {
     'globalCreds': globalCreds.collect { ['description': it.description, 'id': it.id] }
   ])
   // Separately loop through credentials provided by different credential providers
-  for (s in [folderCreds, globalCreds]) {
+  for (s in [folderCreds, globalCreds].flatten()) {
     // Filter the results based on description and class
-    for (c in s) {
-      def i = 0
-      if (count == c.getProperties().keySet().intersect(criteria.keySet()).size()) {
-        if (c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
-          for (p in c.getProperties().keySet().intersect(criteria.keySet())) {
-            if (c."${p}" != criteria."${p}") {
-              break;
-            } else {
-              i++;
-            }
+    def i = 0
+    if (count == s.getProperties().keySet().intersect(criteria.keySet()).size()) {
+      if (s.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
+        for (p in s.getProperties().keySet().intersect(criteria.keySet())) {
+          if (s.p != criteria.p) {
+            break;
+          } else {
+            i++;
           }
         }
       }
-      if (i == count) {
-        credentials << c
-      }
+    }
+    if (i == count) {
+      credentials << s
     }
   }
   // Fail if no credentials are found that match the criteria
