@@ -368,16 +368,14 @@ private intersectCredentials(Map criteria, List credentialList) {
       if (s.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
         s.getProperties().keySet().intersect(criteria.keySet()).each { p ->
           if (s."$p" == criteria."$p") {
-            println "${s.description} meets criteria $criteria"
-            i++;
+            println "criteria.\"$p\" :: ${criteria."$p"}"
+            println "s.\"$p\" :: ${s."$p"}"
+            credentials << s
           } else {
             return
           }
         }
       }
-    }
-    if (i == count) {
-      credentials << s
     }
   }
   println """
