@@ -132,6 +132,45 @@ def getPullRequests(Map credentialData, String owner='', String repo='', String 
   return concurUtil.parseJSON(results.content)?.data?.repository?.pullRequests?.nodes
 }
 
+def getReleases(Map credentialData, String owner='', String repo='', String host='') {
+  def gitData = new Git().getGitData()
+  if (!owner) {
+    owner = gitData.org
+  }
+
+  if (!repo) {
+    repo = gitData.repo
+  }
+
+  def query = '''query ($repo: String!, $owner: String!) {
+                  repository(name: $repo, owner: $owner) {
+                    releases(last: 10) {
+                      nodes {
+                        tag {
+                          name
+                          target {
+                            oid
+                          }
+                        }
+                        createdAt
+                        isPrerelease
+                        name
+                      }
+                    }
+                  }
+                }'''
+
+  Map variables = [
+    'owner'   : owner,
+    'repo'    : repo
+  ]
+
+  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
+
+  def results = githubGraphqlRequestWrapper(query, variables, host, credentialId)
+  return concurUtil.parseJSON(results.content)?.data?.repository?.releases?.nodes
+}
+
 // https://developer.github.com/v3/pulls/#create-a-pull-request
 def createPullRequest(String title,
                       String fromBranch,
@@ -156,10 +195,10 @@ def createPullRequest(String title,
   if (currentPullRequest.any()) {
     println """workflowLibs :: GitHubApi :: createPullRequest :: A pull request already exists for the branches specified:
               |---------------------------------
-              |Title: ${currentPullRequest.title}
-              |PR Number: ${currentPullRequest.number}
-              |Destination Branch: ${currentPullRequest.baseRefName}
-              |From Branch: ${currentPullRequest.headRefName}""".stripMargin()
+              |Title              : ${currentPullRequest.title}
+              |PR Number          : ${currentPullRequest.number}
+              |Destination Branch : ${currentPullRequest.baseRefName}
+              |From Branch        : ${currentPullRequest.headRefName}""".stripMargin()
     if (currentPullRequest instanceof ArrayList) {
       return currentPullRequest[0]
     } else {
