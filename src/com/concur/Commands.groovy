@@ -83,29 +83,28 @@ def runSteps(Map yml, String branch=env.BRANCH_NAME) {
 }
 
 private executeWorkflow(Map workflow, Map yml) {
-  def stages = []
-  def stageNum = 0
+  List stages = []
+  int stageNum = 0
   workflow.each { section ->
-    def workflowName = section.key
-    def workflowFile = loadWorkflows("${workflowName}", yml)
+    String workflowName = section.key
+    def workflowFile = loadWorkflows(workflowName, yml)
     section.value.each { step ->
       def stepName = step instanceof Map ? step.keySet().first() : step
-      def stageStart = System.currentTimeMillis()
-      def stageName = ""
+      long stageStart = System.currentTimeMillis()
+      String stageName = ""
       try {
         def params = step[stepName]
-        debugPrint(['workflowName': workflowName, 'stepName': stepName, 'params': params])
+        debugPrint([
+          'workflowName': workflowName,
+          'stepName': stepName,
+          'params': params
+        ])
         stageName = getStageName(workflowFile, stages, workflowName, stepName, yml, params)
         stage(stageName) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
-      } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException e1) {
-        println "${Constants.Colors.RED}Build was cancelled${Constants.Colors.CLEAR}"
-        error("""${Constants.Colors.RED}Error while executing step: ${workflowName}/${stepName}
-                |------------------------
-                |${e1}""".stripMargin())
       } catch(e2) {
-        error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e2}\n${e2.getStackTrace()}")
+        error("Encountered an error while executing: $workflowName: $stepName\n$e2\n${e2.getStackTrace()}")
       } finally {
         def stageEnd = System.currentTimeMillis()
         def stageTime = (stageEnd - stageStart)/1000
@@ -199,7 +198,7 @@ private loadWorkflows(String fileName, Map yml) {
   def workflowDir         = yml.tools?.jenkins?.workflows?.directory    ?: 'workflows'
   def nodeLabel           = yml.tools?.jenkins?.workflows?.label        ?: 'linux'
 
-  assert fileName : "fileName field has an invalid value."
+  assert fileName : "workflowLibs :: loadWorkflows :: no Filename provided to load, perhaps this is an error with "
 
   debugPrint(['fileName' : fileName, 'repo' : repo, 'branch' : branch, 'credentialCriteria' : credentialCriteria], 2)
 

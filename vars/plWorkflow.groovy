@@ -61,6 +61,7 @@ def call(body) {
     try {
       // now build, based on the configuration provided
       println "Executing pipeline steps"
+      step([$class: 'GitHubSetCommitStatusBuilder'])
       concurPipeline.runSteps(yml)
 
       currentBuild.result = 'SUCCESS'
