@@ -39,7 +39,8 @@ def saveGitProperties(Map scmVars) {
     'GIT_COMMIT'          : 'git rev-parse HEAD',
     'GIT_URL'             : 'git config --get remote.origin.url',
     'GIT_COMMIT_MESSAGE'  : 'git log -n 1 --pretty=format:%s',
-    'GIT_AUTHOR'          : 'git show -s --pretty=%an'
+    'GIT_AUTHOR'          : 'git show -s --pretty=%an',
+    'GIT_EMAIL'           : 'git log -1 --pretty=%cE'
   ]
 
   concurPipeline.jenkinsMap(gitCommands).each {
