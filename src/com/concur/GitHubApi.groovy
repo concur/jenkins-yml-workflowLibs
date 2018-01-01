@@ -12,7 +12,20 @@ import org.jenkinsci.plugins.github_branch_source.GitHubConfiguration;
 def githubRequestWrapper(String method, String endpoint, Map postData=null, Map additionalHeaders=null,
                          String credentialsId='', Boolean outputResponse=false, Boolean ignoreErrors=false, String host=null) {
   if (!host) {
-    host = new Git().getGitData().host
+    def gitDataHost = new Git().getGitData().host
+    if (gitDataHost == 'github.com') {
+      host = 'https://api.github.com'
+    } else {
+      host = "https://$gitDataHost/api"
+    }
+  } else {
+    if (!host.startsWith('http')) {
+      if (host == 'github.com') {
+        host = "https://api.github.com"
+      } else {
+        host = "https://$gitDataHost/api"
+      }
+    }
   }
   // ensure the host doesn't contain a slash at the end
   if (host[-1] == '/') {
@@ -31,6 +44,11 @@ def githubRequestWrapper(String method, String endpoint, Map postData=null, Map 
     // there are times with the GitHub API in particular where a 404 is acceptable result,
     // this will ensure the httpRequest plugin does not fail the build in for acceptable 404s
     validResponseCodes = '100:599'
+  }
+
+  // ensure there is an accept header passed with the request
+  if (!additionalHeaders.find { it.key == 'Accept' }) {
+    additionalHeaders['Accept'] = 'application/vnd.github.v3+json'
   }
 
   concurPipeline.debugPrint([
