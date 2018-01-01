@@ -33,6 +33,17 @@ def githubRequestWrapper(String method, String endpoint, Map postData=null, Map 
     validResponseCodes = '100:599'
   }
 
+  concurPipeline.debugPrint([
+    'method'            : method,
+    'endpoint'          : endpoint,
+    'postData'          : postData,
+    'additionalHeaders' : additionalHeaders,
+    'credentialsId'     : credentialsId,
+    'outputResponse'    : outputResponse,
+    'ignoreErrors'      : ignoreErrors,
+    'host'              : host
+  ], 2)
+
   return httpRequest(acceptType: 'APPLICATION_JSON',
                     contentType: 'APPLICATION_JSON',
                     customHeaders: additionalHeaders,
