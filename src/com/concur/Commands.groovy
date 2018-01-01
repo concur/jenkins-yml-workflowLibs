@@ -446,6 +446,10 @@ def getPluginVersion(String pluginShortName) {
   return Jenkins.getInstance().pluginManager.getPlugin("${pluginShortName}")?.getVersion()
 }
 
+def getJavaStackTrace(Throwable e) {
+  return e.getStackTrace().join('\n')
+}
+
 def getPipelineDataFile(String fileName = 'pipelines.yml', String format = 'yml', String baseNode = 'pipelines') {
   def fileContents = readFile fileName
   def dataMap = null
