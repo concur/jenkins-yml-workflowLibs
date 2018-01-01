@@ -51,17 +51,17 @@ def call(body) {
     if (slackNotify) {
       println "Sending Slack notification for build start..."
       assert slackData?.channel
-      if (!slackData?.token) {
-        plNotify('STARTED', (slackData?.useAttachments ?: true), slackData?.channel)
-      } else {
-        plNotify('STARTED', (slackData?.useAttachments ?: true), slackData?.channel, slackData?.token)
+      plNotify {
+        buildStatus     = 'STARTED'
+        useAttachments  = (slackData?.useAttachments ?: true)
+        channel         = slackData?.channel
+        token           = slackData?.token
       }
     }
 
     try {
-      // now build, based on the configuration provided
       println "Executing pipeline steps"
-      step([$class: 'GitHubSetCommitStatusBuilder'])
+      // now build, based on the configuration provided
       concurPipeline.runSteps(yml)
 
       currentBuild.result = 'SUCCESS'
@@ -72,10 +72,11 @@ def call(body) {
     } finally {
       currentBuild.result = currentBuild.result ?: 'FAILURE'
       if (slackNotify) {
-        if (!slackData?.token) {
-          plNotify(currentBuild.result, (slackData?.useAttachments ?: true), slackData?.channel)
-        } else {
-          plNotify(currentBuild.result, (slackData?.useAttachments ?: true), slackData?.channel, slackData?.token)
+        plNotify {
+          buildStatus     = currentBuild.result
+          useAttachments  = (slackData?.useAttachments ?: true)
+          channel         = slackData?.channel
+          token           = slackData?.token
         }
       }
     }

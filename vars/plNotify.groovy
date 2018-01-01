@@ -1,14 +1,30 @@
 #!/usr/bin/groovy
 // vars/bhNotify.groovy
-import groovy.json.internal.Exceptions
+import groovy.json.internal.Exceptions;
+import com.concur.*;
 
 // Send Slack notifications to the interested channel
 // This is uses the configuration from the plugin on the Jenkins master if nothing is provided
-def call(buildStatus, useAttachments, channel = '', token = '', domain = env.DEFAULT_SLACK_DOMAIN, host = env.GIT_HOST, org = env.GIT_ORG, repo = env.GIT_REPO) {
+def call(body) {
+  // evaluate the body block, and collect configuration into the object
+  def config = [:]
+  body.resolveStrategy = Closure.DELEGATE_FIRST
+  body.delegate = config
+  body()
 
-  def concurGit       = new com.concur.Git()
-  def concurPipeline  = new com.concur.Commands()
-  def concurHttp      = new com.concur.Http()
+  Commands concurPipeline = new Commands()
+  Git concurGit           = new Git()
+  Http concurHttp         = new Http()
+
+  String buildStatus    = config?.buildStatus     ?: 'SUCCESS'
+  String domain         = config?.domain          ?: env.DEFAULT_SLACK_DOMAIN
+  String host           = config?.host            ?: env.GIT_HOST
+  String org            = config?.org             ?: env.GIT_ORG
+  String repo           = config?.repo            ?: env.GIT_REPO
+
+  String useAttachments = config?.useAttachments == null ? true : config?.useAttachments
+  String channel        = config?.channel
+  String token          = config?.token
 
   // No need to proceed if there is no org or repo
   if( !org || !repo) {
@@ -16,29 +32,23 @@ def call(buildStatus, useAttachments, channel = '', token = '', domain = env.DEF
     return
   }
 
-  // build status of null means successful
-  buildStatus = buildStatus ?: 'SUCCESS'
-  channel     = channel     ?: null
-  token       = token       ?: null
-  domain      = domain      ?: null
-
   // Default values for parameters
-  def colorCode = '#DC143C'
-  def subject   = "${buildStatus}"
-  def summary   = "${subject}"
-  def details   = [
+  String colorCode  = '#DC143C'
+  String subject    = "$buildStatus"
+  String summary    = "$subject"
+  Map details       = [
     "Job"     : env.JOB_NAME.replaceAll('%2F', '/'),
     "Branch"  : env.BRANCH_NAME,
     "Build"   : "<${env.BUILD_URL}|${env.BUILD_NUMBER}>",
-    "Commit"  : "<http://${host}/${org}/${repo}/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>",
+    "Commit"  : "<http://$host/$org/$repo/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>",
     "Author"  : env.GIT_AUTHOR
   ]
 
   // Override default values based on build status
   if (buildStatus == 'STARTED') {
     colorCode = '#87CEEB'
-    subject   = "${buildStatus}\n"
-    summary   = "${subject}*Build Number* <${env.BUILD_URL}|${env.BUILD_NUMBER}> started on ${env.JENKINS_URL.replaceAll('/$', "")} for branch *${env.BRANCH_NAME}*"
+    subject   = "$buildStatus\n"
+    summary   = "$subject*Build Number* <${env.BUILD_URL}|${env.BUILD_NUMBER}> started on ${env.JENKINS_URL.replaceAll('/$', "")} for branch *${env.BRANCH_NAME}*"
   } else if (buildStatus == 'SUCCESS') {
     colorCode = '#3CB371'
   } else {
