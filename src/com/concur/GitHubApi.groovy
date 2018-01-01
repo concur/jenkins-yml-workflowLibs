@@ -76,6 +76,10 @@ def githubRequestWrapper(String method, String endpoint, Map postData=[:], Map a
     'ignoreErrors'      : ignoreErrors,
     'host'              : host
   ], 2)
+  
+  if (!credentialId) {
+    error('workflowLibs :: GitHubApi :: githubRequestWrapper :: No credentials provided to authenticate with GitHub, this is required for API requests.')
+  }
 
   withCredentials([string(credentialsId: credentialId, variable: 'accessToken')]) {
     httpHeaders.add([name:'Authorization', value: "bearer $accessToken", maskValue: true])
@@ -114,7 +118,8 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
     "host"            : host,
     "outputResponse"  : outputResponse,
     "ignoreSslErrors" : ignoreSslErrors,
-    "graphQlQuery"    : graphQlQuery])
+    "graphQlQuery"    : graphQlQuery
+  ], 2)
   
   if (!credentialId) {
     error('workflowLibs :: GitHubApi :: githubGraphqlRequestWrapper :: No credentials provided to authenticate with GitHub, this is required for GraphQL requests.')
@@ -273,9 +278,5 @@ def createPullRequest(String title,
 // def githubRequestWrapper(String method, String endpoint, Map postData=null, Map additionalHeaders=null,
 //                          String credentialsId='', Boolean outputResponse=false, Boolean ignoreErrors=false, String host=null) {
   def response = githubRequestWrapper('POST', "/repos/$owner/$repo/pulls", postData, null, credentialId, false, false, host)
-  concurPipeline.debugPrint([
-    'response.statusCode' : response?.status,
-    'response.content'    : response?.content
-  ])
   return concurUtil.parseJSON(response?.content)
 }
