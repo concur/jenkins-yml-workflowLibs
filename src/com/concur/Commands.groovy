@@ -104,7 +104,11 @@ private executeWorkflow(Map workflow, Map yml) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
       } catch(e2) {
-        error("Encountered an error while executing: $workflowName: $stepName\n$e2\n${e2.getStackTrace()}")
+        error("""Encountered an error while executing: $workflowName: $stepName
+                |--------------------------------------------------------------
+                |$e2
+                |--------------------------------------------------------------
+                |${e2.getStackTrace().join('\n')}""".stripMargin())
       } finally {
         def stageEnd = System.currentTimeMillis()
         def stageTime = (stageEnd - stageStart)/1000
