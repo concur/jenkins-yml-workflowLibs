@@ -274,7 +274,7 @@ def createPullRequest(String title,
 //                          String credentialsId='', Boolean outputResponse=false, Boolean ignoreErrors=false, String host=null) {
   def response = githubRequestWrapper('POST', "/repos/$owner/$repo/pulls", postData, null, credentialId, false, false, host)
   concurPipeline.debugPrint([
-    'response.statusCode' : response?.statusCode,
+    'response.statusCode' : response?.status,
     'response.content'    : response?.content
   ])
   return concurUtil.parseJSON(response?.content)
