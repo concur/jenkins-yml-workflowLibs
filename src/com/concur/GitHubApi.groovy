@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.github_branch_source.GitHubConfiguration;
 @Field def concurUtil     = new Util()
 
 // Use this if you are making a request to Concur's central GitHub server, endpoint should be anything after api/v3
-def githubRequestWrapper(String method, String endpoint, Map postData=null, Map additionalHeaders=null,
+def githubRequestWrapper(String method, String endpoint, Map postData=[:], Map additionalHeaders=[:],
                          String credentialsId='', Boolean outputResponse=false, Boolean ignoreErrors=false, String host=null) {
   if (!host) {
     def gitDataHost = new Git().getGitData().host
@@ -48,6 +48,9 @@ def githubRequestWrapper(String method, String endpoint, Map postData=null, Map 
 
   // ensure there is an accept header passed with the request
   if (!additionalHeaders.find { it.key == 'Accept' }) {
+    if (!additionalHeaders) {
+      additionalHeaders = [:]
+    }
     additionalHeaders['Accept'] = 'application/vnd.github.v3+json'
   }
 
