@@ -1,4 +1,4 @@
-@Library("plWorkflowLibs@$BRANCH_NAME")_
+library "plWorkflowLibs@$BRANCH_NAME"
 
 plWorkflow {
   cleanWorkspace=false
