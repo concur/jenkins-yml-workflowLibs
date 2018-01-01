@@ -261,7 +261,7 @@ def createPullRequest(String title,
               |PR Number          : ${currentPullRequest.number}
               |Destination Branch : ${currentPullRequest.baseRefName}
               |From Branch        : ${currentPullRequest.headRefName}""".stripMargin()
-    if (currentPullRequest instanceof ArrayList) {
+    if (currentPullRequest instanceof net.sf.json.JSONArray) {
       return currentPullRequest[0]
     } else {
       return currentPullRequest
