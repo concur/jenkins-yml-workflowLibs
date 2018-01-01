@@ -31,6 +31,9 @@ def githubRequestWrapper(String method, String endpoint, Map postData=[:], Map a
   if (host[-1] == '/') {
     host = host[0..-2]
   }
+  if (endpoint[0] == '/') {
+    endpoint = endpoint[1..-1]
+  }
   endpoint = "$host/$endpoint"
 
   def debugMode = concurPipeline.isDebug()
