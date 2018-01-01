@@ -73,7 +73,6 @@ def call(body) {
       currentBuild.result = currentBuild.result ?: 'FAILURE'
       if (slackNotify) {
         plNotify {
-          buildStatus     = currentBuild.result
           useAttachments  = (slackData?.useAttachments ?: true)
           channel         = slackData?.channel
           token           = slackData?.token

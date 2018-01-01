@@ -16,7 +16,7 @@ def call(body) {
   Git concurGit           = new Git()
   Http concurHttp         = new Http()
 
-  String buildStatus    = config?.buildStatus     ?: 'SUCCESS'
+  String buildStatus    = config?.buildStatus     ?: currentBuild.result      ?: 'SUCCESS'
   String domain         = config?.domain          ?: env.DEFAULT_SLACK_DOMAIN
   String host           = config?.host            ?: env.GIT_HOST
   String org            = config?.org             ?: env.GIT_ORG
