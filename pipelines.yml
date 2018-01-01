@@ -10,7 +10,7 @@ pipelines:
   branches:
     feature:
       steps:
-        - test:
+        - example:
           - work:
               name: first
           - work:
