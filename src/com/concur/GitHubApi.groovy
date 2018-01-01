@@ -71,7 +71,7 @@ def githubRequestWrapper(String method, String endpoint, Map postData=[:], Map a
     'postData'          : postData,
     'additionalHeaders' : additionalHeaders,
     'httpHeaders'       : httpHeaders,
-    'credentialsId'     : credentialsId,
+    'credentialId'      : credentialId,
     'outputResponse'    : outputResponse,
     'ignoreErrors'      : ignoreErrors,
     'host'              : host
