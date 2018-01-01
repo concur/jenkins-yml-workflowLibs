@@ -10,7 +10,7 @@ import org.jenkinsci.plugins.github_branch_source.GitHubConfiguration;
 
 // Use this if you are making a request to Concur's central GitHub server, endpoint should be anything after api/v3
 def githubRequestWrapper(String method, String endpoint, Map postData=[:], Map additionalHeaders=[:],
-                         String credentialsId='', Boolean outputResponse=false, Boolean ignoreErrors=false, String host=null) {
+                         String credentialId='', Boolean outputResponse=false, Boolean ignoreErrors=false, String host=null) {
   if (!host) {
     def gitDataHost = new Git().getGitData().host
     if (gitDataHost == 'github.com') {
