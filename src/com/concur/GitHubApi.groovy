@@ -37,6 +37,7 @@ def githubRequestWrapper(String method, String endpoint, Map postData=[:], Map a
   endpoint = "$host/$endpoint"
 
   def debugMode = concurPipeline.isDebug()
+  List httpHeaders = []
 
   if (outputResponse == null) {
     outputResponse = debugMode
@@ -52,9 +53,16 @@ def githubRequestWrapper(String method, String endpoint, Map postData=[:], Map a
   // ensure there is an accept header passed with the request
   if (!additionalHeaders.find { it.key == 'Accept' }) {
     if (!additionalHeaders) {
-      additionalHeaders = [:]
+      additionalHeaders = []
     }
-    additionalHeaders['Accept'] = 'application/vnd.github.v3+json'
+    acceptHeader = [name: 'Accept', value: 'application/vnd.github.v3+json', maskValue: false]
+    httpHeaders.add(acceptHeader)
+  }
+
+  if (additionalHeaders) {
+    additionalHeaders.each {
+      httpHeaders.add([name: it.key, value: it.value, maskValue: false])
+    }
   }
 
   concurPipeline.debugPrint([
@@ -62,22 +70,26 @@ def githubRequestWrapper(String method, String endpoint, Map postData=[:], Map a
     'endpoint'          : endpoint,
     'postData'          : postData,
     'additionalHeaders' : additionalHeaders,
+    'httpHeaders'       : httpHeaders,
     'credentialsId'     : credentialsId,
     'outputResponse'    : outputResponse,
     'ignoreErrors'      : ignoreErrors,
     'host'              : host
   ], 2)
 
-  return httpRequest(acceptType: 'APPLICATION_JSON',
-                    contentType: 'APPLICATION_JSON',
-                    customHeaders: additionalHeaders,
-                    url: endpoint,
-                    ignoreSslErrors: ignoreErrors,
-                    httpMode: method.toUpperCase(),
-                    quiet: debugMode,
-                    requestBody: groovy.json.JsonOutput.toJson(postData),
-                    consoleLogResponseBody: outputResponse,
-                    validResponseCodes: validResponseCodes)
+  withCredentials([string(credentialsId: credentialId, variable: 'accessToken')]) {
+    httpHeaders.add([name:'Authorization', value: "bearer $accessToken", maskValue: true])
+    return httpRequest(acceptType: 'APPLICATION_JSON',
+                      contentType: 'APPLICATION_JSON',
+                      customHeaders: httpHeaders,
+                      url: endpoint,
+                      ignoreSslErrors: ignoreErrors,
+                      httpMode: method.toUpperCase(),
+                      quiet: debugMode,
+                      requestBody: groovy.json.JsonOutput.toJson(postData),
+                      consoleLogResponseBody: outputResponse,
+                      validResponseCodes: validResponseCodes)
+  }
 }
 
 def githubGraphqlRequestWrapper(String query, Map variables=null, String host=null, String credentialId=null, Boolean outputResponse=false, Boolean ignoreSslErrors=false) {
