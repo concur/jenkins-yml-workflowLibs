@@ -20,8 +20,10 @@ def githubRequestWrapper(String method, String endpoint, Map postData=null, Map 
   }
   endpoint = "$host/$endpoint"
 
+  def debugMode = concurPipeline.isDebug()
+
   if (outputResponse == null) {
-    outputResponse = concurPipeline.isDebug()
+    outputResponse = debugMode
   }
 
   def validResponseCodes = '100:399'
@@ -37,7 +39,7 @@ def githubRequestWrapper(String method, String endpoint, Map postData=null, Map 
                     url: endpoint,
                     ignoreSslErrors: ignoreErrors,
                     httpMode: method.toUpperCase(),
-                    quiet: true,
+                    quiet: debugMode,
                     requestBody: groovy.json.JsonOutput.toJson(postData),
                     consoleLogResponseBody: outputResponse,
                     validResponseCodes: validResponseCodes)
@@ -52,9 +54,10 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
       host = "https://$gitDataHost/api/graphql"
     }
   }
+  def debugMode = concurPipeline.isDebug()
   // GraphQL endpoint is static and there is only one so doesn't need to be further variablized.
   if (outputResponse == null) {
-    outputResponse = concurPipeline.isDebug()
+    outputResponse = debugMode
   }
   def graphQlQuery = ["query": query]
   if (variables) {
@@ -78,7 +81,7 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
                       url: host,
                       ignoreSslErrors: ignoreSslErrors,
                       httpMode: 'POST',
-                      quiet: true,
+                      quiet: debugMode,
                       requestBody: groovy.json.JsonOutput.toJson(graphQlQuery),
                       consoleLogResponseBody: outputResponse)
   }
