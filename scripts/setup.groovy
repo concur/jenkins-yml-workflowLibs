@@ -9,6 +9,7 @@
 instance = jenkins.model.Jenkins.getInstance()
 
 sshKeyDescription = 'WorkflowLibs SSH Credential'
+// This is a SSH deploy key providing read access to this only repository.
 sshDeployKeyContents = '''-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAvDBxEA6c7Ph03CVbFvUTcfj+hbKUf7eEXXHHO40iYCKn23FF
 OX5s0Aw5ylHxuroGUNtwDI80tZfFH0e4Ose2wJyG9A4bCo8MRFsMlSs9BInHsV5H
