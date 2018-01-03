@@ -275,8 +275,39 @@ def createPullRequest(String title,
     "maintainer_can_modify" : maintainer_can_modify
   ]
   
-// def githubRequestWrapper(String method, String endpoint, Map postData=null, Map additionalHeaders=null,
-//                          String credentialsId='', Boolean outputResponse=false, Boolean ignoreErrors=false, String host=null) {
   def response = githubRequestWrapper('POST', "/repos/$owner/$repo/pulls", postData, null, credentialId, false, false, host)
+  return concurUtil.parseJSON(response?.content)
+}
+
+def createRelease(Map credentialData, String notes, String tag, String name, String commitish=env.GIT_COMMIT, Boolean preRelease=false, Boolean draft=false, String owner='', String repo='', String host='') {
+  assert credentialData : 'WorkflowLibs :: GitHubApi :: createRelease :: No credentialData provided.'
+  assert notes          : 'WorkflowLibs :: GitHubApi :: createRelease :: No notes provided.'
+  assert tag            : 'WorkflowLibs :: GitHubApi :: createRelease :: No tag provided.'
+
+  if (!commitish) {
+    commitish = env.GIT_COMMIT
+  }
+  if (!name) {
+    name = tag
+  }
+  if (!owner) {
+    owner = env.GIT_OWNER
+  }
+  if (!repo) {
+    repo = env.GIT_REPO
+  }
+
+  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
+
+  Map postData = [
+    "tag_name": tag,
+    "target_commitish": commitish,
+    "name": name,
+    "body": notes,
+    "draft": draft,
+    "prerelease": preRelease
+  ]
+
+  def response = githubRequestWrapper('POST', "/repos/$owner/$repo/releases", postData, null, credentialId, false, false, host)
   return concurUtil.parseJSON(response?.content)
 }
