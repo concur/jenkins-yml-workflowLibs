@@ -71,7 +71,7 @@ def saveGitProperties(Map scmVars) {
 }
 
 /*
- * Get the Git org, repo and host
+ * Get the Git owner, repo and host
  *
  * String parameter:
  *
@@ -81,14 +81,14 @@ def getGitData(String url = '') {
   if (!url) {
     url = scm.remoteRepositories[0].uris[0].toString()
   }
-  def org
+  def owner
   def repo
   def gitHost
   if (url.startsWith('https://')) {
     def gitUrl = new java.net.URI(url)
     def scmList = gitUrl.getPath().toString().replaceAll(/\.git|\//,' ').split(' ')
     host  = gitUrl.host
-    org   = scmList[1]
+    owner   = scmList[1]
     repo  = scmList[2]
   } else if (url.startsWith('git@')) {
     return getGitData(url.replace(':', '/').replace('git@', 'https://'))
@@ -98,7 +98,7 @@ def getGitData(String url = '') {
 
   return [
     'host': host,
-    'org' : org,
+    'owner' : owner,
     'repo': repo
   ]
 }

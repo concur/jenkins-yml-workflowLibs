@@ -19,7 +19,7 @@ def call(body) {
   String buildStatus    = config?.buildStatus     ?: currentBuild.result      ?: 'SUCCESS'
   String domain         = config?.domain          ?: env.DEFAULT_SLACK_DOMAIN
   String host           = config?.host            ?: env.GIT_HOST
-  String org            = config?.org             ?: env.GIT_ORG
+  String org            = config?.org             ?: env.GIT_OWNER
   String repo           = config?.repo            ?: env.GIT_REPO
 
   String useAttachments = config?.useAttachments == null ? true : config?.useAttachments
