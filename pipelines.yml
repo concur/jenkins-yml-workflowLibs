@@ -10,10 +10,5 @@ pipelines:
   branches:
     feature:
       steps:
-        - example:
-          - work:
-              name: first
-          - work:
-              name: second
-          - work:
-              name: third
+        - github:
+          - createRelease:
