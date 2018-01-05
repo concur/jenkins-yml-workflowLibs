@@ -5,6 +5,9 @@ pipelines:
     branches:
       patterns:
         feature: .+
+    github:
+      credentials:
+        description: GitHub Secret Text Access Token
     jenkins:
       workflows:
         branch: github-release
