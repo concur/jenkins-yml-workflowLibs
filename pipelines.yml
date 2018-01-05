@@ -5,6 +5,9 @@ pipelines:
     branches:
       patterns:
         feature: .+
+    jenkins:
+      workflows:
+        branch: github-release
     slack:
       channel: 'git-notifications'
   branches:
