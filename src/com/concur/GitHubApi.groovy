@@ -279,7 +279,7 @@ def createPullRequest(String title,
   return concurUtil.parseJSON(response?.content)
 }
 
-def createRelease(Map credentialData, String notes, String tag, String name, String commitish=env.GIT_COMMIT, Boolean preRelease=false, Boolean draft=false, String owner='', String repo='', String host='') {
+def createRelease(Map credentialData, String notes, String tag, String name, Boolean preRelease=false, Boolean draft=false, String commitish=env.GIT_COMMIT, String owner='', String repo='', String host='') {
   assert credentialData : 'WorkflowLibs :: GitHubApi :: createRelease :: No credentialData provided.'
   assert notes          : 'WorkflowLibs :: GitHubApi :: createRelease :: No notes provided.'
   assert tag            : 'WorkflowLibs :: GitHubApi :: createRelease :: No tag provided.'
