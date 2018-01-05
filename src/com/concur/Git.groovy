@@ -97,9 +97,9 @@ def getGitData(String url = '') {
   }
 
   return [
-    'host': host,
+    'host'  : host,
     'owner' : owner,
-    'repo': repo
+    'repo'  : repo
   ]
 }
 

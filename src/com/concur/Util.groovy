@@ -56,6 +56,30 @@ def parseYAML(String stringContent) {
   return readYaml(text: stringContent)
 }
 
+def parseChangelog(String changelogFile='CHANGELOG.md', String releaseTitle='## ') {
+  if (!releaseTitle.endsWith(' ')) {
+    releaseTitle += ' '
+  }
+  String contents = readFile(changelogFile)
+  List fileLines = contents.split('\n')
+  Map releases = [:]
+  int startLine = 0
+  for (i = 0; i <= fileLines.size(); i++) {
+    String currLine = fileLines[i]
+    if (startLine == 0 && currLine =~ /^${releaseTitle}.+$/) {
+        println currLine
+        startLine = i
+    } else if (startLine != 0 && currLine =~ /^${releaseTitle}.+$/) {
+        releases[fileLines[startLine].replace(releaseTitle, '')] = fileLines[startLine+1..i-1].join('\n')
+        startLine = i
+    } else if (startLine != 0 && i == fileLines.size()) {
+        releases[fileLines[startLine].replace(releaseTitle, '')] = fileLines[startLine+1..i-1].join('\n')
+    }
+  }
+  new Commands().debugPrint("Found ${releases.size()} releases in $changelogFile.")
+  return releases
+}                                                                                                                                                    
+
 // ######################
 // Linux Helpers
 // ######################
