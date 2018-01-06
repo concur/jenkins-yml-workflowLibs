@@ -88,7 +88,7 @@ def getGitData(String url = '') {
     def gitUrl = new java.net.URI(url)
     def scmList = gitUrl.getPath().toString().replaceAll(/\.git|\//,' ').split(' ')
     host  = gitUrl.host
-    owner   = scmList[1]
+    owner = scmList[1]
     repo  = scmList[2]
   } else if (url.startsWith('git@')) {
     return getGitData(url.replace(':', '/').replace('git@', 'https://'))
@@ -105,7 +105,7 @@ def getGitData(String url = '') {
 
 def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ignorePrevious = false) {
   if (env."${Constants.Env.VERSION}") {
-    concurPipeline.debugPrint('Returning previously determined version.')
+    concurPipeline.debugPrint('Returning previously determined version.', 3)
     return env."${Constants.Env.VERSION}"
   }
   try {

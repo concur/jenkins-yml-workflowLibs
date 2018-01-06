@@ -1,6 +1,6 @@
 # Jenkins-YML-WorkflowLibs changes by release
 
-## 0.2.0 - PRERELEASE
+## 0.2.0
 
 ### Added
 
