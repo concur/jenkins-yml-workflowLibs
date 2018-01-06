@@ -89,7 +89,7 @@ def githubRequestWrapper(String method, String endpoint, Map postData=[:], Map a
                       url: endpoint,
                       ignoreSslErrors: ignoreErrors,
                       httpMode: method.toUpperCase(),
-                      quiet: debugMode,
+                      quiet: !debugMode,
                       requestBody: groovy.json.JsonOutput.toJson(postData),
                       consoleLogResponseBody: outputResponse,
                       validResponseCodes: validResponseCodes)
@@ -133,7 +133,7 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
                       url: host,
                       ignoreSslErrors: ignoreSslErrors,
                       httpMode: 'POST',
-                      quiet: debugMode,
+                      quiet: !debugMode,
                       requestBody: groovy.json.JsonOutput.toJson(graphQlQuery),
                       consoleLogResponseBody: outputResponse)
   }
@@ -241,14 +241,14 @@ def createPullRequest(String title,
                       Map credentialData,
                       String summary="Automatically created at ${env.BUILD_URL}",
                       Boolean maintainer_can_modify=true) {
-  assert owner      : "Cannot create a pull request without specifying a GitHub organization."
-  assert repo       : "Cannot create a pull request without specifying a GitHub repository."
-  assert title      : "Cannot create a pull request without specifying a title."
-  assert fromBranch : "Cannot create a pull request without specifying what branch to pull from [fromBranch]."
-  assert toBranch   : "Cannot create a pull request without specifying what branch to pull into [toBranch]."
+  assert owner      : "workflowLibs :: GitHubApi :: createPullRequest :: Cannot create a pull request without specifying a GitHub organization."
+  assert repo       : "workflowLibs :: GitHubApi :: createPullRequest :: Cannot create a pull request without specifying a GitHub repository."
+  assert title      : "workflowLibs :: GitHubApi :: createPullRequest :: Cannot create a pull request without specifying a title."
+  assert fromBranch : "workflowLibs :: GitHubApi :: createPullRequest :: Cannot create a pull request without specifying what branch to pull from [fromBranch]."
+  assert toBranch   : "workflowLibs :: GitHubApi :: createPullRequest :: Cannot create a pull request without specifying what branch to pull into [toBranch]."
 
   if (env.CHANGE_FORK) {
-    println "Skipping Pull Request creation from a fork. A Pull Request already exists."
+    println "workflowLibs :: GitHubApi :: createPullRequest :: Skipping Pull Request creation from a fork. A Pull Request already exists."
     return
   }
   def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
@@ -300,12 +300,12 @@ def createRelease(Map credentialData, String notes, String tag, String name, Boo
   def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
 
   Map postData = [
-    "tag_name": tag,
+    "tag_name"        : tag,
     "target_commitish": commitish,
-    "name": name,
-    "body": notes,
-    "draft": draft,
-    "prerelease": preRelease
+    "name"            : name,
+    "body"            : notes,
+    "draft"           : draft,
+    "prerelease"      : preRelease
   ]
 
   def response = githubRequestWrapper('POST', "/repos/$owner/$repo/releases", postData, null, credentialId, false, false, host)
