@@ -4,16 +4,18 @@ pipelines:
   tools:
     branches:
       patterns:
+        master: master
         feature: .+
+    github:
+      credentials:
+        description: GitHub Secret Text Access Token
+    jenkins:
+      workflows:
+        branch: github-release
     slack:
       channel: 'git-notifications'
   branches:
-    feature:
+    master:
       steps:
-        - test:
-          - work:
-              name: first
-          - work:
-              name: second
-          - work:
-              name: third
+        - github:
+          - createRelease:

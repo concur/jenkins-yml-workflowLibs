@@ -83,29 +83,32 @@ def runSteps(Map yml, String branch=env.BRANCH_NAME) {
 }
 
 private executeWorkflow(Map workflow, Map yml) {
-  def stages = []
-  def stageNum = 0
+  List stages = []
+  int stageNum = 0
   workflow.each { section ->
-    def workflowName = section.key
-    def workflowFile = loadWorkflows("${workflowName}", yml)
+    String workflowName = section.key
+    def workflowFile = loadWorkflows(workflowName, yml)
     section.value.each { step ->
       def stepName = step instanceof Map ? step.keySet().first() : step
-      def stageStart = System.currentTimeMillis()
-      def stageName = ""
+      long stageStart = System.currentTimeMillis()
+      String stageName = ""
       try {
         def params = step[stepName]
-        debugPrint(['workflowName': workflowName, 'stepName': stepName, 'params': params])
+        debugPrint([
+          'workflowName': workflowName,
+          'stepName': stepName,
+          'params': params
+        ])
         stageName = getStageName(workflowFile, stages, workflowName, stepName, yml, params)
         stage(stageName) {
           executeParameterizedStep(workflowFile, workflowName, stepName, params, yml)
         }
-      } catch(org.jenkinsci.plugins.workflow.steps.FlowInterruptedException | hudson.AbortException e1) {
-        println "${Constants.Colors.RED}Build was cancelled${Constants.Colors.CLEAR}"
-        error("""${Constants.Colors.RED}Error while executing step: ${workflowName}/${stepName}
-                |------------------------
-                |${e1}""".stripMargin())
       } catch(e2) {
-        error("Encountered an error while executing: ${workflowName}: ${stepName}\n${e2}\n${e2.getStackTrace()}")
+        error("""Encountered an error while executing: $workflowName: $stepName
+                |--------------------------------------------------------------
+                |$e2
+                |--------------------------------------------------------------
+                |${e2.getStackTrace().join('\n')}""".stripMargin())
       } finally {
         def stageEnd = System.currentTimeMillis()
         def stageTime = (stageEnd - stageStart)/1000
@@ -175,13 +178,16 @@ private getStageName(workflow, List stages, String workflowName, String stepName
   Boolean canGenerate = workflow.metaClass.respondsTo(workflow, 'getStageName', Map, Map, String)
   if (canGenerate) {
     stageName = workflow.getStageName(yml, args, stepName)
+    if (!stageName) {
+      stageName = "$workflowName: $stepName"
+    }
   } else {
-    stageName = "${workflowName}: ${stepName}"
+    stageName = "$workflowName: $stepName"
   }
   def existingStageNames = stages.findAll{ it == stageName }
   if (existingStageNames.size() > 0) {
     stages.add(stageName)
-    stageName = "${stageName} (${existingStageNames.size()+1})"
+    stageName = "$stageName (${existingStageNames.size()+1})"
   } else {
     stages.add(stageName)
   }
@@ -196,13 +202,13 @@ private loadWorkflows(String fileName, Map yml) {
   def workflowDir         = yml.tools?.jenkins?.workflows?.directory    ?: 'workflows'
   def nodeLabel           = yml.tools?.jenkins?.workflows?.label        ?: 'linux'
 
-  assert fileName : "fileName field has an invalid value."
+  assert fileName : "workflowLibs :: loadWorkflows :: no Filename provided to load, perhaps this is an error with "
 
   debugPrint(['fileName' : fileName, 'repo' : repo, 'branch' : branch, 'credentialCriteria' : credentialCriteria], 2)
 
   fileName = "${fileName}.groovy"
-  def localFile = "${workflowDir}/${fileName}"
-  def localFileExists = fileExists "${localFile}"
+  def localFile = "$workflowDir/$fileName"
+  def localFileExists = fileExists localFile
   debugPrint(['localFile' : localFile,'localFileExists' : localFileExists])
 
   def workflow
@@ -210,7 +216,7 @@ private loadWorkflows(String fileName, Map yml) {
     try {
       workflow = load localFile
       println """${'*'*80}
-                |${Constants.Colors.YELLOW_ON_BLACK}Loaded Custom Workflow [${Constants.Colors.CYAN_ON_BLACK}${localFile}${Constants.Colors.YELLOW_ON_BLACK}].${Constants.Colors.CLEAR}
+                |${Constants.Colors.YELLOW_ON_BLACK}Loaded Custom Workflow [${Constants.Colors.CYAN_ON_BLACK}$localFile${Constants.Colors.YELLOW_ON_BLACK}].${Constants.Colors.CLEAR}
                 |${'*'*80}""".stripMargin()
     } catch (java.io.NotSerializableException nse) {
       error("""${Constants.Colors.RED}
@@ -233,7 +239,7 @@ private loadWorkflows(String fileName, Map yml) {
               """.stripMargin())
     }
   } else {
-    assert repo : "Repo to checkout for workflows not set under tools.jenkins.workflows.repo or as the environment variable: WORKFLOW_REPOSITORY."
+    assert repo : 'Repo to checkout for workflows not set under tools.jenkins.workflows.repo or as the environment variable: WORKFLOW_REPOSITORY.'
     // only search for credential if needed
     def credentialsId = getCredentialsWithCriteria(credentialCriteria).id
     assert credentialsId
@@ -244,18 +250,18 @@ private loadWorkflows(String fileName, Map yml) {
                 |${Constants.Colors.WHITE_ON_BLACK}Loaded Workflow [${Constants.Colors.CYAN_ON_BLACK}${fileName}${Constants.Colors.WHITE_ON_BLACK}] from remote [${Constants.Colors.CLEAR}${repo}${Constants.Colors.WHITE_ON_BLACK}].${Constants.Colors.CLEAR}
                 |${'*'*80}""".stripMargin()
     } catch (java.io.NotSerializableException nse) {
-      error("Failed to load a workflow from ${repo}, please create an issue on the project in GitHub (https://github.com/concur/jenkins-workflow).")
+      error("Failed to load the [$fileName] workflow from $repo, please create an issue on the project in GitHub (https://github.com/concur/jenkins-workflow).")
     }
   }
-  assert workflow : "Workflow file ${fileName} not found or unable to load from remote repo."
+  assert workflow : "Workflow file $fileName not found or unable to load from remote repo."
 
   return workflow
 }
 
 // Check branch pattern
 def checkBranch(Map yml, String branch=env.BRANCH_NAME) {
-  assert yml    : "Couldn't find pipelines.yml."
-  assert branch : "Branch name not set. This should typically be set by the environment as BRANCH_NAME. Please ensure this is being called within a node and that you are in a job type that provides sets the environment variable automatically such as a Multibranch pipeline."
+  assert yml    : 'Couldn\'t find pipelines.yml.'
+  assert branch : 'Branch name not set. This should typically be set by the environment as BRANCH_NAME. Please ensure this is being called within a node and that you are in a job type that provides sets the environment variable automatically such as a Multibranch pipeline.'
 
   def patterns = yml.tools?.branches?.patterns
   assert patterns : """|Define your branch patterns under tools.branches.patterns
@@ -293,11 +299,10 @@ def checkBranch(Map yml, String branch=env.BRANCH_NAME) {
 * Other parameters can be passed and will be evaluated if they are properties of the credential type passed in the map
 */
 def getCredentialsWithCriteria(Map criteria) {
+  // Make sure criteria isn't empty
+  assert criteria : 'WorkflowLibs :: Commands :: getCredentialsWithCriteria :: No criteria provided to search for, please use this function with a Map like such `new com.concur.Commands().getCredentialsWithCriteria([\'description\': \'example credential description\']`.'
 
   debugPrint(criteria, 2)
-
-  // Make sure properties isn't empty
-  assert criteria : "No criteria provided."
 
   if (criteria.keySet().contains('class')) {
     assert criteria."class".class != java.lang.String : "java.lang.String is not a valid class for credentials"
@@ -305,51 +310,36 @@ def getCredentialsWithCriteria(Map criteria) {
     assert criteria."class" in CredentialTypes.getValues() : "Credential type ${criteria.'class'} is not supported or is invalid."
   }
 
-  // Number of properties that that are in the map
-  def count = criteria.keySet().size()
   def credentials = []
 
   // Get all of the global credentials
   def globalCreds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
     com.cloudbees.plugins.credentials.impl.BaseStandardCredentials.class,
     jenkins.model.Jenkins.instance)
-  // Get credentials for the folder that the job is in
-  java.util.ArrayList folderCreds = new java.util.ArrayList()
-  def folderNames = env.JOB_NAME ?: ""
-  def folders = folderNames.split('/')
-  for (int i = 0; i < folders.size(); i++) {
-    def folderName = folders[0..i].join('/')
-    try {
-      getFolderCredentials(folderName).each { n ->
-        folderCreds << n
-        debugPrint(folderCreds, 2)
-      }
-    } catch (Exception e) { }
-  }
   debugPrint([
-    'folderCreds': folderCreds.collect { ['description': it.description, 'id': it.id] },
     'globalCreds': globalCreds.collect { ['description': it.description, 'id': it.id] }
   ])
-  // Separately loop through credentials provided by different credential providers
-  for (s in [folderCreds, globalCreds]) {
-    // Filter the results based on description and class
-    for (c in s) {
-      def i = 0
-      if (count == c.getProperties().keySet().intersect(criteria.keySet()).size()) {
-        if (c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
-          for (p in c.getProperties().keySet().intersect(criteria.keySet())) {
-            if (c."${p}" != criteria."${p}") {
-              break;
-            } else {
-              i++;
-            }
-          }
+  credentials = intersectCredentials(criteria, globalCreds)
+
+  // Only search through folder credentials if we can't find a global
+  if (!credentials) {
+    // Get credentials for the folder that the job is in
+    java.util.ArrayList folderCreds = new java.util.ArrayList()
+    def folderNames = env.JOB_NAME ?: ""
+    def folders = folderNames.split('/')
+    for (int i = 0; i < folders.size(); i++) {
+      def folderName = folders[0..i].join('/')
+      try {
+        getFolderCredentials(folderName).each { n ->
+          folderCreds << n
+          debugPrint(folderCreds, 2)
         }
-      }
-      if (i == count) {
-        credentials << c
-      }
+      } catch (Exception e) { }
     }
+    debugPrint([
+      'folderCreds': folderCreds.collect { ['description': it.description, 'id': it.id] },
+    ])
+    credentials = intersectCredentials(criteria, folderCreds)
   }
   // Fail if no credentials are found that match the criteria
   assert credentials : """No credentials found that match your criteria: ${criteria}"""
@@ -370,6 +360,30 @@ def getCredentialsWithCriteria(Map criteria) {
   assert credential.id : "Invalid credentials. The id property of your credential is blank or corrupted."
   // Return the credentials
   return credential
+}
+
+private intersectCredentials(Map criteria, List credentialList) {
+  def credentials = []
+  def count = criteria.keySet().size()
+  for (c in credentialList) {
+    def i = 0
+    if (count == c.getProperties().keySet().intersect(criteria.keySet()).size()) {
+      if (c.getProperties().keySet().intersect(criteria.keySet()).equals(criteria.keySet())) {
+        for (p in c.getProperties().keySet().intersect(criteria.keySet())) {
+          if (c."${p}" != criteria."${p}") {
+            break
+          } else {
+            i++
+          }
+        }
+      }
+    }
+    if (i == count) {
+      credentials << c
+    } else {
+    }
+  }
+  return credentials
 }
 
 // Get credentials for a given folder name
@@ -430,6 +444,10 @@ enum CredentialTypes {
 def getPluginVersion(String pluginShortName) {
   assert pluginShortName : "Plugin name must be provided."
   return Jenkins.getInstance().pluginManager.getPlugin("${pluginShortName}")?.getVersion()
+}
+
+def getJavaStackTrace(Throwable e) {
+  return e.getStackTrace().join('\n')
 }
 
 def getPipelineDataFile(String fileName = 'pipelines.yml', String format = 'yml', String baseNode = 'pipelines') {

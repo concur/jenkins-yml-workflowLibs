@@ -1,0 +1,31 @@
+<html>
+  <div>
+    <h4>Description</h4>
+    <p>Notify a channel in Slack</p>
+  </div>
+  <div>
+    <h4>Parameters</h4>
+    <ul style="list-style: none;">
+      <li>buildStatus - Should be either STARTED or SUCCESS sets the color of the message in Slack</li>
+      <li>channel - Channel to send message to, can be to a user (via @) or a channel (via #)</li>
+      <li>token - The authentication token for the Slack API (refer to Slack documentation on <a href="https://get.slack.help/hc/en-us/articles/215770388-Create-and-regenerate-API-tokens">how to generate a token</a>)</li>
+      <li>domain - The Slack team such as concur-blue</li>
+    </ul>
+  </div>
+  <div>
+    <h4>Example 1</h4>
+    <pre>
+      bhNotify(currentBuild.status, 'auto-team-pipeline', 'oaiuwjvu908043iounfvou', 'concur-blue')
+    </pre>
+    <h4>Example 2</h4>
+    <p>If you are using the concur-blue domain you can omit the last parameter.</p>
+    <pre>
+      bhNotify(currentBuild.status, 'auto-team-pipeline', 'oaiuwjvu908043iounfvou')
+    </pre>
+    <h4>Example 3</h4>
+    <p>If you do not have a slack token, you can use Buildhub's default.</p>
+    <pre>
+      bhNotify(currentBuld.status, 'auto-team-pipeline')
+    </pre>
+  </div>
+</html>
