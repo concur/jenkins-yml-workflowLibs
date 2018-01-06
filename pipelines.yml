@@ -4,6 +4,7 @@ pipelines:
   tools:
     branches:
       patterns:
+        master: master
         feature: .+
     github:
       credentials:
@@ -14,7 +15,7 @@ pipelines:
     slack:
       channel: 'git-notifications'
   branches:
-    feature:
+    master:
       steps:
         - github:
           - createRelease:
