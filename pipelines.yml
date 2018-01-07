@@ -17,7 +17,7 @@ pipelines:
       binary: python3
     jenkins:
       workflows:
-        branch: "v0.1.0"
+        branch: "v0.1.1"
     slack:
       channel: 'git-notifications'
   branches:
