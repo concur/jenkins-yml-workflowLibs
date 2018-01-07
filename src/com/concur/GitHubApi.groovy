@@ -281,9 +281,8 @@ def createPullRequest(String title, String fromBranch, String toBranch, String o
     println "workflowLibs :: GitHubApi :: createPullRequest :: Skipping Pull Request creation from a fork. A Pull Request already exists."
     return
   }
-  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
 
-  def currentPullRequest = getPullRequests(credentialId, owner, repo, host, fromBranch, toBranch)
+  def currentPullRequest = getPullRequests(credentialData, owner, repo, host, fromBranch, toBranch)
   if (currentPullRequest.any()) {
     println """workflowLibs :: GitHubApi :: createPullRequest :: A pull request already exists for the branches specified:
               |---------------------------------
@@ -304,6 +303,8 @@ def createPullRequest(String title, String fromBranch, String toBranch, String o
     "base"                  : toBranch,
     "maintainer_can_modify" : maintainer_can_modify
   ]
+  
+  def credentialId = concurPipeline.getCredentialsWithCriteria(credentialData).id
   
   def response = githubRequestWrapper('POST', "/repos/$owner/$repo/pulls", postData, null, credentialId, false, false, host)
   return concurUtil.parseJSON(response?.content)
