@@ -1,5 +1,14 @@
 # Jenkins-YML-WorkflowLibs changes by release
 
+## 0.3.0
+
+### Added
+
+* Added script to automatically generate documentation on commit.
+* Update com.concur.* groovy files with documentation.
+* Updated documentation in vars/*.txt, these are viewable in Pipeline Syntax -> Global Variable Reference from a pipeline job.
+* Add to setup.groovy script to set Markup formatter to Safe HTML so the vars documentation shows appropriately.
+
 ## 0.2.0
 
 ### Added

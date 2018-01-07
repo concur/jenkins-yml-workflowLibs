@@ -60,6 +60,12 @@ jenkinsRequiredScriptApprovals = [
 ]
 
 // ******************************
+// Set the Markup formatter to Safe HTML
+// ******************************
+
+Jenkins.instance.setMarkupFormatter(new RawHtmlMarkupFormatter(false))
+
+// ******************************
 // Add global cred
 // ******************************
 

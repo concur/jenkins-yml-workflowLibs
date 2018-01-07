@@ -8,4 +8,4 @@ _Brief explanation of how you accomplished this_
 
 #### Links
 
-_Link to any job runs or information that can help ensure this should work as provided_
+* [Created by Job Number {{ build_number }}]({{ build_url }})

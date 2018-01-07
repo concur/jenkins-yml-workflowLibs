@@ -18,7 +18,14 @@ import org.codehaus.groovy.runtime.GStringImpl;
 // Workflow Execution Methods
 // ########################
 
-// Run the workflow steps for the appropriate sections
+/*
+description: Run the workflow steps for the appropriate sections
+examples:
+  - |
+    def concurCommands = new com.concur.Commands()
+    def yaml = readYaml 'pipelines.yml'
+    concurCommands.runSteps(yaml.pipelines)
+ */
 def runSteps(Map yml, String branch=env.BRANCH_NAME) {
   assert yml : """|No YML contents provided. An example pipelines.yml file would look like this:
                   |------------------------------------------------------------------------------
@@ -258,7 +265,14 @@ private loadWorkflows(String fileName, Map yml) {
   return workflow
 }
 
-// Check branch pattern
+/*
+description: Check branch patterns against what is available in a YAML file, uses regular expressions to match
+examples:
+  - |
+    def concurCommands = new com.concur.Commands()
+    def yaml = readYaml 'pipelines.yml'
+    concurCommands.checkBranch(yaml.pipelines, 'master')
+ */
 def checkBranch(Map yml, String branch=env.BRANCH_NAME) {
   assert yml    : 'Couldn\'t find pipelines.yml.'
   assert branch : 'Branch name not set. This should typically be set by the environment as BRANCH_NAME. Please ensure this is being called within a node and that you are in a job type that provides sets the environment variable automatically such as a Multibranch pipeline.'
@@ -287,17 +301,19 @@ def checkBranch(Map yml, String branch=env.BRANCH_NAME) {
 // ########################
 
 /*
-* Get the credentials based on criteria defined in a map
-*
-* Map parameters:
-*
-*   @param class -  enum CredentialTypes of what kind of credential to search for
-*   @param id - jenkins id of the credential
-*   @param password - password of the credential
-*   @param description - description of the credential
-*
-* Other parameters can be passed and will be evaluated if they are properties of the credential type passed in the map
-*/
+description: Get the credentials based on criteria defined in a map
+examples:
+  - |
+    // Find credential by description
+    def concurCommands = new com.concur.Commands()
+    println concurCommands.getCredentialsWithCriteria(['description': 'Example credential def']).id
+    // b709b4ac-f2f6-4e54-aca3-002270a92657
+  - |
+    // Find only SSH credentials with a particular description
+    def concurCommands = new com.concur.Commands()
+    println concurCommands.getCredentialsWithCriteria(['description': 'Example credential def', 'class': com.concur.CredentialTypes.sshPrivateKey]).id
+    // 1ae2ff9b-0d8a-4f75-ac21-8368c983d607
+ */
 def getCredentialsWithCriteria(Map criteria) {
   // Make sure criteria isn't empty
   assert criteria : 'WorkflowLibs :: Commands :: getCredentialsWithCriteria :: No criteria provided to search for, please use this function with a Map like such `new com.concur.Commands().getCredentialsWithCriteria([\'description\': \'example credential description\']`.'
@@ -440,16 +456,48 @@ enum CredentialTypes {
 // # Helpers
 // ########################
 
-// get a version number for the provided plugin name
+/*
+description: Get the version number for the provided plugin name
+examples:
+  - |
+    println new com.concur.Commands().getPluginVersion('pipeline-githubnotify-step')
+    // 1.0.3
+  - |
+    println new com.concur.Commands().getPluginVersion('blueocean-dashboard')
+    // 1.3.5
+ */
 def getPluginVersion(String pluginShortName) {
   assert pluginShortName : "Plugin name must be provided."
   return Jenkins.getInstance().pluginManager.getPlugin("${pluginShortName}")?.getVersion()
 }
 
+/*
+description: Return a string of the stack trace, this is blocked by default by Jenkins
+examples:
+  - |
+    try {
+      error('m')
+    } catch (e) {
+      println new com.concur.Commands().getJavaStackTrace(e)
+    }
+    // org.jenkinsci.plugins.workflow.steps.ErrorStep$Execution.run(ErrorStep.java:63)
+    // org.jenkinsci.plugins.workflow.steps.ErrorStep$Execution.run(ErrorStep.java:50)....
+ */
 def getJavaStackTrace(Throwable e) {
   return e.getStackTrace().join('\n')
 }
 
+/*
+description: Check the environment to see if we are in debug mode
+examples:
+  - |
+    println new com.concur.Commands().isDebug()
+    // false
+  - |
+    env."${com.concur.Constants.Env.DEBUG}" = true
+    println new com.concur.Commands().isDebug()
+    // true
+ */
 def getPipelineDataFile(String fileName = 'pipelines.yml', String format = 'yml', String baseNode = 'pipelines') {
   def fileContents = readFile fileName
   def dataMap = null
@@ -469,11 +517,32 @@ def getPipelineDataFile(String fileName = 'pipelines.yml', String format = 'yml'
   return dataMap[baseNode]
 }
 
-// check the environment to see if we are in debug mode
+/*
+description: Check the environment to see if we are in debug mode
+examples:
+  - |
+    println new com.concur.Commands().isDebug()
+    // false
+  - |
+    env."${com.concur.Constants.Env.DEBUG}" = true
+    println new com.concur.Commands().isDebug()
+    // true
+ */
 def isDebug() {
   return env."${Constants.Env.DEBUG}"?.toBoolean() ?: false
 }
 
+/*
+description: Print a string of data to the Jenkins console output, only if the user wants to get debug information. Allows developers to set a specific title.
+example: |
+    def concurCommands = new com.concur.Commands()
+    env.DEBUG_MODE = true
+    concurCommands.debugPrint('example message')
+    // Console output will show
+    // ### Debug output for [Script1] ###
+    // ### Debug >>> example message
+    // ### End Debug ###
+ */
 public debugPrint(String title, Map msgdata, int debugLevelToPrint=1) {
   def str = "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${title}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
   msgdata.each { data ->
@@ -483,10 +552,16 @@ public debugPrint(String title, Map msgdata, int debugLevelToPrint=1) {
   debugPrintMessage(str, debugLevelToPrint)
 }
 
-/* usage examples
-  new com.concur.Commands().debugPrint('building docker image ...')
-  new com.concur.Commands().debugPrint(['docker image name: ${dockerImageName}'])
-  new com.concur.Commands().debugPrint(['docker image name': dockerImageName])
+/*
+description: Print a map of data to the Jenkins console output, only if the user wants to get debug information, title will be automatically generated
+example: |
+    def concurCommands = new com.concur.Commands()
+    env.DEBUG_MODE = true
+    concurCommands.debugPrint(['example': 'message'])
+    // Console output will show
+    // ### Debug output for [Script1] ###
+    // ### Debug >>> example: message
+    // ### End Debug ###
  */
 public debugPrint(Map msgdata, int debugLevelToPrint=1) {
   def str = "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
@@ -497,6 +572,18 @@ public debugPrint(Map msgdata, int debugLevelToPrint=1) {
   debugPrintMessage(str, debugLevelToPrint)
 }
 
+/*
+description: Print a list of data to the Jenkins console output, only if the user wants to get debug information, title will be automatically generated
+example: |
+    def concurCommands = new com.concur.Commands()
+    env.DEBUG_MODE = true
+    concurCommands.debugPrint(['example', 'message'])
+    // Console output will show
+    // ### Debug output for [Script1] ###
+    // ### Debug >>> example
+    // ### Debug >>> message
+    // ### End Debug ###
+ */
 public debugPrint(List msgdata, int debugLevelToPrint=1) {
   def str = "### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###"
   msgdata.each { data ->
@@ -506,6 +593,17 @@ public debugPrint(List msgdata, int debugLevelToPrint=1) {
   debugPrintMessage(str, debugLevelToPrint)
 }
 
+/*
+description: Print a string of data to the Jenkins console output, only if the user wants to get debug information, title will be automatically generated
+example: |
+    def concurCommands = new com.concur.Commands()
+    env.DEBUG_MODE = true
+    concurCommands.debugPrint('example message')
+    // Console output will show
+    // ### Debug output for [Script1] ###
+    // ### Debug >>> example message
+    // ### End Debug ###
+ */
 public debugPrint(String msgdata, int debugLevelToPrint=1) {
   debugPrintMessage("""### ${Constants.Colors.MAGENTA}Debug output for [${Constants.Colors.BLUE}${getDebugMessageTitle()}${Constants.Colors.MAGENTA}]${Constants.Colors.CLEAR} ###
                       |### ${Constants.Colors.MAGENTA}Debug >>> ${Constants.Colors.CYAN}${msgdata}${Constants.Colors.CLEAR}
