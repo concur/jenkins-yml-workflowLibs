@@ -6,9 +6,15 @@ pipelines:
       patterns:
         master: master
         feature: .+
+    git:
+      credentials:
+        description: GitHub Username/Password
     github:
       credentials:
         description: GitHub Secret Text Access Token
+    python:
+      buildImage: python:3.6-alpine3.7
+      binary: python3
     jenkins:
       workflows:
         branch: "v0.1.0"
@@ -19,3 +25,18 @@ pipelines:
       steps:
         - github:
           - createRelease:
+    feature:
+      steps:
+        - python:
+          - script:
+              file: scripts/generate_docs.py
+              requirements: scripts/requirements.txt
+              arguments:
+                - "-o docs"
+        - git:
+          - commit:
+              message: "Automatic documentation generated."
+              push: true
+              forceAdd: true
+        - github:
+          - createPullRequest:

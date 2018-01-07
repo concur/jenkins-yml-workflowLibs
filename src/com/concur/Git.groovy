@@ -5,16 +5,24 @@ import groovy.transform.Field;
 
 @Field def concurPipeline = new Commands()
 
-// Get the commit SHA for the last file or folder changed.
+/*
+description: Get the commit SHA for the last file or folder changed.
+ */
 def getCommitSHA(String folder='.', int depth=1) {
   return runGitShellCommand("git log -n ${depth} --pretty=format:%H ${folder}")
 }
 
+/*
+description: Get a list of files that were changed in the current commit.
+ */
 def getFilesChanged(String commitSha='') {
   if (!commitSha) { commitSha = env.GIT_COMMIT }
   return runGitShellCommand("git diff-tree --no-commit-id --name-only -r ${commitSha}").tokenize('\n')
 }
 
+/*
+description: Run a command, set the command for Linux and Windows and this method will determine which one to use.
+ */
 def runGitShellCommand(String gitCommand, String winGitCommand='') {
   if (!winGitCommand) {
     winGitCommand = gitCommand
@@ -30,7 +38,23 @@ def runGitShellCommand(String gitCommand, String winGitCommand='') {
   }
 }
 
-// Save git properties to environment variables
+/*
+description: Save git properties to environment variables
+example: |
+  new com.concur.Git().saveGitProperties()
+  sh "env"
+  // GIT_SHORT_COMMIT=b828c9
+  // GIT_COMMIT=b828c94aba486ac0416bf95e387d860b79e6343f
+  // GIT_URL=git@github.com:concur/jenkins-yml-workflowLibs
+  // GIT_COMMIT_MESSAGE=Fix workflow version lock.
+  // GIT_AUTHOR=Nic Patterson
+  // GIT_EMAIL=arasureynn@gmail.com
+  // GIT_PREVIOUS_COMMIT=597563389d144c7098dd3b71b1fc1e600b215ff7
+  // GIT_OWNER=concur
+  // GIT_HOST=github.com
+  // GIT_REPO=jenkins-yml-workflowLibs
+  // ....
+ */
 def saveGitProperties(Map scmVars) {
   concurPipeline.debugPrint("Getting info on Git commit")
 
@@ -71,11 +95,14 @@ def saveGitProperties(Map scmVars) {
 }
 
 /*
- * Get the Git owner, repo and host
- *
- * String parameter:
- *
- *   @param url -  URL of the Git repository
+description: Get the Git owner, repo and host
+examples:
+  - |
+    println new com.concur.Git().getGitData('https://github.com/concur/jenkins-yml-workflowLibs.git')
+    // ['host': 'github.com', 'owner': 'concur', 'repo': 'jenkins-yml-workflowLibs']
+  - |
+    println new com.concur.Git().getGitData('https://github.example.com/awesome/repo.git')
+    // ['host': 'github.example.com', 'owner': 'awesome', 'repo': 'repo']
 */
 def getGitData(String url = '') {
   if (!url) {
@@ -103,6 +130,22 @@ def getGitData(String url = '') {
   ]
 }
 
+/*
+description: Determine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.
+examples:
+  - |
+    // Latest tag in the repo is 1.3.1 and it was tagged 5 hours ago
+    println new com.concur.Git().getVersion()
+    // 1.4.0-0018000000
+  - |
+    // New repo with no tags, repository was created 1 hour ago
+    println new com.concur.Git().getVersion()
+    // 0.1.0-0003600000
+  - |
+    // No tags in repo, override default version, created 18 days ago
+    println new com.concur.Git().getVersion('3.6.9')
+    // 3.7.0-1555200000
+ */
 def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ignorePrevious = false) {
   if (env."${Constants.Env.VERSION}") {
     concurPipeline.debugPrint('Returning previously determined version.', 3)
@@ -173,6 +216,18 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
   }
 }
 
+/*
+description: Get the amount of time since the last Git tag was created.
+examples:
+  - |
+    // Last tag was 3 hours ago
+    println new com.concur.Git().timeSinceLastTag()
+    // 0010800000 - Padded with 0s on the left.
+  - |
+    // last tag was 6 months ago
+    println new com.concur.Git().timeSinceLastTag()
+    // 1555200000 - Chunked to keep it at 10 characters
+ */
 def timeSinceLatestTag() {
   def tagDateString = runGitShellCommand(
     'git log --pretty="format:%ci" $(git tag --sort -v:refname) | head -1',
@@ -191,5 +246,9 @@ def timeSinceLatestTag() {
   ])
   // pad these so that the length is consistent, this should also make things easier to read
   def chunkedMilliseconds = duration.toMilliseconds().toString()
-  return chunkedMilliseconds
+  if (chunkedMilliseconds.size() > 10) {
+    return chunkedMilliseconds[0..9]
+  } else {
+    return chunkedMilliseconds.padLeft(10, '0')
+  }
 }
