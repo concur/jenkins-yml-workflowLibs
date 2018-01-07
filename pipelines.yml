@@ -11,7 +11,7 @@ pipelines:
         description: GitHub Secret Text Access Token
     jenkins:
       workflows:
-        branch: github-release
+        branch: "v0.1.0"
     slack:
       channel: 'git-notifications'
   branches:

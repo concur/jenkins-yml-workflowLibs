@@ -52,7 +52,11 @@ workflowLibsDefaultBranch = 'master'
 
 jenkinsRequiredScriptApprovals = [
   'method com.cloudbees.plugins.credentials.common.IdCredentials getId',
-  'method java.lang.Class isInstance java.lang.Object'
+  'method java.lang.Class isInstance java.lang.Object',
+  'staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods center java.lang.String java.lang.Number',
+  'staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods first java.lang.Iterable',
+  'staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getAt java.util.List groovy.lang.Range',
+  'staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods multiply java.lang.String java.lang.Number'
 ]
 
 // ******************************
