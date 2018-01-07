@@ -1,0 +1,32 @@
+<html>
+  <div>
+    <h4>Description</h4>
+    <p>Run commands on a Linux agent, and cleans up the workspace. This module allows you to specify a timeout, but will default to one hour if not specified.</p>
+  </div>
+  <div>
+    <h4>Optional Parameters</h4>
+    <ul>
+      <li>duration - Integer value representing the amount of time</li>
+      <li>unit - Unit of time. Valid values are: NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS</li>
+    </ul>
+    <p>
+      For more information checkout the <a href="https://jenkins.io/doc/pipeline/steps/workflow-basic-steps/#code-timeout-code-enforce-time-limit">timeout step documentation</a> on <a href="https://jenkins.io">jenkins.io</a>.
+    </p>
+  </div>
+  <div>
+    <h4>Basic Example</h4>
+    <pre>
+      plWindows {
+        bat 'echo Hello %COMPUTERNAME%'
+      }
+    </pre>
+  </div>
+  <div>
+    <h4>Advanced Example</h4>
+    <pre>
+      plWindows 1, "MINUTES", {
+        powershell 'gci env:'
+      }
+    </pre>
+  </div>
+</html>

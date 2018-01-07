@@ -1,0 +1,39 @@
+<html>
+  <div>
+    <h4>Description</h4>
+    <p>Run a workflow based on the YAML structure defined. All of these are optional, and you can add as many as you 
+    need.</p>
+  </div>
+  <div>
+    <h4>Parameters</h4>
+    <ul style="list-style: none;">
+      <li>nodeType - The type of machine to build on, should be Windows or Linux (Optional: Default linux).</li>
+      <li>notify - Whether or not to send notifications at the beginning and end of the pipeline (Optional: Default true)</li>
+      <li>yamlPath - The relative path to the YAML file used to describe your pipeline (Optional: Default pipelines.yml)</li>
+      <li>repo - Used to specify a GitHub repository for GitHub deployments when on a deployhub server. (Optional: 
+      Default inferred from your project</li>     
+      <li>githubDeployments - Whether or not to send the deployment status to GitHub. This is only relevant for deploy hubs. (Optional: Default true)</li>  
+      <li>notify - Whether or not to send a slack notification for the start and completion of the build (Optional: 
+      Default true)</li>             
+      <li>useSubmodules - Used to clone submodules if they exist in your repository (Optional: Default true)</li>      
+      <li>timeoutDuration - Set the timeout duration for the build (Optional: Default 1)</li>
+      <li>timeoutUnit - Set the Unit for the timeout duration (Optional: Default 'HOURS')</li>
+      <li>yamlText - Used to troubleshoot pipelines.yml (Optional: Default null)</li> 
+    </ul>
+  </div>
+  <div>
+    <h4>Slack Notification Example</h4>
+    <pre>
+      plWorkflow {
+        notify = false
+      }
+    </pre>
+    <h4>YAML Path and Node Type Example</h4>
+    <pre>
+      plWorkflow {
+        yamlPath = 'data.yml'
+        nodeType = 'windows'
+      }
+    </pre>
+  </div>
+</html>

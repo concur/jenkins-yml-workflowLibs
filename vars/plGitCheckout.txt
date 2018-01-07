@@ -1,0 +1,38 @@
+<html>
+  <div>
+    <h4>Description</h4>
+    <p>Checkout from Github and set environment variables</p>
+  </div>
+  <div>
+    <h4>Parameters</h4>
+    <ul style="list-style: none;">
+      <li>repo - Github repository to checkout if you need to get something other than the project repo (optional)</li>
+      <li>credentials - ID of the credentials to use for this checkout, if not supplied uses checkout credentials defined in the job (optional)</li>
+      <li>withSubmodules - If true will checkout the configured git repository including any configured submodules (optional)</li>
+    </ul>
+  </div>
+  <div>
+    <h4>Example</h4>
+    <pre>
+      plGitCheckout { } // will checkout the project configured by this job
+    </pre>
+  </div>
+  <div>
+    <h4>Submodule example</h4>
+    <pre>
+      plGitCheckout { // will checkout the project configured by this job
+        withSubmodules = true
+      }
+    </pre>
+  </div>
+  <div>
+    <h4>Specific repo example</h4>
+    <pre>
+      def credentialId = concurPipeline.getCredentialsWithCriteria(['description': 'Primary GitHub clone/checkout credentials'])
+      plGitCheckout { // will checkout the project configured by this job
+        credentials = credentialId
+        repo = 'https://github.com/ansible/ansible.git'
+      }
+    </pre>
+  </div>
+</html>
