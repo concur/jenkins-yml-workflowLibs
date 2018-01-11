@@ -47,7 +47,7 @@ examples:
     // {content=JSON content}
  */
 def parseJSON(String stringContent) {
-  assert stringContent : 'Unable to use parseJSON with no content'
+  assert stringContent : 'WorkflowLibs :: Util :: parseJSON :: Unable to use parseJSON with no content'
   def utilityStepsAvailable = new Commands().getPluginVersion('pipeline-utility-steps') ?: false
   if (utilityStepsAvailable) {
     return readJSON(text: stringContent)
@@ -70,7 +70,7 @@ examples:
     // "Valid JSON string '\"\""
  */
 def toJSON(Object content) {
-  assert content : "Nothing provided to convert to JSON, this should be any [String, Array/List or Map]."
+  assert content : "WorkflowLibs :: Util :: toJSON :: Nothing provided to convert to JSON, this should be any [String, Array/List or Map]."
   return JsonOutput.toJson(content)
 }
 
@@ -89,9 +89,9 @@ examples:
     // {pipelines={tools={git={...}}}}
  */
 def parseYAML(String stringContent) {
-  assert stringContent : 'Unable to use parseYAML with no content'
+  assert stringContent : 'WorkflowLibs :: Util :: parseYAML :: Unable to use parseYAML with no content'
   def utilityStepsAvailable = new com.concur.Commands().getPluginVersion('pipeline-utility-steps') ?: false
-  assert utilityStepsAvailable : "Please ensure the [Pipeline Utility Steps] plugin is installed in Jenkins."
+  assert utilityStepsAvailable : "WorkflowLibs :: Util :: parseYAML :: Please ensure the [Pipeline Utility Steps] plugin is installed in Jenkins."
   return readYaml(text: stringContent)
 }
 
@@ -206,7 +206,7 @@ def replaceLast(String text, String regex, String replacement) {
 // Text Replacement/Transformations
 private addCommonReplacements(providedOptions) {
   // this will replace the existing map with everything from providedOptions
-  def version = new Git().getVersion()
+  def version = new Git().getVersion([:])
   return ([
     'BUILD_VERSION' : version,
     'SHORT_VERSION' : version.split('-')[0],

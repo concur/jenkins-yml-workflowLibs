@@ -132,34 +132,48 @@ def getGitData(String url = '') {
 }
 
 /*
-description: Determine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.
+description: |
+  Determine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.
+  You can indicate how to increment the semantic version in your pipelines.yml file:
+  ```yaml
+  pipelines:
+    general:
+      version:
+        increment: # all of these nodes can be either a static boolean or a map matching the patterns from tools.git.patterns
+          major: true
+          minor:
+            master: true
+            feature: false
+          patch:
+            master: false
+            feature: true
+  ```
 examples:
   - |
     // Latest tag in the repo is 1.3.1 and it was tagged 5 hours ago
-    println new com.concur.Git().getVersion()
+    println new com.concur.Git().getVersion(yml)
     // 1.4.0-0018000000
   - |
     // New repo with no tags, repository was created 1 hour ago
-    println new com.concur.Git().getVersion()
+    println new com.concur.Git().getVersion(yml)
     // 0.1.0-0003600000
   - |
     // No tags in repo, override default version, created 18 days ago
-    println new com.concur.Git().getVersion('3.6.9')
+    println new com.concur.Git().getVersion(yml)
     // 3.7.0-1555200000
  */
 def getVersion(Map yml) {
-  String branchPattern    = concurPipeline.checkBranch(yml)
-  String version          = yml.general?.version?.base    ?: '0.1.0'
-  String scheme           = yml.general?.version?.scheme  ?: 'semantic'
-  Boolean incrementMajor  = yml.general?.version?.increment?.major?."${branchPattern}" ?: yml.general?.version?.increment?.major ?: false
-  Boolean incrementMinor  = yml.general?.version?.increment?.minor?."${branchPattern}" ?: yml.general?.version?.increment?.minor ?: false
-  Boolean incrementPatch  = yml.general?.version?.increment?.patch?."${branchPattern}" ?: yml.general?.version?.increment?.patch ?: false
-
   if (env."${Constants.Env.VERSION}") {
     concurPipeline.debugPrint('Returning previously determined version.', 3)
     return env."${Constants.Env.VERSION}"
   }
   try {
+    String branchPattern    = concurPipeline.checkBranch(yml)
+    String version          = yml.general?.version?.base    ?: '0.1.0'
+    String scheme           = yml.general?.version?.scheme  ?: 'semantic'
+    Boolean incrementMajor  = yml.general?.version?.increment?.major?."${branchPattern}" ?: yml.general?.version?.increment?.major ?: false
+    Boolean incrementMinor  = yml.general?.version?.increment?.minor?."${branchPattern}" ?: yml.general?.version?.increment?.minor ?: false
+    Boolean incrementPatch  = yml.general?.version?.increment?.patch?."${branchPattern}" ?: yml.general?.version?.increment?.patch ?: false
     String tag = runGitShellCommand(
       "git describe --tag --abbrev=0 ${env.GIT_COMMIT} | head -1",
       "\$(git describe --tag --abbrev=0 ${env.GIT_COMMIT})[0]"

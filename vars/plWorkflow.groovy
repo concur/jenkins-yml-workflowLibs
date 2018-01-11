@@ -50,7 +50,6 @@ def call(body) {
 
     if (slackNotify) {
       println "Sending Slack notification for build start..."
-      assert slackData?.channel
       plNotify {
         buildStatus     = 'STARTED'
         useAttachments  = (slackData?.useAttachments ?: true)
