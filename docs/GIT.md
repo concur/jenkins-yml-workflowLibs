@@ -110,3 +110,28 @@ println new com.concur.Git().getVersion()
 println new com.concur.Git().getVersion('3.6.9')
 // 3.7.0-1555200000
 ```
+
+## timeSinceLatestTag(String)
+
+> Get the amount of time since the last Git tag was created.
+
+| Type   | Name   | Default   |
+|:-------|:-------|:----------|
+| String | tag    |           |
+
+### Example 1
+
+```groovy
+// Last tag was 3 hours ago
+println new com.concur.Git().timeSinceLastTag()
+// 0010800000 - Padded with 0s on the left.
+
+```
+
+### Example 2
+
+```groovy
+// last tag was 6 months ago
+println new com.concur.Git().timeSinceLastTag()
+// 1555200000 - Chunked to keep it at 10 characters
+```
