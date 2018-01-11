@@ -10,9 +10,8 @@ import com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider.
 import com.cloudbees.plugins.credentials.impl.*;
 import com.cloudbees.plugins.credentials.*;
 import com.cloudbees.plugins.credentials.domains.*;
-import org.codehaus.groovy.runtime.GStringImpl;
 
-@Field def concurUtil = new com.concur.Util()
+@Field def concurUtil = new Util()
 
 // ########################
 // Workflow Execution Methods
@@ -125,7 +124,7 @@ private executeWorkflow(Map workflow, Map yml) {
   }
 }
 
-private executeParameterizedStep(workflow, sectionName, stepName, stepValues, yml) {
+private executeParameterizedStep(Object workflow, String sectionName, String stepName, Map stepValues, Map yml) {
   debugPrint([
     'workflow'      : workflow,
     'sectionName'   : sectionName,
@@ -225,7 +224,7 @@ private loadWorkflows(String fileName, Map yml) {
       println """${'*'*80}
                 |${Constants.Colors.YELLOW_ON_BLACK}Loaded Custom Workflow [${Constants.Colors.CYAN_ON_BLACK}$localFile${Constants.Colors.YELLOW_ON_BLACK}].${Constants.Colors.CLEAR}
                 |${'*'*80}""".stripMargin()
-    } catch (java.io.NotSerializableException nse) {
+    } catch (NotSerializableException nse) {
       error("""${Constants.Colors.RED}
               |Error loading workflow, this is most likely to be caused by a syntax error in the groovy file.
               |-----------------------------------------------------------------------------------------------
@@ -256,7 +255,7 @@ private loadWorkflows(String fileName, Map yml) {
       println """${'*'*80}
                 |${Constants.Colors.WHITE_ON_BLACK}Loaded Workflow [${Constants.Colors.CYAN_ON_BLACK}${fileName}${Constants.Colors.WHITE_ON_BLACK}] from remote [${Constants.Colors.CLEAR}${repo}${Constants.Colors.WHITE_ON_BLACK}].${Constants.Colors.CLEAR}
                 |${'*'*80}""".stripMargin()
-    } catch (java.io.NotSerializableException nse) {
+    } catch (NotSerializableException nse) {
       error("Failed to load the [$fileName] workflow from $repo, please create an issue on the project in GitHub (https://github.com/concur/jenkins-workflow).")
     }
   }
@@ -321,7 +320,7 @@ def getCredentialsWithCriteria(Map criteria) {
   debugPrint(criteria, 2)
 
   if (criteria.keySet().contains('class')) {
-    assert criteria."class".class != java.lang.String : "java.lang.String is not a valid class for credentials"
+    assert criteria."class".class != String : "java.lang.String is not a valid class for credentials"
     criteria."class" = criteria."class".class == CredentialTypes ? criteria."class"?.getValue() : criteria."class"
     assert criteria."class" in CredentialTypes.getValues() : "Credential type ${criteria.'class'} is not supported or is invalid."
   }
@@ -340,7 +339,7 @@ def getCredentialsWithCriteria(Map criteria) {
   // Only search through folder credentials if we can't find a global
   if (!credentials) {
     // Get credentials for the folder that the job is in
-    java.util.ArrayList folderCreds = new java.util.ArrayList()
+    ArrayList folderCreds = new ArrayList()
     def folderNames = env.JOB_NAME ?: ""
     def folders = folderNames.split('/')
     for (int i = 0; i < folders.size(); i++) {

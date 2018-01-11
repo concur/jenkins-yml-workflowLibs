@@ -1,7 +1,9 @@
 #!/usr/bin/env groovy
 package com.concur
 
-import groovy.transform.Field;
+import groovy.transform.Field
+
+import java.util.regex.Pattern;
 
 @Field def concurPipeline = new Commands()
 
@@ -112,9 +114,9 @@ def getGitData(String url = '') {
   def repo
   def gitHost
   if (url.startsWith('https://')) {
-    def gitUrl = new java.net.URI(url)
+    def gitUrl = new URI(url)
     def scmList = gitUrl.getPath().toString().replaceAll(/\.git|\//,' ').split(' ')
-    host  = gitUrl.host
+    gitHost  = gitUrl.host
     owner = scmList[1]
     repo  = scmList[2]
   } else if (url.startsWith('git@')) {
@@ -124,7 +126,7 @@ def getGitData(String url = '') {
   }
 
   return [
-    'host'  : host,
+    'host'  : gitHost,
     'owner' : owner,
     'repo'  : repo
   ]
@@ -152,9 +154,10 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
     return env."${Constants.Env.VERSION}"
   }
   try {
-    def tag = runGitShellCommand('git tag --sort -v:refname | head -1', '$(git tag --sort -v:refname)[0]')
+    String tag = runGitShellCommand('git describe --tag --abbrev=0 ${env.GIT_COMMIT} | head -1',
+            '$(git describe --tag --abbrev=0 ${env.GIT_COMMIT})[0]')
 
-    def buildNumber = timeSinceLatestTag()
+    def buildNumber = timeSinceLatestTag(tag)
     if (tag == null || tag.size() == 0) {
       println "no existing tag found using version: ${version}-${buildNumber}"
       env."${Constants.Env.VERSION}" = "${version}-${buildNumber}"
@@ -164,7 +167,7 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
     tag = tag.replaceAll("\\s+","")
 
     String semverPatternString = '(?i)\\b(?<prefix>v)?(?<major>0|[1-9]\\d*)(?:\\.(?<minor>0|[1-9]\\d*)(?:\\.(?<patch>0|[1-9]\\d*))?)?(?:-(?<prerelease>[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*))?(?:\\+(?<build>[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*))?\\b'
-    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(semverPatternString)
+    Pattern pattern = Pattern.compile(semverPatternString)
 
     // List of different versioning scheme regex patters to match against
     def tagSemver     = pattern.matcher(tag)
@@ -211,7 +214,6 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
     |### Parameters Used ###
     |scheme: ${scheme}
     |version: ${version}
-    |ignorePrevious: ${ignorePrevious}
     """.stripMargin())
   }
 }
@@ -228,15 +230,15 @@ examples:
     println new com.concur.Git().timeSinceLastTag()
     // 1555200000 - Chunked to keep it at 10 characters
  */
-def timeSinceLatestTag() {
+def timeSinceLatestTag(String tag) {
   def tagDateString = runGitShellCommand(
-    'git log --pretty="format:%ci" $(git tag --sort -v:refname) | head -1',
-    '$(git log --pretty="format:%ci" $(git tag --sort -v:refname))[0]'
+    "git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag) | head -1",
+    "\$(git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag))[0]"
   )
 
   concurPipeline.debugPrint(["Git tag data": tagDateString])
 
-  def tagDate = new com.concur.Util().dateFromString(tagDateString)
+  def tagDate = new Util().dateFromString(tagDateString)
   def now = new Date()
 
   def duration = groovy.time.TimeCategory.minus(now, tagDate)
