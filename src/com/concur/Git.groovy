@@ -148,20 +148,23 @@ examples:
     println new com.concur.Git().getVersion('3.6.9')
     // 3.7.0-1555200000
  */
-def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ignorePrevious = false) {
+def getVersion(String version = '0.1.0', String scheme = "semantic") {
   if (env."${Constants.Env.VERSION}") {
     concurPipeline.debugPrint('Returning previously determined version.', 3)
     return env."${Constants.Env.VERSION}"
   }
   try {
-    String tag = runGitShellCommand('git describe --tag --abbrev=0 ${env.GIT_COMMIT} | head -1',
-            '$(git describe --tag --abbrev=0 ${env.GIT_COMMIT})[0]')
+    String tag = runGitShellCommand(
+      'git describe --tag --abbrev=0 ${env.GIT_COMMIT} | head -1',
+      '$(git describe --tag --abbrev=0 ${env.GIT_COMMIT})[0]'
+    )
 
-    def buildNumber = timeSinceLatestTag(tag)
+    def buildNumber = timeSinceTag(tag)
     if (tag == null || tag.size() == 0) {
-      println "no existing tag found using version: ${version}-${buildNumber}"
-      env."${Constants.Env.VERSION}" = "${version}-${buildNumber}"
-      return "${version}-${buildNumber}"
+      def tmpVer = "$version-$buildNumber"
+      println "no existing tag found using version: $tmpVer"
+      env."${Constants.Env.VERSION}" = tmpVer
+      return tmpVer
     }
     // Getting the tag to check versioning scheme
     tag = tag.replaceAll("\\s+","")
@@ -186,7 +189,9 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
       def tagMajorVersion = tagSemver.group('major') as int
       def tagMinorVersion = ((tagSemver.group('minor') ?: -1) as int) + 1 //Setting the value to -1 allows for a zero version
       def tagPatchVersion = (tagSemver.group('patch') ?: 0) as int
-      def retVersion = "${tagPrefix}${tagMajorVersion}.${tagMinorVersion}.${tagPatchVersion}-${buildNumber}"
+
+      def retVersion = "$tagPrefix$tagMajorVersion.$tagMinorVersion.$tagPatchVersion-$buildNumber"
+
       if (versionSemver.matches() && (version != '0.1.0')) {
         def prefix = versionSemver.group('prefix') ?: ''
         def majorVersion = versionSemver.group('major') as int
@@ -198,7 +203,7 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
             (minorVersion > tagMinorVersion) || (minorVersion == tagMinorVersion && patchVersion > tagPatchVersion)
           )
         ) {
-          retVersion = "${prefix}${majorVersion}.${minorVersion}.${patchVersion}-${buildNumber}"
+          retVersion = "$prefix$majorVersion.$minorVersion.$patchVersion-$buildNumber"
         }
       }
       env."${Constants.Env.VERSION}" = retVersion
@@ -212,8 +217,10 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
     |version - Version to use in this release, assuming that you don't want auto incrementing (Not implemented yet)
     |ignorePrevious - Don't look at the last tag released and compare it to make sure you're incrementing (Not |implemented yet)\n
     |### Parameters Used ###
-    |scheme: ${scheme}
-    |version: ${version}
+    |scheme: $scheme
+    |version: $version
+    |### Error ###
+    |$e
     """.stripMargin())
   }
 }
@@ -223,14 +230,14 @@ description: Get the amount of time since the last Git tag was created.
 examples:
   - |
     // Last tag was 3 hours ago
-    println new com.concur.Git().timeSinceLastTag()
+    println new com.concur.Git().timeSinceTag('v3.1.0')
     // 0010800000 - Padded with 0s on the left.
   - |
     // last tag was 6 months ago
-    println new com.concur.Git().timeSinceLastTag()
+    println new com.concur.Git().timeSinceTag('v0.1.0')
     // 1555200000 - Chunked to keep it at 10 characters
  */
-def timeSinceLatestTag(String tag) {
+def timeSinceTag(String tag) {
   def tagDateString = runGitShellCommand(
     "git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag) | head -1",
     "\$(git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag))[0]"
