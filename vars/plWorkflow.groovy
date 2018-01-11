@@ -9,7 +9,7 @@ def call(body) {
   body.delegate = config
   body()
 
-  def concurPipeline  = new Commands()
+  def concurPipeline = new Commands()
 
   // variables from closure
   def nodeType              = config.nodeType       ?: 'linux'
@@ -40,6 +40,9 @@ def call(body) {
       'timeoutDuration' : timeoutDurationInt,
       'timeoutUnit'     : timeoutUnitStr
     ])
+
+    println "Setting build version..."
+    new Git().getVersion(yml)
 
     if (yml.general?.dateFormat) {
       env."${Constants.Env.DATE_FORMAT}" = yml.general.dateFormat
