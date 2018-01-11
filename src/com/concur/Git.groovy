@@ -147,7 +147,14 @@ examples:
     println new com.concur.Git().getVersion('3.6.9')
     // 3.7.0-1555200000
  */
-def getVersion(String version = '0.1.0', String scheme = "semantic") {
+def getVersion(Map yml) {
+  String branchPattern    = concurPipeline.checkBranch(yml)
+  String version          = yml.general?.version?.base    ?: '0.1.0'
+  String scheme           = yml.general?.version?.scheme  ?: 'semantic'
+  Boolean incrementMajor  = yml.general?.version?.increment?.major?."${branchPattern}" ?: yml.general?.version?.increment?.major ?: false
+  Boolean incrementMinor  = yml.general?.version?.increment?.minor?."${branchPattern}" ?: yml.general?.version?.increment?.minor ?: false
+  Boolean incrementPatch  = yml.general?.version?.increment?.patch?."${branchPattern}" ?: yml.general?.version?.increment?.patch ?: false
+
   if (env."${Constants.Env.VERSION}") {
     concurPipeline.debugPrint('Returning previously determined version.', 3)
     return env."${Constants.Env.VERSION}"
@@ -184,18 +191,35 @@ def getVersion(String version = '0.1.0', String scheme = "semantic") {
 
     // Checks to see if the version is compatible with Semantic versioning.
     if (tagSemver.matches()) { //new
-      def tagPrefix = tagSemver.group('prefix') ?: ''
-      def tagMajorVersion = tagSemver.group('major') as int
-      def tagMinorVersion = ((tagSemver.group('minor') ?: -1) as int) + 1 //Setting the value to -1 allows for a zero version
-      def tagPatchVersion = (tagSemver.group('patch') ?: 0) as int
-
-      def retVersion = "$tagPrefix$tagMajorVersion.$tagMinorVersion.$tagPatchVersion-$buildNumber"
+      String tagPrefix = tagSemver.group('prefix') ?: ''
+      List tagVersioning = incrementSemanticVersion(
+        (tagSemver.group('major') as int),
+        ((tagSemver.group('minor') ?: -1) as int),
+        (tagSemver.group('patch') ?: 0) as int,
+        incrementMajor,
+        incrementMinor,
+        incrementPatch
+      )
+      int tagMajorVersion = tagVersioning[0]
+      int tagMinorVersion = tagVersioning[1]
+      int tagPatchVersion = tagVersioning[2]
+      
+      String retVersion = "$tagPrefix$tagMajorVersion.$tagMinorVersion.$tagPatchVersion-$buildNumber"
 
       if (versionSemver.matches() && (version != '0.1.0')) {
-        def prefix = versionSemver.group('prefix') ?: ''
-        def majorVersion = versionSemver.group('major') as int
-        def minorVersion = (versionSemver.group('minor') ?: 0) as int
-        def patchVersion = (versionSemver.group('patch') ?: 0) as int
+        String prefix = versionSemver.group('prefix') ?: ''
+        
+        List versioning = incrementSemanticVersion(
+          (versionSemver.group('major') as int),
+          ((versionSemver.group('minor') ?: 0) as int),
+          ((versionSemver.group('patch') ?: 0) as int),
+          incrementMajor,
+          incrementMinor,
+          incrementPatch
+        )
+        int tagMajorVersion = versioning[0]
+        int tagMinorVersion = versioning[1]
+        int tagPatchVersion = versioning[2]
 
         if (majorVersion > tagMajorVersion ||
           (majorVersion == tagMajorVersion &&
@@ -222,6 +246,13 @@ def getVersion(String version = '0.1.0', String scheme = "semantic") {
     |$e
     """.stripMargin())
   }
+}
+
+private incrementSemanticVersion(int major, int minor, int patch, Boolean incMajor, Boolean incMinor, Boolean incPatch) {
+  major = incMajor ? major + 1 : major
+  minor = incMinor ? minor + 1 : minor
+  patch = incPatch ? patch + 1 : 0
+  return major, minor, patch
 }
 
 /*
