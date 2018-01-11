@@ -217,9 +217,9 @@ def getVersion(Map yml) {
           incrementMinor,
           incrementPatch
         )
-        int tagMajorVersion = versioning[0]
-        int tagMinorVersion = versioning[1]
-        int tagPatchVersion = versioning[2]
+        int majorVersion = versioning[0]
+        int minorVersion = versioning[1]
+        int patchVersion = versioning[2]
 
         if (majorVersion > tagMajorVersion ||
           (majorVersion == tagMajorVersion &&
