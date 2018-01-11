@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 description: Get the commit SHA for the last file or folder changed.
  */
 def getCommitSHA(String folder='.', int depth=1) {
-  return runGitShellCommand("git log -n ${depth} --pretty=format:%H ${folder}")
+  return runGitShellCommand("git log -n $depth --pretty=format:%H $folder")
 }
 
 /*
@@ -62,7 +62,6 @@ def saveGitProperties(Map scmVars) {
 
   gitCommands = [
     'GIT_SHORT_COMMIT'    : 'git rev-parse --short HEAD',
-    'GIT_COMMIT'          : 'git rev-parse HEAD',
     'GIT_URL'             : 'git config --get remote.origin.url',
     'GIT_COMMIT_MESSAGE'  : 'git log -n 1 --pretty=format:%s',
     'GIT_AUTHOR'          : 'git show -s --pretty=%an',
@@ -89,7 +88,7 @@ def saveGitProperties(Map scmVars) {
       */
     concurPipeline.debugPrint(['scmVars': scmVars])
     scmVars.each { k, v ->
-      env."${k}" = v
+      env."$k" = v
     }
   }
 
@@ -155,8 +154,8 @@ def getVersion(String version = '0.1.0', String scheme = "semantic") {
   }
   try {
     String tag = runGitShellCommand(
-      'git describe --tag --abbrev=0 ${env.GIT_COMMIT} | head -1',
-      '$(git describe --tag --abbrev=0 ${env.GIT_COMMIT})[0]'
+      "git describe --tag --abbrev=0 ${env.GIT_COMMIT} | head -1",
+      "\$(git describe --tag --abbrev=0 ${env.GIT_COMMIT})[0]"
     )
 
     def buildNumber = timeSinceTag(tag)

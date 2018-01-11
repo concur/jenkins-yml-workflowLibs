@@ -1,8 +1,8 @@
 #!/usr/bin/env groovy
 package com.concur
 
-public class Constants {
-  public class Colors {
+class Constants {
+  static class Colors {
     public static String CLEAR    = "\u001B[0m"
 
     public static String RED      = "\u001B[31m"
@@ -29,7 +29,7 @@ public class Constants {
     public static String WHITE_ON_BLACK   = '\u001B[0;37;40m'
     public static String ORANGE_ON_BLACK  = '\u001B[38;5;214;48;5;0m'
   }
-  public static class Strings {
+  static class Strings {
     // Special Characters/ANSI Codes
     public static String DIAMOND_WITH_X = '\u2756'
 
@@ -44,7 +44,7 @@ public class Constants {
 
     public static String WORKFLOWS_DEPRECATED_METHOD = "${Colors.ORANGE_ON_BLACK}Usage of this method has been deprecated, please refer to the documentation for information on migrating your pipeline.${Colors.CLEAR}"
   }
-  public class Env {
+  class Env {
     public static String VERSION      = "BUILDHUB_VERSION"
     public static String DEBUG        = "DEBUG_MODE"
     public static String DEBUG_LEVEL  = "DEBUG_LEVEL"
