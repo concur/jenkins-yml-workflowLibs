@@ -75,15 +75,14 @@ println new com.concur.Git().getGitData('https://github.example.com/awesome/repo
 // ['host': 'github.example.com', 'owner': 'awesome', 'repo': 'repo']
 ```
 
-## getVersion(String, String, Boolean)
+## getVersion(String, String)
 
 > Determine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.
 
-| Type    | Name           | Default   |
-|:--------|:---------------|:----------|
-| String  | version        |           |
-| String  | scheme         |           |
-| Boolean | ignorePrevious |           |
+| Type   | Name    | Default   |
+|:-------|:--------|:----------|
+| String | version |           |
+| String | scheme  |           |
 
 ### Example 1
 
@@ -111,7 +110,7 @@ println new com.concur.Git().getVersion('3.6.9')
 // 3.7.0-1555200000
 ```
 
-## timeSinceLatestTag(String)
+## timeSinceTag(String)
 
 > Get the amount of time since the last Git tag was created.
 
@@ -123,7 +122,7 @@ println new com.concur.Git().getVersion('3.6.9')
 
 ```groovy
 // Last tag was 3 hours ago
-println new com.concur.Git().timeSinceLastTag()
+println new com.concur.Git().timeSinceTag('v3.1.0')
 // 0010800000 - Padded with 0s on the left.
 
 ```
@@ -132,6 +131,6 @@ println new com.concur.Git().timeSinceLastTag()
 
 ```groovy
 // last tag was 6 months ago
-println new com.concur.Git().timeSinceLastTag()
+println new com.concur.Git().timeSinceTag('v0.1.0')
 // 1555200000 - Chunked to keep it at 10 characters
 ```
