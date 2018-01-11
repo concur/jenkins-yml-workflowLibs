@@ -252,7 +252,7 @@ private incrementSemanticVersion(int major, int minor, int patch, Boolean incMaj
   major = incMajor ? major + 1 : major
   minor = incMinor ? minor + 1 : minor
   patch = incPatch ? patch + 1 : 0
-  return major, minor, patch
+  return [major, minor, patch]
 }
 
 /*
