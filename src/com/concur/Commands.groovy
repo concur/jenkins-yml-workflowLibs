@@ -410,6 +410,51 @@ private getFolderCredentials(String folderName) {
                        .getCredentials()
 }
 
+/*
+description: Execute contents of a Closure with an appropriate credential wrapper. For a username/password credential the username will be an environment variable called CRED_USERNAME and the password will be CRED_PASSWORD. For a secret text password type the environment variable will be called CRED_SECRET. SSH credentials get put into an SSH agent and should be available to use without specifying a path to the key.
+examples:
+  - |
+    // Execute an SSH Command 
+    def concurCommands = new com.concur.Commands()
+    concurCommands.executeWithCredentials(['description': 'Example credential def', 'class': com.concur.CredentialTypes.sshPrivateKey], { sh "ssh user@example.local uname -a" })
+    // Linux example 4.4.0-97-generic #120-Ubuntu SMP Tue Sep 19 17:28:18 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+  - |
+    // Use username and password
+    def concurCommands = new com.concur.Commands()
+    concurCommands.executeWithCredentials(['description': 'Example credential def'], { powershell '''
+        $username = "$env:CRED_USERNAME"
+        $password = "$env:CRED_PASSWORD"
+        $secureStringPwd = $password | ConvertTo-SecureString -AsPlainText -Force 
+        $creds = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $secureStringPwd
+        Invoke-Command -Credential $creds -Computername "remote.example.local" -Scriptblock { Write-Host "Hello from $($env:COMPUTERNAME)" }''' })
+ */
+public executeWithCredentials(Map credentialDef, Closure func) {
+  def credential = getCredentialsWithCriteria(credentialDef)
+
+  switch(credential.getClass()) {
+    case com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl:
+      debugPrint("WorkflowLibs :: ConcurCommands :: executeWithCredentials", "Using Username and Password")
+      withCredentials([usernamePassword(credentialsId: credential.id, passwordVariable: 'CREDS_PASSWORD',usernameVariable: 'CRED_USERNAME')]) {
+        func()
+      }
+      break
+    case com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey:
+    debugPrint("WorkflowLibs :: ConcurCommands :: executeWithCredentials", "Using sshagent")
+      sshagent([credential.id]) {
+        func()
+      }
+      break
+    case org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl:
+    debugPrint("WorkflowLibs :: ConcurCommands :: executeWithCredentials", "Using StringCredentials")
+      withCredentials([string(credentialsId: credential.id, variable: 'CRED_SECRET')]) {
+        func()
+      }
+      break
+    default:
+      error("WorkflowLibs :: ConcurCommands :: executeWithCredentials :: Credential does not match a supported type")
+  }
+}
+
 // Convert to a serializable list
 @NonCPS
 def jenkinsMap(Map gmap){
