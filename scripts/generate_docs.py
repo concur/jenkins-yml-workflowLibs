@@ -8,7 +8,8 @@ import yaml
 from argparse import ArgumentParser
 from tabulate import tabulate
 
-METHOD_DEF_REGEX = re.compile(r'^(public|def) (?P<method_name>.+?)\((?P<method_args>.+?)\) \{$')
+METHOD_DEF_REGEX = re.compile(
+    r'^(public|def) (?P<method_name>.+?)\((?P<method_args>.+?)\) \{$')
 METHOD_END_REGEX = re.compile(r'^\}$')
 SCRIPT_PATH = Path()
 
@@ -83,21 +84,22 @@ def parse_file(file_lines):
             if METHOD_END_REGEX.match(f):
                 function_end_line = i
                 function_doc_lines = []
-                if file_lines[function_start_line-1].strip() == '*/':
-                    doc_end_line = function_start_line-1
+                if file_lines[function_start_line - 1].strip() == '*/':
+                    doc_end_line = function_start_line - 1
                     for doc_i, line in enumerate(file_lines[doc_end_line::-1]):
                         if line.strip() == '/*':
                             doc_start_line = doc_end_line - doc_i
-                            function_doc_lines = file_lines[doc_start_line+1:doc_end_line]
+                            function_doc_lines = file_lines[doc_start_line + 1:
+                                                            doc_end_line]
                             break
                 functions.append(
                     Method(
                         method_name=function_groups.get('method_name'),
                         method_args=function_groups.get('method_args'),
-                        method_body=file_lines[function_start_line+1:function_end_line-1],
-                        doc='\n'.join([x for x in function_doc_lines if x != '\n'])
-                    )
-                )
+                        method_body=file_lines[function_start_line + 1:
+                                               function_end_line - 1],
+                        doc='\n'.join(
+                            [x for x in function_doc_lines if x != '\n'])))
                 function_start_line = 0
         else:
             if line_is_method_def:
@@ -129,9 +131,7 @@ def create_markdown_table(values):
 def render_jinja_template(tpl_path, context):
     path, filename = os.path.split((SCRIPT_PATH / tpl_path).resolve())
     print(f"Searching for templates in {path}")
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(path)
-    )
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader(path))
     print(f"Available templates {env.list_templates('j2')}")
     return env.get_template(filename).render(context)
 
@@ -144,13 +144,16 @@ def create_index_markdown(groovy_files, docs_folder):
         links.append(
             f"* [{workflow_name.title()}]({workflow_name.upper()}.md)")
 
-    rendered_template = render_jinja_template('.github/PAGES_INDEX.md.j2', {'WORKFLOW_LINKS': '\n'.join(links)})
+    rendered_template = render_jinja_template(
+        '.github/PAGES_INDEX.md.j2', {
+            'WORKFLOW_LINKS': '\n'.join(links)
+        })
 
     with open(docs_folder / 'index.md', 'w') as w:
         w.write(rendered_template + '\n')
 
 
-def create_markdown_doc(name, docs_folder,  functions):
+def create_markdown_doc(name, docs_folder, functions):
     docs_folder.mkdir(exist_ok=True)
     lines = [f"# com.concur.{name.replace('.groovy', '')}"]
     for g_function in functions:
@@ -171,9 +174,11 @@ def create_markdown_doc(name, docs_folder,  functions):
             example = function_yaml_def.get('example')
             if example:
                 lines.append(f"\n### Example")
-                lines.append(f"\n```groovy\n{function_yaml_def.get('example')}\n```")
+                lines.append(
+                    f"\n```groovy\n{function_yaml_def.get('example')}\n```")
 
-    with (docs_folder / name.upper().replace('.GROOVY', '.md')).open(mode='w') as w:
+    with (docs_folder / name.upper().replace('.GROOVY',
+                                             '.md')).open(mode='w') as w:
         w.write('\n'.join(lines))
 
 
@@ -194,9 +199,10 @@ def entry_point():
             if not functions:
                 continue
             print(f"Generating documentation for {fil.name}...")
-            create_markdown_doc(name=fil.name,
-                                docs_folder=SCRIPT_PATH / args.out_path,
-                                functions=functions)
+            create_markdown_doc(
+                name=fil.name,
+                docs_folder=SCRIPT_PATH / args.out_path,
+                functions=functions)
     # create_index_markdown([x.name for x in SCRIPT_PATH.rglob('*.groovy') if x.name != 'example.groovy'], SCRIPT_PATH / args.out_path)
 
 
