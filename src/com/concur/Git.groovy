@@ -1,7 +1,9 @@
 #!/usr/bin/env groovy
 package com.concur
 
-import groovy.transform.Field;
+import groovy.transform.Field
+
+import java.util.regex.Pattern;
 
 @Field def concurPipeline = new Commands()
 
@@ -9,7 +11,7 @@ import groovy.transform.Field;
 description: Get the commit SHA for the last file or folder changed.
  */
 def getCommitSHA(String folder='.', int depth=1) {
-  return runGitShellCommand("git log -n ${depth} --pretty=format:%H ${folder}")
+  return runGitShellCommand("git log -n $depth --pretty=format:%H $folder")
 }
 
 /*
@@ -60,7 +62,6 @@ def saveGitProperties(Map scmVars) {
 
   gitCommands = [
     'GIT_SHORT_COMMIT'    : 'git rev-parse --short HEAD',
-    'GIT_COMMIT'          : 'git rev-parse HEAD',
     'GIT_URL'             : 'git config --get remote.origin.url',
     'GIT_COMMIT_MESSAGE'  : 'git log -n 1 --pretty=format:%s',
     'GIT_AUTHOR'          : 'git show -s --pretty=%an',
@@ -87,7 +88,7 @@ def saveGitProperties(Map scmVars) {
       */
     concurPipeline.debugPrint(['scmVars': scmVars])
     scmVars.each { k, v ->
-      env."${k}" = v
+      env."$k" = v
     }
   }
 
@@ -112,9 +113,9 @@ def getGitData(String url = '') {
   def repo
   def gitHost
   if (url.startsWith('https://')) {
-    def gitUrl = new java.net.URI(url)
+    def gitUrl = new URI(url)
     def scmList = gitUrl.getPath().toString().replaceAll(/\.git|\//,' ').split(' ')
-    host  = gitUrl.host
+    gitHost  = gitUrl.host
     owner = scmList[1]
     repo  = scmList[2]
   } else if (url.startsWith('git@')) {
@@ -124,47 +125,72 @@ def getGitData(String url = '') {
   }
 
   return [
-    'host'  : host,
+    'host'  : gitHost,
     'owner' : owner,
     'repo'  : repo
   ]
 }
 
 /*
-description: Determine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.
+description: |
+  Determine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.
+  You can indicate how to increment the semantic version in your pipelines.yml file:
+  ```yaml
+  pipelines:
+    general:
+      version:
+        increment: # all of these nodes can be either a static boolean or a map matching the patterns from tools.git.patterns
+          major: true
+          minor:
+            master: true
+            feature: false
+          patch:
+            master: false
+            feature: true
+  ```
 examples:
   - |
     // Latest tag in the repo is 1.3.1 and it was tagged 5 hours ago
-    println new com.concur.Git().getVersion()
+    println new com.concur.Git().getVersion(yml)
     // 1.4.0-0018000000
   - |
     // New repo with no tags, repository was created 1 hour ago
-    println new com.concur.Git().getVersion()
+    println new com.concur.Git().getVersion(yml)
     // 0.1.0-0003600000
   - |
     // No tags in repo, override default version, created 18 days ago
-    println new com.concur.Git().getVersion('3.6.9')
+    println new com.concur.Git().getVersion(yml)
     // 3.7.0-1555200000
  */
-def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ignorePrevious = false) {
+def getVersion(Map yml) {
   if (env."${Constants.Env.VERSION}") {
     concurPipeline.debugPrint('Returning previously determined version.', 3)
     return env."${Constants.Env.VERSION}"
   }
   try {
-    def tag = runGitShellCommand('git tag --sort -v:refname | head -1', '$(git tag --sort -v:refname)[0]')
+    String branchPattern    = concurPipeline.checkBranch(yml)
+    String version          = yml.general?.version?.base    ?: '0.1.0'
+    String scheme           = yml.general?.version?.scheme  ?: 'semantic'
+    Boolean incrementMajor  = yml.general?.version?.increment?.major?."${branchPattern}" ?: yml.general?.version?.increment?.major ?: false
+    Boolean incrementMinor  = yml.general?.version?.increment?.minor?."${branchPattern}" ?: yml.general?.version?.increment?.minor ?: false
+    Boolean incrementPatch  = yml.general?.version?.increment?.patch?."${branchPattern}" ?: yml.general?.version?.increment?.patch ?: false
+    String tag = runGitShellCommand(
+      "git describe --tag --abbrev=0 ${env.GIT_COMMIT} | head -1",
+      "\$(git describe --tag --abbrev=0 ${env.GIT_COMMIT})[0]"
+    )
 
-    def buildNumber = timeSinceLatestTag()
+    def buildNumber = timeSinceTag(tag)
     if (tag == null || tag.size() == 0) {
-      println "no existing tag found using version: ${version}-${buildNumber}"
-      env."${Constants.Env.VERSION}" = "${version}-${buildNumber}"
-      return "${version}-${buildNumber}"
+      def tmpVer = "$version-$buildNumber"
+      println "no existing tag found using version: $tmpVer"
+      env."${Constants.Env.VERSION}" = tmpVer
+      return tmpVer
     }
     // Getting the tag to check versioning scheme
     tag = tag.replaceAll("\\s+","")
 
     String semverPatternString = '(?i)\\b(?<prefix>v)?(?<major>0|[1-9]\\d*)(?:\\.(?<minor>0|[1-9]\\d*)(?:\\.(?<patch>0|[1-9]\\d*))?)?(?:-(?<prerelease>[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*))?(?:\\+(?<build>[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*))?\\b'
-    java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(semverPatternString)
+    Pattern pattern = Pattern.compile(semverPatternString)
 
     // List of different versioning scheme regex patters to match against
     def tagSemver     = pattern.matcher(tag)
@@ -179,23 +205,42 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
 
     // Checks to see if the version is compatible with Semantic versioning.
     if (tagSemver.matches()) { //new
-      def tagPrefix = tagSemver.group('prefix') ?: ''
-      def tagMajorVersion = tagSemver.group('major') as int
-      def tagMinorVersion = ((tagSemver.group('minor') ?: -1) as int) + 1 //Setting the value to -1 allows for a zero version
-      def tagPatchVersion = (tagSemver.group('patch') ?: 0) as int
-      def retVersion = "${tagPrefix}${tagMajorVersion}.${tagMinorVersion}.${tagPatchVersion}-${buildNumber}"
+      String tagPrefix = tagSemver.group('prefix') ?: ''
+      List tagVersioning = incrementSemanticVersion(
+        (tagSemver.group('major') as int),
+        ((tagSemver.group('minor') ?: -1) as int),
+        (tagSemver.group('patch') ?: 0) as int,
+        incrementMajor,
+        incrementMinor,
+        incrementPatch
+      )
+      int tagMajorVersion = tagVersioning[0]
+      int tagMinorVersion = tagVersioning[1]
+      int tagPatchVersion = tagVersioning[2]
+      
+      String retVersion = "$tagPrefix$tagMajorVersion.$tagMinorVersion.$tagPatchVersion-$buildNumber"
+
       if (versionSemver.matches() && (version != '0.1.0')) {
-        def prefix = versionSemver.group('prefix') ?: ''
-        def majorVersion = versionSemver.group('major') as int
-        def minorVersion = (versionSemver.group('minor') ?: 0) as int
-        def patchVersion = (versionSemver.group('patch') ?: 0) as int
+        String prefix = versionSemver.group('prefix') ?: ''
+        
+        List versioning = incrementSemanticVersion(
+          (versionSemver.group('major') as int),
+          ((versionSemver.group('minor') ?: 0) as int),
+          ((versionSemver.group('patch') ?: 0) as int),
+          incrementMajor,
+          incrementMinor,
+          incrementPatch
+        )
+        int majorVersion = versioning[0]
+        int minorVersion = versioning[1]
+        int patchVersion = versioning[2]
 
         if (majorVersion > tagMajorVersion ||
           (majorVersion == tagMajorVersion &&
             (minorVersion > tagMinorVersion) || (minorVersion == tagMinorVersion && patchVersion > tagPatchVersion)
           )
         ) {
-          retVersion = "${prefix}${majorVersion}.${minorVersion}.${patchVersion}-${buildNumber}"
+          retVersion = "$prefix$majorVersion.$minorVersion.$patchVersion-$buildNumber"
         }
       }
       env."${Constants.Env.VERSION}" = retVersion
@@ -209,11 +254,19 @@ def getVersion(String version = '0.1.0', String scheme = "semantic", Boolean ign
     |version - Version to use in this release, assuming that you don't want auto incrementing (Not implemented yet)
     |ignorePrevious - Don't look at the last tag released and compare it to make sure you're incrementing (Not |implemented yet)\n
     |### Parameters Used ###
-    |scheme: ${scheme}
-    |version: ${version}
-    |ignorePrevious: ${ignorePrevious}
+    |scheme: $scheme
+    |version: $version
+    |### Error ###
+    |$e
     """.stripMargin())
   }
+}
+
+private incrementSemanticVersion(int major, int minor, int patch, Boolean incMajor, Boolean incMinor, Boolean incPatch) {
+  major = incMajor ? major + 1 : major
+  minor = incMinor ? minor + 1 : minor
+  patch = incPatch ? patch + 1 : 0
+  return [major, minor, patch]
 }
 
 /*
@@ -221,22 +274,22 @@ description: Get the amount of time since the last Git tag was created.
 examples:
   - |
     // Last tag was 3 hours ago
-    println new com.concur.Git().timeSinceLastTag()
+    println new com.concur.Git().timeSinceTag('v3.1.0')
     // 0010800000 - Padded with 0s on the left.
   - |
     // last tag was 6 months ago
-    println new com.concur.Git().timeSinceLastTag()
+    println new com.concur.Git().timeSinceTag('v0.1.0')
     // 1555200000 - Chunked to keep it at 10 characters
  */
-def timeSinceLatestTag() {
+def timeSinceTag(String tag) {
   def tagDateString = runGitShellCommand(
-    'git log --pretty="format:%ci" $(git tag --sort -v:refname) | head -1',
-    '$(git log --pretty="format:%ci" $(git tag --sort -v:refname))[0]'
+    "git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag) | head -1",
+    "\$(git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag))[0]"
   )
 
   concurPipeline.debugPrint(["Git tag data": tagDateString])
 
-  def tagDate = new com.concur.Util().dateFromString(tagDateString)
+  def tagDate = new Util().dateFromString(tagDateString)
   def now = new Date()
 
   def duration = groovy.time.TimeCategory.minus(now, tagDate)

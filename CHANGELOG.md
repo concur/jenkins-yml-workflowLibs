@@ -1,5 +1,16 @@
 # Jenkins-YML-WorkflowLibs changes by release
 
+## 0.4.0
+
+### Added
+
+* Add SHORT_VERSION to default replacement option, this is the version provided by Git().getVersion() without the build number.
+
+### Updated
+
+* Git.getVersion: Update to be more flexible with tag retrieval, will now get latest from the current branch using `git describe --tags`
+* Git.timeSinceLatestTag: Signature changed to accept a tag string that is used in the underlying git command.
+
 ## 0.3.0
 
 ### Added

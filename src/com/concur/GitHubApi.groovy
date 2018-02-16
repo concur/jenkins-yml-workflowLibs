@@ -1,11 +1,11 @@
 #!/usr/bin/env groovy
 package com.concur
 
+import groovy.json.JsonOutput
 import groovy.transform.Field;
 import org.jenkinsci.plugins.github_branch_source.GitHubConfiguration;
 
 @Field def concurPipeline = new Commands()
-@Field def concurHttp     = new Http()
 @Field def concurUtil     = new Util()
 
 /*
@@ -96,7 +96,7 @@ def githubRequestWrapper(String method, String endpoint, Map postData=[:], Map a
                       ignoreSslErrors: ignoreErrors,
                       httpMode: method.toUpperCase(),
                       quiet: !debugMode,
-                      requestBody: groovy.json.JsonOutput.toJson(postData),
+                      requestBody: JsonOutput.toJson(postData),
                       consoleLogResponseBody: outputResponse,
                       validResponseCodes: validResponseCodes)
   }
@@ -153,7 +153,7 @@ def githubGraphqlRequestWrapper(String query, Map variables=null, String host=nu
                       ignoreSslErrors: ignoreSslErrors,
                       httpMode: 'POST',
                       quiet: !debugMode,
-                      requestBody: groovy.json.JsonOutput.toJson(graphQlQuery),
+                      requestBody: JsonOutput.toJson(graphQlQuery),
                       consoleLogResponseBody: outputResponse)
   }
 }
@@ -192,7 +192,7 @@ def getPullRequests(Map credentialData, String owner='', String repo='', String 
                        }
                      }
                    }
-                 }'''
+                 }'''.stripIndent()
 
   Map variables = [
     'owner'   : owner,
@@ -250,7 +250,7 @@ def getReleases(Map credentialData, String owner='', String repo='', String host
                       }
                     }
                   }
-                }'''
+                }'''.stripIndent()
 
   Map variables = [
     'owner'   : owner,
@@ -291,7 +291,7 @@ def createPullRequest(String title, String fromBranch, String toBranch, String o
               |Destination Branch : ${currentPullRequest.baseRefName}
               |From Branch        : ${currentPullRequest.headRefName}""".stripMargin()
     if (currentPullRequest instanceof net.sf.json.JSONArray) {
-      return currentPullRequest[0]
+      return (currentPullRequest as List)[0]
     } else {
       return currentPullRequest
     }

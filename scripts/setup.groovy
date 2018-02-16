@@ -8,9 +8,9 @@
 // GLOBAL VARS
 instance = jenkins.model.Jenkins.getInstance()
 
-sshKeyDescription = 'WorkflowLibs SSH Credential'
+workflowLibsSSHKeyDescription = 'WorkflowLibs SSH Credential'
 // This is a SSH deploy key providing read access to this only repository.
-sshDeployKeyContents = '''-----BEGIN RSA PRIVATE KEY-----
+workflowLibsSSHDeployKeyContents = '''-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAvDBxEA6c7Ph03CVbFvUTcfj+hbKUf7eEXXHHO40iYCKn23FF
 OX5s0Aw5ylHxuroGUNtwDI80tZfFH0e4Ose2wJyG9A4bCo8MRFsMlSs9BInHsV5H
 la4cUQ+sK8+WyWe1AqpiKNQngSLrgShQd8tyM2dW7nppcW0W3kwh/Fm0Ah17jrh1
@@ -36,11 +36,40 @@ ZAqpuouFmm+l5XjVV9OBE8r8cNzXUrB9rgfQO+nl1wKIWW56K2oVsrF1DZoZwozR
 XN9gwJMCgYAQn/mnEap8L8+1AfoUrNIlPJWtoBaTTYQbKA9UCjNB6CoPLx2/qmfO
 b2BLpbI42G72HPm0EPHU4wc7LkGTQP0FunStIA0TGIesdzTeiOFJVXvw2TCQ3IoX
 BbiXoFBh78ybsANMfjjXNgsFzxX+naoAZRa28L7e+3uA1xFyQP3bRQ==
------END RSA PRIVATE KEY-----
-'''
+-----END RSA PRIVATE KEY-----'''
+
+workflowsSSHKeyDescription = 'Workflows SSH Credential'
+// This is a SSH deploy key providing read access to this only repository.
+workflowsSSHDeployKeyContents = '''-----BEGIN RSA PRIVATE KEY-----
+MIIEpQIBAAKCAQEAy0OhgH1NhFArJdDeD73KFjZwxpp7j3n5gtXpEr9RFd2xk7iG
+D9JprdqfdWLPbYy62XAfUuZEhIKjYEGgD+4sbqEePAMgwDJtJ6Y7JOl0NujdSejI
+PCwc9FOoek0f1xZSQnPYXkP/hsDNZ4cHDc61kI1EO7U8FPOFXlFZrRpVsp9tnp3T
+6zY0op+kIpfyM0AzIoPkElaWVU135UnO/q0Ck8UzDDwpVwpegNamXqX+ewjPLZz9
+TZ0WxR3+icfGTZWUi1qoPS5O1gFqNZbmBEhDzUhP6Wk/s7L7tXKWqpI/MPKh2EF6
+r8F3s+6v1cw6xBG0st3a7G7bc8gRjjX8A++vaQIDAQABAoIBAQCfHGi+sNdOHIc6
+Cd7aCaG4c5MiE+lm7X8gKJxS/YnWiPypescOeZIZ8kniVJ+0zHWzIa6TcQbvh2em
+QJiv/6uuSdbl+TjY2mBRqjEf+tLq7KvUYDDl0U40/4uheN/UuXdY51/WonnSnPfs
+82jVKRs9dSeVaZAHgnzC0QFWnIe60uYuK8JmM0+noSG6h0bKdP3pCFRkcW14Xx1p
+aMA0oKZ6uGEEeFU8Mtu8Yfso2M6sLLXU5gNpnBn3AZ+ycqY5GCAQKis45L8XDGUC
+vvDp6zsWh8TtCfIVfxrcnfHyz4KjLhHOSxAXds1NNfZwO2tTCsqp4ldtCv7ddqBX
+TxykOWTRAoGBAO8/HrB7QrOeIoNdN5KE7OA5VC7w9vKD2syXMHk8sPsuVVC0ncIQ
+0ipAORggQSl1j94O7ewCDmfkJaQHeBZexkNel+6ScNxThj8xLlbmrnOUhdj+Q1I1
++9I9CzLQAzDTqqxH3GTABFueu65rb8hELze9/yyoqrnXbZ3OVPEVksGdAoGBANl/
+eAeT1PR4V2AteJlwOBX0vMRkMpqsFW3eX6DVL/S3Wy0irnK/vo3t5mjCLx7XQbX2
+qJlIpUF2zn4bwwgGfcrIk72y3TmF7AKYpCnFcGPaCD6dljh3SYbHFGLOmaDFqWHS
+3AJY9Okpxv7PRI027E4isH7Km6gWkyQr/RFSYrE9AoGAXs0jKwlcr/H8eRNJ/wwf
+FOaCnisrn4NyAtnyAkhzVMTSV62KSakCrm1OcmntiDEmdfZyfq9959r2s12mTy70
+3yMvjwCGKjgKnSWu2A6GmBQFSavPH1d21qMLufHFIebt3WCIS3/u+iMW+ZFm9PNX
+xn3KDHc1V3iu3fYxoGpNAd0CgYEAgSyGkiGHqcZLRpDa/m46sTeQYSeNMnWfqIgY
+zYGwIKxBV3Ywm3Ar8UlovbEOoUeA/FxJV/hgRZgVHarJU1vfm+8yZ8jyQLa8K/KS
+FUjw7izRFrcrP9AA+C4GeoRvk5+xcKr2BeLlWhF44V8iPKhxAhryLeuRNOxraWFC
+xOXkPZUCgYEAmYAYUIIkCbnp7FWb5WHVl1XdKpU9Dxy7q41uRJOAQp6yEVN/kqov
+pMomLo5ZUBAuVqYloWnklwOPXdHSGCNaIu1+plxpnD2FIv7XTMcG7dxD0kyomInl
+Cz1ft7LCkpu+3UuvgUvdVycIqKygTTYtofgIVg9M+MLkbwJg7bek7ss=
+-----END RSA PRIVATE KEY-----'''
 
 jenkinsEnvVariables = [
-  'WORKFLOW_GIT_CREDENTIAL_DESCRIPTION' : sshKeyDescription,
+  'WORKFLOW_GIT_CREDENTIAL_DESCRIPTION' : workflowsSSHKeyDescription,
   'WORKFLOW_REPOSITORY'                 : 'git@github.com:concur/jenkins-workflows.git',
   'DEFAULT_SLACK_TOKEN_DESC'            : 'Slack Token',
   'DEFAULT_SLACK_DOMAIN'                : '',
@@ -63,23 +92,35 @@ jenkinsRequiredScriptApprovals = [
 // Set the Markup formatter to Safe HTML
 // ******************************
 
-Jenkins.instance.setMarkupFormatter(new RawHtmlMarkupFormatter(false))
+Jenkins.instance.setMarkupFormatter(new hudson.markup.RawHtmlMarkupFormatter(false))
 
 // ******************************
 // Add global cred
 // ******************************
 
 def jenkinsCreds = getJenkinsCredentials()
-def credExists = jenkinsCreds.find { it.description == sshKeyDescription }
+def credExists = jenkinsCreds.find { it.description == workflowLibsSSHKeyDescription }
 if (!credExists) {
-  centerPrint("Adding credential with description: $sshKeyDescription")
-  def cred = createSshCredentials(null, 'concur', sshDeployKeyContents, null, sshKeyDescription)
+  centerPrint("Adding credential with description: $workflowLibsSSHKeyDescription")
+  def cred = createSshCredentials(null, 'concur', workflowLibsSSHDeployKeyContents, null, workflowLibsSSHKeyDescription)
   Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore().addCredentials(
     com.cloudbees.plugins.credentials.domains.Domain.global(),
     cred
   )
 } else {
-  centerPrint("Credential with description [$sshKeyDescription] already exists.", '#')
+  centerPrint("Credential with description [$workflowLibsSSHKeyDescription] already exists.", '#')
+}
+
+credExists = jenkinsCreds.find { it.description == workflowsSSHKeyDescription }
+if (!credExists) {
+  centerPrint("Adding credential with description: $workflowsSSHKeyDescription")
+  def cred = createSshCredentials(null, 'concur', workflowsSSHDeployKeyContents, null, workflowsSSHKeyDescription)
+  Jenkins.instance.getExtensionList('com.cloudbees.plugins.credentials.SystemCredentialsProvider')[0].getStore().addCredentials(
+    com.cloudbees.plugins.credentials.domains.Domain.global(),
+    cred
+  )
+} else {
+  centerPrint("Credential with description [$workflowsSSHKeyDescription] already exists.", '#')
 }
 
 // ******************************
@@ -111,8 +152,8 @@ jenkinsEnvVariables.each { prop ->
 // Add global libraries
 // ******************************
 
-def existingCredentialId = getJenkinsCredentials().find { it.description == sshKeyDescription }?.id
-assert existingCredentialId : "Failed to find a credential with description [$sshKeyDescription], please make sure it exists"
+def existingCredentialId = getJenkinsCredentials().find { it.description == workflowLibsSSHKeyDescription }?.id
+assert existingCredentialId : "Failed to find a credential with description [$workflowLibsSSHKeyDescription], please make sure it exists"
 List workflowLibraries = new org.jenkinsci.plugins.workflow.libs.GlobalLibraries().libraries.collect { it }
 if (!workflowLibraries.find { it.name == workflowLibsName }) {
   def scmConfig = new jenkins.plugins.git.GitSCMSource(

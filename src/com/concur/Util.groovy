@@ -1,7 +1,10 @@
 #!/usr/bin/env groovy
 package com.concur
 
-import org.codehaus.groovy.runtime.GStringImpl
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurperClassic
+
+import java.text.SimpleDateFormat
 
 // ########################
 // # Date/Time Utils
@@ -19,7 +22,7 @@ examples:
     // Tue Jan 02 00:00:00 GMT 2018
  */
 def dateFromString(String dateString, String format = 'yyyy-MM-dd HH:mm:ss Z') {
-  def parsedDate = new java.text.SimpleDateFormat(format).parse(dateString)
+  def parsedDate = new SimpleDateFormat(format).parse(dateString)
   new Commands().debugPrint([
     'dateString': dateString,
     'format'    : format,
@@ -44,12 +47,12 @@ examples:
     // {content=JSON content}
  */
 def parseJSON(String stringContent) {
-  assert stringContent : 'Unable to use parseJSON with no content'
-  def utilityStepsAvailable = new com.concur.Commands().getPluginVersion('pipeline-utility-steps') ?: false
+  assert stringContent : 'WorkflowLibs :: Util :: parseJSON :: Unable to use parseJSON with no content'
+  def utilityStepsAvailable = new Commands().getPluginVersion('pipeline-utility-steps') ?: false
   if (utilityStepsAvailable) {
     return readJSON(text: stringContent)
   } else {
-    return new groovy.json.JsonSlurperClassic().parseText(stringContent)
+    return new JsonSlurperClassic().parseText(stringContent)
   }
 }
 
@@ -67,8 +70,8 @@ examples:
     // "Valid JSON string '\"\""
  */
 def toJSON(Object content) {
-  assert content : "Nothing provided to convert to JSON, this should be any [String, Array/List or Map]."
-  return groovy.json.JsonOutput.toJson(content)
+  assert content : "WorkflowLibs :: Util :: toJSON :: Nothing provided to convert to JSON, this should be any [String, Array/List or Map]."
+  return JsonOutput.toJson(content)
 }
 
 // YAML
@@ -86,9 +89,9 @@ examples:
     // {pipelines={tools={git={...}}}}
  */
 def parseYAML(String stringContent) {
-  assert stringContent : 'Unable to use parseYAML with no content'
+  assert stringContent : 'WorkflowLibs :: Util :: parseYAML :: Unable to use parseYAML with no content'
   def utilityStepsAvailable = new com.concur.Commands().getPluginVersion('pipeline-utility-steps') ?: false
-  assert utilityStepsAvailable : "Please ensure the [Pipeline Utility Steps] plugin is installed in Jenkins."
+  assert utilityStepsAvailable : "WorkflowLibs :: Util :: parseYAML :: Please ensure the [Pipeline Utility Steps] plugin is installed in Jenkins."
   return readYaml(text: stringContent)
 }
 
@@ -113,7 +116,7 @@ def parseChangelog(String changelogFile='CHANGELOG.md', String releaseHeader='##
   List fileLines = contents.split('\n')
   Map releases = [:]
   int startLine = 0
-  for (i = 0; i <= fileLines.size(); i++) {
+  for (int i = 0; i <= fileLines.size(); i++) {
     String currLine = fileLines[i]
     if (startLine == 0 && currLine =~ /^${releaseHeader}.+$/) {
         println currLine
@@ -140,7 +143,7 @@ examples:
   - new com.concur.Util().installGoPkg('dep', 'github.com/golang/dep')
  */
 def installGoPkg(String cmd, String repo) {
-  new com.concur.Commands().debugPrint([
+  new Commands().debugPrint([
     'cmd' : cmd,
     'repo': repo
   ])
@@ -203,8 +206,10 @@ def replaceLast(String text, String regex, String replacement) {
 // Text Replacement/Transformations
 private addCommonReplacements(providedOptions) {
   // this will replace the existing map with everything from providedOptions
+  def version = new Git().getVersion([:])
   return ([
-    'BUILD_VERSION' : new com.concur.Git().getVersion(),
+    'BUILD_VERSION' : version,
+    'SHORT_VERSION' : version.split('-')[0],
     'TIMESTAMP'     : new Date().format(env."${Constants.Env.DATE_FORMAT}" ?: 'yyyyMMdd-Hmmss')
   ] << env.getEnvironment() << providedOptions)
 }

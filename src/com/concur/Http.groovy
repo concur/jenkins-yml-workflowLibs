@@ -8,8 +8,8 @@ example: |
   // https://example.com/api?a=d
  */
 def addToUriQueryString(String uri, String k, String v) {
-  String key = java.net.URLEncoder.encode(k, "UTF-8")
-  String value = java.net.URLEncoder.encode(v, "UTF-8")
+  String key = URLEncoder.encode(k, "UTF-8")
+  String value = URLEncoder.encode(v, "UTF-8")
   return uri.contains('?') ? "${uri}&${key}=${value}" : "${uri}?${key}=${value}"
 }
 
@@ -33,9 +33,8 @@ example: |
   new com.concur.Http().sendSlackMessage(['channel': 'notifications', 'tokenCredentialId': 'f7136118-359a-4fcb-aba8-a1c6ee7ecb9b', 'message': 'example slack message'])
  */
 def sendSlackMessage(Map slackData=[:]) {
-  new com.concur.Commands().debugPrint(['slackData': slackData], 2)
+  new Commands().debugPrint(['slackData': slackData], 2)
   def slackPluginInstalled = new Commands().getPluginVersion('slack')
-  new Commands().debugPrint(slackData)
   if (slackPluginInstalled) {
     slackSend(slackData)
   } else {

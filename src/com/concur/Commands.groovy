@@ -10,9 +10,8 @@ import com.cloudbees.hudson.plugins.folder.properties.FolderCredentialsProvider.
 import com.cloudbees.plugins.credentials.impl.*;
 import com.cloudbees.plugins.credentials.*;
 import com.cloudbees.plugins.credentials.domains.*;
-import org.codehaus.groovy.runtime.GStringImpl;
 
-@Field def concurUtil = new com.concur.Util()
+@Field def concurUtil = new Util()
 
 // ########################
 // Workflow Execution Methods
@@ -125,7 +124,7 @@ private executeWorkflow(Map workflow, Map yml) {
   }
 }
 
-private executeParameterizedStep(workflow, sectionName, stepName, stepValues, yml) {
+private executeParameterizedStep(Object workflow, String sectionName, String stepName, Map stepValues, Map yml) {
   debugPrint([
     'workflow'      : workflow,
     'sectionName'   : sectionName,
@@ -225,7 +224,7 @@ private loadWorkflows(String fileName, Map yml) {
       println """${'*'*80}
                 |${Constants.Colors.YELLOW_ON_BLACK}Loaded Custom Workflow [${Constants.Colors.CYAN_ON_BLACK}$localFile${Constants.Colors.YELLOW_ON_BLACK}].${Constants.Colors.CLEAR}
                 |${'*'*80}""".stripMargin()
-    } catch (java.io.NotSerializableException nse) {
+    } catch (NotSerializableException nse) {
       error("""${Constants.Colors.RED}
               |Error loading workflow, this is most likely to be caused by a syntax error in the groovy file.
               |-----------------------------------------------------------------------------------------------
@@ -256,7 +255,7 @@ private loadWorkflows(String fileName, Map yml) {
       println """${'*'*80}
                 |${Constants.Colors.WHITE_ON_BLACK}Loaded Workflow [${Constants.Colors.CYAN_ON_BLACK}${fileName}${Constants.Colors.WHITE_ON_BLACK}] from remote [${Constants.Colors.CLEAR}${repo}${Constants.Colors.WHITE_ON_BLACK}].${Constants.Colors.CLEAR}
                 |${'*'*80}""".stripMargin()
-    } catch (java.io.NotSerializableException nse) {
+    } catch (NotSerializableException nse) {
       error("Failed to load the [$fileName] workflow from $repo, please create an issue on the project in GitHub (https://github.com/concur/jenkins-workflow).")
     }
   }
@@ -321,7 +320,7 @@ def getCredentialsWithCriteria(Map criteria) {
   debugPrint(criteria, 2)
 
   if (criteria.keySet().contains('class')) {
-    assert criteria."class".class != java.lang.String : "java.lang.String is not a valid class for credentials"
+    assert criteria."class".class != String : "java.lang.String is not a valid class for credentials"
     criteria."class" = criteria."class".class == CredentialTypes ? criteria."class"?.getValue() : criteria."class"
     assert criteria."class" in CredentialTypes.getValues() : "Credential type ${criteria.'class'} is not supported or is invalid."
   }
@@ -332,15 +331,17 @@ def getCredentialsWithCriteria(Map criteria) {
   def globalCreds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
     com.cloudbees.plugins.credentials.impl.BaseStandardCredentials.class,
     jenkins.model.Jenkins.instance)
-  debugPrint([
-    'globalCreds': globalCreds.collect { ['description': it.description, 'id': it.id] }
-  ])
   credentials = intersectCredentials(criteria, globalCreds)
+  debugPrint([
+    'globalCreds'       : globalCreds.collect { ['description': it.description, 'id': it.id] },
+    'criteria'          : criteria,
+    'found credentials' : credentials.collect { ['description': it.description, 'id': it.id] }
+  ])
 
   // Only search through folder credentials if we can't find a global
   if (!credentials) {
     // Get credentials for the folder that the job is in
-    java.util.ArrayList folderCreds = new java.util.ArrayList()
+    ArrayList folderCreds = new ArrayList()
     def folderNames = env.JOB_NAME ?: ""
     def folders = folderNames.split('/')
     for (int i = 0; i < folders.size(); i++) {
@@ -396,7 +397,6 @@ private intersectCredentials(Map criteria, List credentialList) {
     }
     if (i == count) {
       credentials << c
-    } else {
     }
   }
   return credentials
@@ -409,6 +409,51 @@ private getFolderCredentials(String folderName) {
                        .getProperties()
                        .get(FolderCredentialsProperty.class)
                        .getCredentials()
+}
+
+/*
+description: Execute contents of a Closure with an appropriate credential wrapper. For a username/password credential the username will be an environment variable called CRED_USERNAME and the password will be CRED_PASSWORD. For a secret text password type the environment variable will be called CRED_SECRET. SSH credentials get put into an SSH agent and should be available to use without specifying a path to the key.
+examples:
+  - |
+    // Execute an SSH Command 
+    def concurCommands = new com.concur.Commands()
+    concurCommands.executeWithCredentials(['description': 'Example credential def', 'class': com.concur.CredentialTypes.sshPrivateKey], { sh "ssh user@example.local uname -a" })
+    // Linux example 4.4.0-97-generic #120-Ubuntu SMP Tue Sep 19 17:28:18 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+  - |
+    // Use username and password
+    def concurCommands = new com.concur.Commands()
+    concurCommands.executeWithCredentials(['description': 'Example credential def'], { powershell '''
+        $username = "$env:CRED_USERNAME"
+        $password = "$env:CRED_PASSWORD"
+        $secureStringPwd = $password | ConvertTo-SecureString -AsPlainText -Force 
+        $creds = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $secureStringPwd
+        Invoke-Command -Credential $creds -Computername "remote.example.local" -Scriptblock { Write-Host "Hello from $($env:COMPUTERNAME)" }''' })
+ */
+public executeWithCredentials(Map credentialDef, Closure func) {
+  def credential = getCredentialsWithCriteria(credentialDef)
+
+  switch(credential.getClass()) {
+    case com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl:
+      debugPrint("WorkflowLibs :: ConcurCommands :: executeWithCredentials", "Using Username and Password")
+      withCredentials([usernamePassword(credentialsId: credential.id, passwordVariable: 'CREDS_PASSWORD',usernameVariable: 'CRED_USERNAME')]) {
+        func()
+      }
+      break
+    case com.cloudbees.jenkins.plugins.sshcredentials.impl.BasicSSHUserPrivateKey:
+    debugPrint("WorkflowLibs :: ConcurCommands :: executeWithCredentials", "Using sshagent")
+      sshagent([credential.id]) {
+        func()
+      }
+      break
+    case org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl:
+    debugPrint("WorkflowLibs :: ConcurCommands :: executeWithCredentials", "Using StringCredentials")
+      withCredentials([string(credentialsId: credential.id, variable: 'CRED_SECRET')]) {
+        func()
+      }
+      break
+    default:
+      error("WorkflowLibs :: ConcurCommands :: executeWithCredentials :: Credential does not match a supported type")
+  }
 }
 
 // Convert to a serializable list

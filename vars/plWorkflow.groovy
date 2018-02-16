@@ -9,7 +9,7 @@ def call(body) {
   body.delegate = config
   body()
 
-  def concurPipeline  = new Commands()
+  def concurPipeline = new Commands()
 
   // variables from closure
   def nodeType              = config.nodeType       ?: 'linux'
@@ -41,6 +41,9 @@ def call(body) {
       'timeoutUnit'     : timeoutUnitStr
     ])
 
+    println "Setting build version..."
+    new Git().getVersion(yml)
+
     if (yml.general?.dateFormat) {
       env."${Constants.Env.DATE_FORMAT}" = yml.general.dateFormat
     }
@@ -50,7 +53,6 @@ def call(body) {
 
     if (slackNotify) {
       println "Sending Slack notification for build start..."
-      assert slackData?.channel
       plNotify {
         buildStatus     = 'STARTED'
         useAttachments  = (slackData?.useAttachments ?: true)
