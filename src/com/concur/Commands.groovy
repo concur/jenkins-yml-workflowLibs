@@ -331,10 +331,12 @@ def getCredentialsWithCriteria(Map criteria) {
   def globalCreds = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
     com.cloudbees.plugins.credentials.impl.BaseStandardCredentials.class,
     jenkins.model.Jenkins.instance)
-  debugPrint([
-    'globalCreds': globalCreds.collect { ['description': it.description, 'id': it.id] }
-  ])
   credentials = intersectCredentials(criteria, globalCreds)
+  debugPrint([
+    'globalCreds'       : globalCreds.collect { ['description': it.description, 'id': it.id] },
+    'criteria'          : criteria,
+    'found credentials' : credentials
+  ])
 
   // Only search through folder credentials if we can't find a global
   if (!credentials) {
@@ -395,7 +397,6 @@ private intersectCredentials(Map criteria, List credentialList) {
     }
     if (i == count) {
       credentials << c
-    } else {
     }
   }
   return credentials
