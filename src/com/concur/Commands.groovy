@@ -335,7 +335,7 @@ def getCredentialsWithCriteria(Map criteria) {
   debugPrint([
     'globalCreds'       : globalCreds.collect { ['description': it.description, 'id': it.id] },
     'criteria'          : criteria,
-    'found credentials' : credentials
+    'found credentials' : credentials.collect { ['description': it.description, 'id': it.id] }
   ])
 
   // Only search through folder credentials if we can't find a global
