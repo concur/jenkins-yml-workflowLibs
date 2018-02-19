@@ -282,10 +282,17 @@ examples:
     // 1555200000 - Chunked to keep it at 10 characters
  */
 def timeSinceTag(String tag) {
-  def tagDateString = runGitShellCommand(
-    "git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag) | head -1",
-    "\$(git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag))[0]"
-  )
+  String tagDateString = ""
+  if (!tag) {
+    // This will get the initial commit of the repository (most likely)
+    tagDateString = runGitShellCommand(
+      "git rev-list --max-parents=0 HEAD"
+    )
+  } else {
+    tagDateString = runGitShellCommand(
+      "git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag)"
+    ).split('\n')[0]
+  }
 
   concurPipeline.debugPrint(["Git tag data": tagDateString])
 
