@@ -17,8 +17,8 @@ def call(body) {
 
   def slackNotify           = config.notify             == null ? true : config.notify
   def gitSubmodules         = config.useSubmodules      == null ? true : config.useSubmodules
-  def timeoutDurationInt    = config.timeoutDuration
-  def timeoutUnitStr        = config.timeoutUnit
+  def timeoutDurationInt    = config.timeoutDuration  ?: 1
+  def timeoutUnitStr        = config.timeoutUnit      ?: 'HOUR'
 
   plNode nodeLabel, timeoutDurationInt, timeoutUnitStr, {
     stage ('git: checkout') {
