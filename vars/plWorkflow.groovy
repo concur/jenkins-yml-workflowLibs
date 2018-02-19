@@ -20,9 +20,6 @@ def call(body) {
   def timeoutDurationInt    = config.timeoutDuration
   def timeoutUnitStr        = config.timeoutUnit
 
-  // local script variables
-  def timedNode = nodeType.toLowerCase().equals('linux') ? plLinux : plWindows
-
   plNode nodeLabel, timeoutDurationInt, timeoutUnitStr, {
     stage ('git: checkout') {
       plGitCheckout {
@@ -33,7 +30,7 @@ def call(body) {
     println "Loading pipeline data file."
     def yml = concurPipeline.getPipelineDataFile(pipelineDataFilePath)
     concurPipeline.debugPrint([
-      'nodeType'        : nodeType,
+      'nodeLabel'       : nodeLabel,
       'yamlPath'        : pipelineDataFilePath,
       'notify'          : slackNotify,
       'useSubmodules'   : gitSubmodules,
