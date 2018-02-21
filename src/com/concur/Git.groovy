@@ -288,11 +288,10 @@ def timeSinceTag(String tag) {
     tagDateString = runGitShellCommand(
       "git rev-list --max-parents=0 HEAD"
     )
-  } else {
-    tagDateString = runGitShellCommand(
-      "git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag)"
-    ).split('\n')[0]
   }
+  tagDateString = runGitShellCommand(
+    "git log --pretty=\"format:%ci\" \$(git rev-list -n 1 $tag)"
+  ).split('\n')[0]
 
   concurPipeline.debugPrint(["Git tag data": tagDateString])
 
