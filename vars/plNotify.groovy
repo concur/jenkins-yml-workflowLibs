@@ -46,11 +46,6 @@ def call(body) {
       'short': true
     ],
     [
-      'title': 'Datacenter',
-      'value': "${env.JENKINS_DATACENTER}",
-      'short': true
-    ],
-    [
       'title': 'Build',
       'value': "<${env.BUILD_URL}|${env.BUILD_NUMBER}>",
       'short': true
