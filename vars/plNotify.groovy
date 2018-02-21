@@ -14,7 +14,7 @@ def call(body) {
 
   Commands concurPipeline = new Commands()
   Git concurGit           = new Git()
-  def concurSlack     = new Slack()
+  def concurSlack         = new Slack()
 
   String buildStatus    = config?.buildStatus     ?: currentBuild.result      ?: 'SUCCESS'
   String domain         = config?.domain          ?: env.DEFAULT_SLACK_DOMAIN
@@ -62,7 +62,7 @@ def call(body) {
     ],
     [
       'title': 'Commit',
-      'value': "<http://github.concur.com/${org}/${repo}/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>".stripMargin(),
+      'value': "<$host/$org/$repo/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>".stripMargin(),
       'short': true
     ],
   ]

@@ -93,7 +93,7 @@ private setSlackDefaults(Map slackData) {
     slackData.channel = "#${slackData.channel}"
   }
   if (!slackData.teamDomain) {
-    slackData.put('teamDomain', (env."${Constants.Env.SLACK_CHANNEL}" ?: 'concur-blue'))
+    slackData.put('teamDomain', env."${Constants.Env.SLACK_CHANNEL}")
   }
   if (!slackData.isBotUser) {
     slackData.put('isBotUser', false)
