@@ -57,7 +57,7 @@ def call(body) {
     ],
     [
       'title': 'Commit',
-      'value': "<$host/$org/$repo/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>".stripMargin(),
+      'value': "<https://$host/$org/$repo/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>".stripMargin(),
       'short': true
     ],
   ]
