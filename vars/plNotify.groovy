@@ -94,17 +94,13 @@ def call(body) {
   }
 
   // Send notifications
-  try {
-    if (channel != null && token != null && domain != null) {
-      concurSlack.send(message: buildStatus, attachments: attachments, token: token, teamDomain: domain, channel: channel)
-    } else if (channel != null && domain != null) {
-      def cred = concurPipeline.getCredentialsWithCriteria(['description': (env.DEFAULT_SLACK_TOKEN_DESC ?: 'Default Slack Token')]).id
-      concurSlack.send(message: buildStatus, attachments: attachments, tokenCredentialId: cred, teamDomain: domain, channel: channel)
-    } else {
-      // NOTE: without a channel set, it will send using default channel for default token.
-      concurSlack.send(message: buildStatus, attachments: attachments)
-    }
-  } catch (java.lang.NoSuchMethodError | Exception e) {
-    println "WorkflowLibs :: bhNotify :: Not able to send slack notification. Please make sure that the plugin is installed and configured correctly."
+  if (channel != null && token != null && domain != null) {
+    concurSlack.send(message: buildStatus, attachments: attachments, token: token, teamDomain: domain, channel: channel)
+  } else if (channel != null && domain != null) {
+    def cred = concurPipeline.getCredentialsWithCriteria(['description': (env.DEFAULT_SLACK_TOKEN_DESC ?: 'Default Slack Token')]).id
+    concurSlack.send(message: buildStatus, attachments: attachments, tokenCredentialId: cred, teamDomain: domain, channel: channel)
+  } else {
+    // NOTE: without a channel set, it will send using default channel for default token.
+    concurSlack.send(message: buildStatus, attachments: attachments)
   }
 }
