@@ -1,5 +1,19 @@
 # Jenkins-YML-WorkflowLibs changes by release
 
+## 0.5.0
+
+### Added
+
+* Slack: New class `com.concur.Slack` for sending directly to the Slack API, initially is a drop in replacement for the Jenkins plugin but does not make guarantees about future compatibility.
+
+### Updated
+
+* plNotify: Switch to the new Slack class for sending. Richer notification on end of build.
+
+### Fixed
+
+* plNotify: Fixed end of build notification.
+
 ## 0.4.0
 
 ### Added

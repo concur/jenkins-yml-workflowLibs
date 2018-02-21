@@ -14,6 +14,6 @@
 def concurSlack = new com.concur.Slack()
 def credential = new com.concur.Commands().getCredentialsWithCriteria(['description': 'example credential description'])
 def slackData = ['tokenCredentialId': tokenCredential.id,'channel': 'auto-workflow-libs','message': 'Hello from custom com.concur.Slack.send','color': 'good']
-concurSlack.send(slackData)
-// no output is shown in Jenkins but the message should show up in the specified channel.
+println concurSlack.send(slackData)
+// Ok assuming successful send
 ```
