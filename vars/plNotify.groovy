@@ -14,7 +14,7 @@ def call(body) {
 
   Commands concurPipeline = new Commands()
   Git concurGit           = new Git()
-  Http concurHttp         = new Http()
+  def concurSlack     = new Slack()
 
   String buildStatus    = config?.buildStatus     ?: currentBuild.result      ?: 'SUCCESS'
   String domain         = config?.domain          ?: env.DEFAULT_SLACK_DOMAIN
