@@ -2,7 +2,6 @@ import jinja2
 from pathlib import Path
 import os
 import re
-import sys
 import yaml
 
 from argparse import ArgumentParser
@@ -30,25 +29,26 @@ class Arg:
     def parse(data):
         args = []
         for arg in [x.strip() for x in data.split(',')]:
-            arg_def = [a for a in arg.split(' ')]
-            if len(arg_def) > 1:
-                arg_type = arg_def[0]
-                n = str(arg_def[1]).split('=')
-                if len(n) > 1:
-                    arg_name = n[0]
-                    arg_default = n[1]
-                else:
-                    arg_name = arg_def[1]
-                    arg_default = None
+            arg_type = 'Object'
+            arg_default = None
+            if "=" in arg:
+                arg_def = [a for a in arg.split('=')]
+                arg_def = arg_def[0].split() + [a.strip("'").strip('"') for a in arg_def[1:]]
             else:
-                arg_type = 'Object'
-                n = str(arg_def).split('=')
-                if len(n) > 1:
-                    arg_name = n[0]
-                    arg_default = n[1]
-                else:
+                arg_def = [a for a in arg.split()]
+            if len(arg_def) > 2:  # specifies type/name/default
+                arg_type = arg_def[0]
+                arg_name = arg_def[1]
+                arg_default = arg_def[2]
+            elif len(arg_def) == 2:
+                if "=" in arg:  # specifies name and default but no type
                     arg_name = arg_def[0]
-                    arg_default = None
+                    arg_default = arg_def[1]
+                else:  # specifies type and name but no default
+                    arg_type = arg_def[0]
+                    arg_name = arg_def[1]
+            else:
+                arg_name = arg_def[0]
 
             args.append(Arg(arg_type, arg_name, arg_default))
         return args
@@ -74,7 +74,6 @@ def parse_file(file_lines):
     function_groups = {}
 
     function_start_line = 0
-    function_end_line = 0
 
     for i, f in enumerate(file_lines):
         if f == '\n':
@@ -89,17 +88,19 @@ def parse_file(file_lines):
                     for doc_i, line in enumerate(file_lines[doc_end_line::-1]):
                         if line.strip() == '/*':
                             doc_start_line = doc_end_line - doc_i
-                            function_doc_lines = file_lines[doc_start_line + 1:
-                                                            doc_end_line]
+                            function_doc_lines = file_lines[doc_start_line +
+                                                            1:doc_end_line]
                             break
                 functions.append(
                     Method(
                         method_name=function_groups.get('method_name'),
                         method_args=function_groups.get('method_args'),
-                        method_body=file_lines[function_start_line + 1:
-                                               function_end_line - 1],
+                        method_body=file_lines[function_start_line +
+                                               1:function_end_line - 1],
                         doc='\n'.join(
-                            [x for x in function_doc_lines if x != '\n'])))
+                            [x for x in function_doc_lines if x != '\n'])
+                    )
+                )
                 function_start_line = 0
         else:
             if line_is_method_def:
@@ -131,7 +132,9 @@ def create_markdown_table(values):
 def render_jinja_template(tpl_path, context):
     path, filename = os.path.split((SCRIPT_PATH / tpl_path).resolve())
     print(f"Searching for templates in {path}")
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader(path))
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(path)
+    )
     print(f"Available templates {env.list_templates('j2')}")
     return env.get_template(filename).render(context)
 
@@ -141,13 +144,13 @@ def create_index_markdown(groovy_files, docs_folder):
     links = []
     for groovy_file in sorted(groovy_files):
         workflow_name = os.path.splitext(groovy_file)[0]
+        if workflow_name == 'Constants':
+            continue
         links.append(
-            f"* [{workflow_name.title()}]({workflow_name.upper()}.md)")
+            f"* [{workflow_name}]({workflow_name.upper()}.md)")
 
     rendered_template = render_jinja_template(
-        '.github/PAGES_INDEX.md.j2', {
-            'WORKFLOW_LINKS': '\n'.join(links)
-        })
+        '.github/PAGES_INDEX.md.j2', {'CLASS_LINKS': '\n'.join(links)})
 
     with open(docs_folder / 'index.md', 'w') as w:
         w.write(rendered_template + '\n')
@@ -170,15 +173,17 @@ def create_markdown_doc(name, docs_folder, functions):
             if examples:
                 for i, example in enumerate(examples):
                     lines.append(f"\n### Example {i+1}")
-                    lines.append(f"\n```groovy\n{example}\n```")
+                    lines.append(f"\n```groovy\n{example.strip()}\n```")
             example = function_yaml_def.get('example')
             if example:
-                lines.append(f"\n### Example")
-                lines.append(
-                    f"\n```groovy\n{function_yaml_def.get('example')}\n```")
+                lines.append("\n### Example")
+                lines.append(f"\n```groovy\n{function_yaml_def.get('example').strip()}\n```")
+            resources = function_yaml_def.get('resources')
+            if resources:
+                lines.append("\n### Resources")
+                lines.append('\n'.join([f"\n* [{x.get('name')}]({x.get('url')})" for x in resources]))
 
-    with (docs_folder / name.upper().replace('.GROOVY',
-                                             '.md')).open(mode='w') as w:
+    with (docs_folder / name.upper().replace('.GROOVY', '.md')).open(mode='w') as w:
         w.write('\n'.join(lines))
 
 
@@ -191,19 +196,22 @@ def entry_point():
     if args.out_path is None:
         parser.print_usage()
         exit(1)
-    groovy_files = (SCRIPT_PATH / 'src' / 'com' / 'concur').rglob('*.groovy')
+    groovy_files = (SCRIPT_PATH / 'src' / 'com' / 'concur').glob('*.groovy')
     for fil in groovy_files:
+        if 'Constants' in fil.name:
+            continue
         with fil.open() as groovy_file:
             lines = groovy_file.read().splitlines()
             functions = parse_file(lines)
             if not functions:
                 continue
             print(f"Generating documentation for {fil.name}...")
-            create_markdown_doc(
-                name=fil.name,
-                docs_folder=SCRIPT_PATH / args.out_path,
-                functions=functions)
-    # create_index_markdown([x.name for x in SCRIPT_PATH.rglob('*.groovy') if x.name != 'example.groovy'], SCRIPT_PATH / args.out_path)
+            create_markdown_doc(name=fil.name,
+                                docs_folder=SCRIPT_PATH / args.out_path,
+                                functions=functions)
+    create_index_markdown([
+        x.name for x in (SCRIPT_PATH / 'src' / 'com' / 'concur').glob('*.groovy') if x.name != 'example.groovy'], 
+        SCRIPT_PATH / args.out_path)
 
 
 if __name__ == '__main__':

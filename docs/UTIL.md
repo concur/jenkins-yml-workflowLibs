@@ -4,10 +4,10 @@
 
 > default format is to match how a Git tag date is formatted
 
-| Type   | Name       | Default   |
-|:-------|:-----------|:----------|
-| String | dateString |           |
-| String | format     |           |
+| Type   | Name       | Default                |
+|:-------|:-----------|:-----------------------|
+| String | dateString |                        |
+| String | format     | 'yyyy-MM-dd HH:mm:ss Z |
 
 ### Example 1
 
@@ -15,7 +15,6 @@
 def dateStr = sh returnStdout: true, script: "git log --pretty="format:%ci" $(git tag --sort -v:refname) | head -1"
 println new com.concur.Util().dateFromString(dateStr)
 // Sun Jan 07 01:37:49 GMT 2018
-
 ```
 
 ### Example 2
@@ -38,7 +37,6 @@ println new com.concur.Util().dateFromString('01-02-2018', 'MM-dd-yyyy')
 ```groovy
 println new com.concur.Util().parseJSON('{"content": "JSON content"}')
 // {content=JSON content}
-
 ```
 
 ### Example 2
@@ -61,7 +59,6 @@ println new com.concur.Util().parseJSON(readFile('results.json'))
 ```groovy
 println new com.concur.Util().toJSON(['key1': 'value1', 'key2': 'value2'])
 // {"key1":"value1","key2":"value2"}
-
 ```
 
 ### Example 2
@@ -69,7 +66,6 @@ println new com.concur.Util().toJSON(['key1': 'value1', 'key2': 'value2'])
 ```groovy
 println new com.concur.Util().toJSON(['item1', 'item2', 'item3', 'item4'])
 // ["item1","item2","item3","item4"]
-
 ```
 
 ### Example 3
@@ -95,7 +91,6 @@ content: |
   multiline string in YAML
 '''.stripIndent())
 // {content=multiline string in YAML}
-
 ```
 
 ### Example 2
@@ -111,10 +106,10 @@ println new com.concur.Util().parseYAML(readFile('pipelines.yml'))
 
 __**Changelog must have consistent usage of headers and follow markdown standards.**__
 
-| Type   | Name          | Default        |
-|:-------|:--------------|:---------------|
-| String | changelogFile | 'CHANGELOG.md' |
-| String | releaseHeader | '##            |
+| Type   | Name          | Default      |
+|:-------|:--------------|:-------------|
+| String | changelogFile | CHANGELOG.md |
+| String | releaseHeader | ##           |
 
 ### Example 1
 
@@ -122,7 +117,6 @@ __**Changelog must have consistent usage of headers and follow markdown standard
 println new com.concur.Util().parseChangelog()
 // {0.2.0=
 // ### Added....
-
 ```
 
 ### Example 2
@@ -167,7 +161,6 @@ new com.concur.Util().installGoPkg('dep', 'github.com/golang/dep')
 ```groovy
 println new com.concur.Util().binAvailable('python')
 // true
-
 ```
 
 ### Example 2
@@ -190,7 +183,6 @@ println new com.concur.Util().binAvailable('go')
 ```groovy
 println new com.concur.Util().kebab('Jenkins Workflow Libraries')
 // jenkins-workflow-libraries
-
 ```
 
 ### Example 2
@@ -231,7 +223,6 @@ new com.concur.Util().replaceLast('0.1.0.32984', /\./, '-')
 ```groovy
 println new com.concur.Util().mustacheReplaceAll('Hello {{ git_owner }}')
 // Hello Concur
-
 ```
 
 ### Example 2
