@@ -26,7 +26,7 @@ def send(Map slackData) {
   }
   def slackUrl = getSlackUrl(slackData)
   // Check to make sure no values are invalidly set to null, this will cause a failure that is hard to determine.
-  assert !slackUrl.contains('null') : 'WorkflowLibs :: Slack :: Send :: There was an error determining the Slack URL to send data to. Result [${slackUrl}]'
+  assert !slackUrl.contains('null') : "WorkflowLibs :: Slack :: Send :: There was an error determining the Slack URL to send data to. Result [${slackUrl}]"
   def postData = new com.concur.Util().toJSON(formatSlackPostData(slackData))
   concurPipeline.debugPrint(['postData': postData])
 
