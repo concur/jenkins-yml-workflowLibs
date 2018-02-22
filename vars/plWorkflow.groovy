@@ -12,18 +12,15 @@ def call(body) {
   def concurPipeline = new Commands()
 
   // variables from closure
-  def nodeType              = config.nodeType       ?: 'linux'
-  def pipelineDataFilePath  = config.yamlPath       ?: 'pipelines.yml'
+  def nodeLabel             = config.nodeLabel  ?: 'linux'
+  def pipelineDataFilePath  = config.yamlPath   ?: 'pipelines.yml'
 
   def slackNotify           = config.notify             == null ? true : config.notify
   def gitSubmodules         = config.useSubmodules      == null ? true : config.useSubmodules
-  def timeoutDurationInt    = config.timeoutDuration
-  def timeoutUnitStr        = config.timeoutUnit
+  def timeoutDurationInt    = config.timeoutDuration  ?: 1
+  def timeoutUnitStr        = config.timeoutUnit      ?: 'HOURS'
 
-  // local script variables
-  def timedNode = nodeType.toLowerCase().equals('linux') ? plLinux : plWindows
-
-  timedNode timeoutDurationInt, timeoutUnitStr, {
+  plNode nodeLabel, timeoutDurationInt, timeoutUnitStr.toUpperCase(), {
     stage ('git: checkout') {
       plGitCheckout {
         withSubmodules = gitSubmodules
@@ -33,7 +30,7 @@ def call(body) {
     println "Loading pipeline data file."
     def yml = concurPipeline.getPipelineDataFile(pipelineDataFilePath)
     concurPipeline.debugPrint([
-      'nodeType'        : nodeType,
+      'nodeLabel'       : nodeLabel,
       'yamlPath'        : pipelineDataFilePath,
       'notify'          : slackNotify,
       'useSubmodules'   : gitSubmodules,
@@ -68,9 +65,7 @@ def call(body) {
 
       currentBuild.result = 'SUCCESS'
     } catch (e) {
-      error("""WorkflowLibs :: plWorkflow :: Pipeline execution failed while running steps
-              |-------------------------------------
-              |$e""".stripMargin())
+      throw e
     } finally {
       currentBuild.result = currentBuild.result ?: 'FAILURE'
       if (slackNotify) {
