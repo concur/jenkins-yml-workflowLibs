@@ -354,7 +354,13 @@ def createRelease(Map credentialData, String notes, String tag, String name, Boo
     "draft"           : draft,
     "prerelease"      : preRelease
   ]
+  String endpoint = "/repos/$owner/$repo/releases"
 
-  def response = githubRequestWrapper('POST', "/repos/$owner/$repo/releases", postData, null, credentialId, false, false, host)
+  concurPipeline.debugPrint([
+    postData    : postData,
+    credentialId: credentialId,
+    endpoint    : endpoint
+  ])
+  def response = githubRequestWrapper('POST', endpoint, postData, null, credentialId, false, true, host)
   return concurUtil.parseJSON(response?.content)
 }
