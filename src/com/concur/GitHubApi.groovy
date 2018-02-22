@@ -361,7 +361,6 @@ def createRelease(Map credentialData, String notes, String tag, String name, Boo
     credentialId: credentialId,
     endpoint    : endpoint
   ])
-  
-  def response = githubRequestWrapper('POST', endpoint, postData, null, credentialId, false, false, host)
+  def response = githubRequestWrapper('POST', endpoint, postData, null, credentialId, false, true, host)
   return concurUtil.parseJSON(response?.content)
 }
