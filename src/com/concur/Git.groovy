@@ -171,7 +171,7 @@ def getVersion(Map yml) {
   String version          = yml.general?.version?.base    ?: '0.1.0'
   String scheme           = yml.general?.version?.scheme  ?: 'semantic'
   Boolean incrementMajor  = yml.general?.version?.increment?.major?."${branchPattern}" ?: yml.general?.version?.increment?.major ?: false
-  Boolean incrementMinor  = yml.general?.version?.increment?.minor?."${branchPattern}" ?: yml.general?.version?.increment?.minor ?: false
+  Boolean incrementMinor  = yml.general?.version?.increment?.minor?."${branchPattern}" ?: yml.general?.version?.increment?.minor ?: true
   Boolean incrementPatch  = yml.general?.version?.increment?.patch?."${branchPattern}" ?: yml.general?.version?.increment?.patch ?: false
   try {
     String tag = runGitShellCommand(

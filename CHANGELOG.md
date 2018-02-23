@@ -12,6 +12,10 @@
 
 ### Fixed
 
+* Git.getVersion: Set increment minor to true by default. This restores the old functionality.
+
+### Fixed
+
 * plNotify: Fixed end of build notification.
 
 ## 0.4.0
