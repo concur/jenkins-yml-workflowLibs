@@ -10,7 +10,7 @@
 | String  | endpoint          |           |
 | Map     | postData          | [:]       |
 | Map     | additionalHeaders | [:]       |
-| String  | credentialId      | ''        |
+| String  | credentialId      |           |
 | Boolean | outputResponse    | false     |
 | Boolean | ignoreErrors      | false     |
 | String  | host              | null      |
@@ -56,12 +56,12 @@ println concurGitHub.githubGraphqlRequestWrapper('query')
 | Type   | Name           | Default   |
 |:-------|:---------------|:----------|
 | Map    | credentialData |           |
-| String | owner          | ''        |
-| String | repo           | ''        |
-| String | host           | ''        |
-| String | fromBranch     | ''        |
-| String | baseBranch     | ''        |
-| String | state          | 'OPEN'    |
+| String | owner          |           |
+| String | repo           |           |
+| String | host           |           |
+| String | fromBranch     |           |
+| String | baseBranch     |           |
+| String | state          | OPEN      |
 
 ### Example
 
@@ -77,9 +77,9 @@ println new com.concur.GitHubApi().getPullRequests(['description': 'Example Gith
 | Type   | Name           | Default   |
 |:-------|:---------------|:----------|
 | Map    | credentialData |           |
-| String | owner          | ''        |
-| String | repo           | ''        |
-| String | host           | ''        |
+| String | owner          |           |
+| String | repo           |           |
+| String | host           |           |
 | int    | limit          | 10        |
 
 ### Example
@@ -93,17 +93,17 @@ println new com.concur.GitHubApi().getReleases(['description': 'Example Github t
 
 > Create a pull request for the specified repository. Provided credentials need write access. Uses Rest API for this call, more information provided at [developer.github.com/v3/pulls/#create-a-pull-request](https://developer.github.com/v3/pulls/#create-a-pull-request)
 
-| Type    | Name                  | Default        |
-|:--------|:----------------------|:---------------|
-| String  | title                 |                |
-| String  | fromBranch            |                |
-| String  | toBranch              |                |
-| String  | owner                 |                |
-| String  | repo                  |                |
-| String  | host                  |                |
-| Map     | credentialData        |                |
-| String  | summary               | "Automatically |
-| Boolean | maintainer_can_modify | true           |
+| Type    | Name                  | Default                                   |
+|:--------|:----------------------|:------------------------------------------|
+| String  | title                 |                                           |
+| String  | fromBranch            |                                           |
+| String  | toBranch              |                                           |
+| String  | owner                 |                                           |
+| String  | repo                  |                                           |
+| String  | host                  |                                           |
+| Map     | credentialData        |                                           |
+| String  | summary               | Automatically created at ${env.BUILD_URL} |
+| Boolean | maintainer_can_modify | true                                      |
 
 ### Example
 
@@ -125,9 +125,9 @@ println new com.concur.GitHubApi().createPullRequest('Example PR Title', 'develo
 | Boolean | preRelease     | false          |
 | Boolean | draft          | false          |
 | String  | commitish      | env.GIT_COMMIT |
-| String  | owner          | ''             |
-| String  | repo           | ''             |
-| String  | host           | ''             |
+| String  | owner          |                |
+| String  | repo           |                |
+| String  | host           |                |
 
 ### Example 1
 
@@ -135,7 +135,6 @@ println new com.concur.GitHubApi().createPullRequest('Example PR Title', 'develo
 // create a new full release
 println new com.concur.GitHubApi().createRelease(['description': 'example GitHub credential'], '### Added\n\n* New Feature A', 'v0.1.0', 'v0.1.0')
 // {"url": "https://api.github.com/repos/concur/jenkins-yml-workflowLibs/releases/1","html_url": "https://github.com/concur/jenkins-yml-workflowLibs/releases/v0.1.0"...
-
 ```
 
 ### Example 2
@@ -144,7 +143,6 @@ println new com.concur.GitHubApi().createRelease(['description': 'example GitHub
 // createa a draft release
 println new com.concur.GitHubApi().createRelease(['description': 'example GitHub credential'], '### Added\n\n* New Feature A', 'v0.1.0', 'v0.1.0', false, true)
 // {"url": "https://api.github.com/repos/concur/jenkins-yml-workflowLibs/releases/1","html_url": "https://github.com/concur/jenkins-yml-workflowLibs/releases/v0.1.0"...
-
 ```
 
 ### Example 3

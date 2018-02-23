@@ -49,7 +49,6 @@ concurCommands.checkBranch(yaml.pipelines, 'master')
 def concurCommands = new com.concur.Commands()
 println concurCommands.getCredentialsWithCriteria(['description': 'Example credential def']).id
 // b709b4ac-f2f6-4e54-aca3-002270a92657
-
 ```
 
 ### Example 2
@@ -77,7 +76,6 @@ println concurCommands.getCredentialsWithCriteria(['description': 'Example crede
 def concurCommands = new com.concur.Commands()
 concurCommands.executeWithCredentials(['description': 'Example credential def', 'class': com.concur.CredentialTypes.sshPrivateKey], { sh "ssh user@example.local uname -a" })
 // Linux example 4.4.0-97-generic #120-Ubuntu SMP Tue Sep 19 17:28:18 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
-
 ```
 
 ### Example 2
@@ -106,7 +104,6 @@ concurCommands.executeWithCredentials(['description': 'Example credential def'],
 ```groovy
 println new com.concur.Commands().getPluginVersion('pipeline-githubnotify-step')
 // 1.0.3
-
 ```
 
 ### Example 2
@@ -140,18 +137,17 @@ try {
 
 > Check the environment to see if we are in debug mode
 
-| Type   | Name     | Default   |
-|:-------|:---------|:----------|
-| String | fileName |           |
-| String | format   |           |
-| String | baseNode |           |
+| Type   | Name     | Default        |
+|:-------|:---------|:---------------|
+| String | fileName | 'pipelines.yml |
+| String | format   | 'yml           |
+| String | baseNode | 'pipelines     |
 
 ### Example 1
 
 ```groovy
 println new com.concur.Commands().isDebug()
 // false
-
 ```
 
 ### Example 2

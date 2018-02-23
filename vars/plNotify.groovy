@@ -14,7 +14,7 @@ def call(body) {
 
   Commands concurPipeline = new Commands()
   Git concurGit           = new Git()
-  Http concurHttp         = new Http()
+  def concurSlack         = new Slack()
 
   String buildStatus    = config?.buildStatus     ?: currentBuild.result      ?: 'SUCCESS'
   String domain         = config?.domain          ?: env.DEFAULT_SLACK_DOMAIN
@@ -33,53 +33,69 @@ def call(body) {
   }
 
   // Default values for parameters
-  String colorCode  = '#DC143C'
-  String subject    = "$buildStatus"
-  String summary    = "$subject"
-  Map details       = [
-    "Job"     : env.JOB_NAME.replaceAll('%2F', '/'),
-    "Branch"  : env.BRANCH_NAME,
-    "Build"   : "<${env.BUILD_URL}|${env.BUILD_NUMBER}>",
-    "Commit"  : "<http://$host/$org/$repo/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>",
-    "Author"  : env.GIT_AUTHOR
+  def attachments = []
+  List fields = [
+    [
+      'title': 'Job',
+      'value': "${env.JOB_NAME.replaceAll('%2F', '/')}",
+      'short': false
+    ],
+    [
+      'title': 'Branch',
+      'value': "${env.BRANCH_NAME}",
+      'short': true
+    ],
+    [
+      'title': 'Build',
+      'value': "<${env.BUILD_URL}|${env.BUILD_NUMBER}>",
+      'short': true
+    ],
+    [
+      'title': 'Author',
+      'value': "${env.GIT_AUTHOR}",
+      'short': true
+    ],
+    [
+      'title': 'Commit',
+      'value': "<https://$host/$org/$repo/commit/${env.GIT_SHORT_COMMIT}|${env.GIT_SHORT_COMMIT}>".stripMargin(),
+      'short': true
+    ],
   ]
 
   // Override default values based on build status
   if (buildStatus == 'STARTED') {
+    color     = 'BLUE'
     colorCode = '#87CEEB'
-    subject   = "$buildStatus\n"
-    summary   = "$subject*Build Number* <${env.BUILD_URL}|${env.BUILD_NUMBER}> started on ${env.JENKINS_URL.replaceAll('/$', "")} for branch *${env.BRANCH_NAME}*"
+    attachments.add([
+      'text': "*Build Number* <${env.BUILD_URL}|${env.BUILD_NUMBER}> started on *${env.JENKINS_URL.replaceAll('/$', "")}* for branch *${env.BRANCH_NAME}*",
+      'color': colorCode
+    ])
   } else if (buildStatus == 'SUCCESS') {
+    color     = 'GREEN'
     colorCode = '#3CB371'
+    attachments.add([
+      'color' : colorCode,
+      'text'  : 'Build complete',
+      'fields': fields
+    ])
   } else {
+    color     = 'RED'
     colorCode = '#DC143C'
+    attachments.add([
+      'color' : colorCode,
+      'text'  : 'Build failed',
+      'fields': fields
+    ])
   }
 
   // Send notifications
-  try {
-    def slackData = [:]
-    if (channel != null && token != null && domain != null) {
-      slackData = [color: colorCode, message: summary, token: token, teamDomain: domain, channel: channel]
-    } else if (channel != null && domain != null) {
-      def cred = concurPipeline.getCredentialsWithCriteria(['description': env.DEFAULT_SLACK_TOKEN_DESC]).id
-      slackData = [color: colorCode, message: summary, tokenCredentialId: cred, teamDomain: domain, channel: channel]
-    } else {
-      // NOTE: without a channel set, it will send using default channel for default token.
-      slackData = [color: colorCode, message: summary]
-    }
-    if (buildStatus != 'STARTED' && useAttachments) {
-      def attachments = [
-        ['text', summary],
-        ['color', colorCode],
-        ['fallback', "${summary}\n${details.collect { "*${it.key}*: ${it.value}" }.join('\n')}"],
-        ['fields', details.collect { ["title": it.key, "value": it.value, "short": true] }]
-      ]
-      slackData.remove('message')
-      slackData.put('attachments', new com.concur.Util().toJSON(attachments))
-    }
-    concurHttp.sendSlackMessage(slackData)
-  } catch (java.lang.NoSuchMethodError | Exception e) {
-    println "Not able to send slack notification. Please make sure that the plugin is installed and configured correctly."
-    println "Error: $e"
+  if (channel != null && token != null && domain != null) {
+    concurSlack.send(message: buildStatus, attachments: attachments, token: token, teamDomain: domain, channel: channel)
+  } else if (channel != null && domain != null) {
+    def cred = concurPipeline.getCredentialsWithCriteria(['description': (env.DEFAULT_SLACK_TOKEN_DESC ?: 'Default Slack Token')]).id
+    concurSlack.send(message: buildStatus, attachments: attachments, tokenCredentialId: cred, teamDomain: domain, channel: channel)
+  } else {
+    // NOTE: without a channel set, it will send using default channel for default token.
+    concurSlack.send(message: buildStatus, attachments: attachments)
   }
 }

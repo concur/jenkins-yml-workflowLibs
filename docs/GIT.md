@@ -6,7 +6,7 @@
 
 | Type   | Name   | Default   |
 |:-------|:-------|:----------|
-| String | folder | '.'       |
+| String | folder | .         |
 | int    | depth  | 1         |
 
 ## getFilesChanged(String)
@@ -15,7 +15,7 @@
 
 | Type   | Name      | Default   |
 |:-------|:----------|:----------|
-| String | commitSha | ''        |
+| String | commitSha |           |
 
 ## runGitShellCommand(String, String)
 
@@ -24,7 +24,7 @@
 | Type   | Name          | Default   |
 |:-------|:--------------|:----------|
 | String | gitCommand    |           |
-| String | winGitCommand | ''        |
+| String | winGitCommand |           |
 
 ## saveGitProperties(Map)
 
@@ -65,7 +65,6 @@ sh "env"
 ```groovy
 println new com.concur.Git().getGitData('https://github.com/concur/jenkins-yml-workflowLibs.git')
 // ['host': 'github.com', 'owner': 'concur', 'repo': 'jenkins-yml-workflowLibs']
-
 ```
 
 ### Example 2
@@ -104,7 +103,6 @@ pipelines:
 // Latest tag in the repo is 1.3.1 and it was tagged 5 hours ago
 println new com.concur.Git().getVersion(yml)
 // 1.4.0-0018000000
-
 ```
 
 ### Example 2
@@ -113,7 +111,6 @@ println new com.concur.Git().getVersion(yml)
 // New repo with no tags, repository was created 1 hour ago
 println new com.concur.Git().getVersion(yml)
 // 0.1.0-0003600000
-
 ```
 
 ### Example 3
@@ -138,7 +135,6 @@ println new com.concur.Git().getVersion(yml)
 // Last tag was 3 hours ago
 println new com.concur.Git().timeSinceTag('v3.1.0')
 // 0010800000 - Padded with 0s on the left.
-
 ```
 
 ### Example 2
