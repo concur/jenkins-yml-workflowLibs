@@ -1,6 +1,12 @@
 # Jenkins-YML-WorkflowLibs changes by release
 
-## 0.5.0
+## v0.6.0
+
+### Updated
+
+* Moved documentation to being generated from [Mkdocs](https://mkdocs.org) instead of being converted from Markdown to HTML via GitHub pages Jekyll.
+
+## v0.5.0
 
 ### Added
 
@@ -18,7 +24,7 @@
 
 * plNotify: Fixed end of build notification.
 
-## 0.4.0
+## v0.4.0
 
 ### Added
 
@@ -29,7 +35,7 @@
 * Git.getVersion: Update to be more flexible with tag retrieval, will now get latest from the current branch using `git describe --tags`
 * Git.timeSinceLatestTag: Signature changed to accept a tag string that is used in the underlying git command.
 
-## 0.3.0
+## v0.3.0
 
 ### Added
 
@@ -38,7 +44,7 @@
 * Updated documentation in vars/*.txt, these are viewable in Pipeline Syntax -> Global Variable Reference from a pipeline job.
 * Add to setup.groovy script to set Markup formatter to Safe HTML so the vars documentation shows appropriately.
 
-## 0.2.0
+## v0.2.0
 
 ### Added
 
@@ -60,7 +66,7 @@
 * GitHubApi.getPullRequests: Moved to use GraphQL instead of the v3 Rest API.
 * plNotify: Moved to a closure so instead of calling like this: `plNotify(...)` it must now be called like this `plNotify { ... }`.
 
-## 0.1.0
+## v0.1.0
 
 ### Added
 

@@ -45,14 +45,14 @@ Workflows are a series of steps for working with tools. We group the steps by ov
 Jenkinsfile:
 
 ```groovy
-@Library("plWorkflowLibs@0.1.0")_
+@Library("plWorkflowLibs@v0.5.0")_
 
 plWorkflow {  }
 ```
 
 pipelines.yml for building a [Golang](https://www.golang.org) project, packaging the result into a [Docker](https://www.docker.com) container and then pushing that image to [Quay.io](https://quay.io).
 
-```yml
+```yaml
 pipelines:
   general:
     debug: true
@@ -98,4 +98,4 @@ pipelines:
 
 ## Contributing
 
-See our [contributing](/docs/CONTRIBUTING.md) guide.
+See our [contributing](CONTRIBUTING.md) guide.

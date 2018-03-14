@@ -44,11 +44,14 @@ class Constants {
 
     public static String WORKFLOWS_DEPRECATED_METHOD = "${Colors.ORANGE_ON_BLACK}Usage of this method has been deprecated, please refer to the documentation for information on migrating your pipeline.${Colors.CLEAR}"
   }
-  class Env {
+  static class Env {
     public static String VERSION        = "BUILDHUB_VERSION"
     public static String DEBUG          = "DEBUG_MODE"
     public static String DEBUG_LEVEL    = "DEBUG_LEVEL"
     public static String DATE_FORMAT    = "DATE_FORMAT"
     public static String SLACK_CHANNEL  = 'DEFAULT_SLACK_CHANNEL'
+  }
+  static class Regex {
+    public static String SEMANTIC = '(?i)\\b(?<prefix>v)?(?<major>0|[1-9]\\d*)(?:\\.(?<minor>0|[1-9]\\d*)(?:\\.(?<patch>0|[1-9]\\d*))?)?(?:-(?<prerelease>[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*))?(?:\\+(?<build>[\\da-z\\-]+(?:\\.[\\da-z\\-]+)*))?\\b'
   }
 }
