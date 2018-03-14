@@ -1,11 +1,11 @@
-import jinja2
-from pathlib import Path
 import os
 import re
 import yaml
 
 from argparse import ArgumentParser
 from tabulate import tabulate
+from html2text import html2text as md
+from pathlib import Path
 
 METHOD_DEF_REGEX = re.compile(
     r'^(public|def) (?P<method_name>.+?)\((?P<method_args>.+?)\) \{$')
@@ -33,7 +33,8 @@ class Arg:
             arg_default = None
             if "=" in arg:
                 arg_def = [a for a in arg.split('=')]
-                arg_def = arg_def[0].split() + [a.strip("'").strip('"') for a in arg_def[1:]]
+                arg_def = arg_def[0].split() + [a.strip("'").strip('"')
+                                                for a in arg_def[1:]]
             else:
                 arg_def = [a for a in arg.split()]
             if len(arg_def) > 2:  # specifies type/name/default
@@ -129,31 +130,32 @@ def create_markdown_table(values):
     return tabulate(rows, [x.title() for x in columns], tablefmt="pipe")
 
 
-def render_jinja_template(tpl_path, context):
-    path, filename = os.path.split((SCRIPT_PATH / tpl_path).resolve())
-    print(f"Searching for templates in {path}")
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(path)
-    )
-    print(f"Available templates {env.list_templates('j2')}")
-    return env.get_template(filename).render(context)
+def represent_none(self, _):
+    return self.represent_scalar('tag:yaml.org,2002:null', '')
 
 
-def create_index_markdown(groovy_files, docs_folder):
-    print('Generating index.md ...')
-    links = []
-    for groovy_file in sorted(groovy_files):
-        workflow_name = os.path.splitext(groovy_file)[0]
-        if workflow_name == 'Constants':
-            continue
-        links.append(
-            f"* [{workflow_name}]({workflow_name.upper()}.md)")
+def to_yaml(contents):
+    yaml.add_representer(type(None), represent_none)
+    return yaml.dump(contents, default_flow_style=False)
 
-    rendered_template = render_jinja_template(
-        '.github/PAGES_INDEX.md.j2', {'CLASS_LINKS': '\n'.join(links)})
 
-    with open(docs_folder / 'index.md', 'w') as w:
-        w.write(rendered_template + '\n')
+def update_mkdocs_yaml(groovy_files, step_files, mkdocs_file):
+    print('Updating the mkdocs.yml...')
+    class_links = [{x[:x.rfind('.')]: f"{x[:x.rfind('.')]}.md"} for x in
+                   sorted(groovy_files) if 'Constants' not in x]
+    step_links = [{x[:x.rfind('.')]: f"steps/{x[:x.rfind('.')]}.md"} for x in
+                  sorted(step_files)]
+
+    with mkdocs_file.open('r') as r:
+        current_yaml = parse_yaml(r.read())
+        for i, x in enumerate(current_yaml['pages']):
+            page_key = list(x.keys())[0]
+            if page_key == 'Classes':
+                current_yaml['pages'][i] = {'Classes': class_links}
+            elif page_key == 'Steps':
+                current_yaml['pages'][i] = {'Steps': step_links}
+    with mkdocs_file.open('w') as w:
+        w.write(to_yaml(current_yaml))
 
 
 def create_markdown_doc(name, docs_folder, functions):
@@ -177,19 +179,29 @@ def create_markdown_doc(name, docs_folder, functions):
             example = function_yaml_def.get('example')
             if example:
                 lines.append("\n### Example")
-                lines.append(f"\n```groovy\n{function_yaml_def.get('example').strip()}\n```")
+                lines.append(
+                    f"\n```groovy\n{function_yaml_def.get('example').strip()}\n```")
             resources = function_yaml_def.get('resources')
             if resources:
                 lines.append("\n### Resources")
-                lines.append('\n'.join([f"\n* [{x.get('name')}]({x.get('url')})" for x in resources]))
+                lines.append(
+                    '\n'.join([f"\n* [{x.get('name')}]({x.get('url')})" for x in resources]))
 
     with (docs_folder / name.upper().replace('.GROOVY', '.md')).open(mode='w') as w:
         w.write('\n'.join(lines))
 
 
+def create_var_markdown(f, docs_folder):
+    docs_folder.mkdir(exist_ok=True)
+    with f.open() as fopen:
+        html_contents = fopen.read().splitlines()
+    with (docs_folder / f.name.replace('.txt', '.md')).open(mode='w') as w:
+        w.write(md('\n'.join(html_contents)))
+
+
 def entry_point():
     parser = ArgumentParser()
-    parser.add_argument('-o', '--out-path')
+    parser.add_argument('-o', '--out-path', default='')
 
     args = parser.parse_args()
 
@@ -209,9 +221,16 @@ def entry_point():
             create_markdown_doc(name=fil.name,
                                 docs_folder=SCRIPT_PATH / args.out_path,
                                 functions=functions)
-    create_index_markdown([
-        x.name for x in (SCRIPT_PATH / 'src' / 'com' / 'concur').glob('*.groovy') if x.name != 'example.groovy'], 
-        SCRIPT_PATH / args.out_path)
+    var_files = (SCRIPT_PATH / 'vars').glob("*.txt")
+    for var in var_files:
+        print(f"Generating documentation for {var.name}...")
+        create_var_markdown(var, SCRIPT_PATH / args.out_path / 'steps')
+
+    mkdocs_file = list(SCRIPT_PATH.glob('mkdocs.yml'))[0]
+    update_mkdocs_yaml([x.name for x in (SCRIPT_PATH / 'src' / 'com' / 'concur').
+                        glob('*.groovy') if x.name != 'example.groovy'],
+                       [x.name for x in (
+                           SCRIPT_PATH / 'vars').glob('*.txt')], mkdocs_file)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,24 @@
+docs_dir: markdown
+pages:
+- Home: index.md
+- About:
+  - Changelog: CHANGELOG.md
+  - Guide: CONTRIBUTING.md
+  - Style: STYLE_GUIDE.md
+- Steps:
+  - plGitCheckout: steps/plGitCheckout.md
+  - plNode: steps/plNode.md
+  - plNotify: steps/plNotify.md
+  - plWorkflow: steps/plWorkflow.md
+- Classes:
+  - Commands: Commands.md
+  - Git: Git.md
+  - GitHubApi: GitHubApi.md
+  - Http: Http.md
+  - Slack: Slack.md
+  - Util: Util.md
+  - Versioning: Versioning.md
+site_dir: docs
+site_name: jenkins-yml-workflow
+theme:
+  name: material

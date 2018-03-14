@@ -32,7 +32,9 @@ pipelines:
               file: scripts/generate_docs.py
               requirements: scripts/requirements.txt
               arguments:
-                - "-o docs"
+                - "-o markdown"
+        - documentation:
+          - mkdocs:
         - git:
           - commit:
               message: "Automatic documentation generated."
