@@ -141,7 +141,7 @@ def to_yaml(contents):
 
 def update_mkdocs_yaml(groovy_files, step_files, mkdocs_file):
     print('Updating the mkdocs.yml...')
-    class_links = [{x[:x.rfind('.')]: f"{x[:x.rfind('.')]}.md"} for x in
+    class_links = [{x[:x.rfind('.')]: f"{x[:x.rfind('.')].upper()}.md"} for x in
                    sorted(groovy_files) if 'Constants' not in x]
     step_links = [{x[:x.rfind('.')]: f"steps/{x[:x.rfind('.')]}.md"} for x in
                   sorted(step_files)]
