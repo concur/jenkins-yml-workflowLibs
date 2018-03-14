@@ -1,0 +1,824 @@
+{
+    "docs": [
+        {
+            "location": "/",
+            "text": "Jenkins YML Workflow\n\n\nThis is a pipeline library for Jenkins 2.x that allows execution to be defined in YML rather than in a Jenkinsfile. Originally developed by the Workflow team at Concur in Bellevue.\n\n\nRequirements\n\n\nPlugins\n\n\n\n\nPipeline Shared Groovy Libraries\n\n\nPipeline Remote Loader\n\n\nPipeline Utility Steps\n\n\nAnsiColor\n\n\n\n\nWorkflows\n\n\nWorkflows are stored in a separate repo, this allows us to iterate at different speeds and so adoption can be more at will. To view the workflows we provide you can go to the \njenkins-workflows\n repository.\n\n\nUsage\n\n\nThis must be added as a global pipeline library in Jenkins.\n\n\nRequired Environment Variables\n\n\n\n\n\n\n\n\nVariable\n\n\nExample\n\n\nDescription\n\n\n\n\n\n\n\n\n\n\nWORKFLOW_REPOSITORY\n\n\ngit@github.com:concur/jenkins-workflows.git\n\n\nPoints to a repository containing Groovy workflow files.\n\n\n\n\n\n\nWORKFLOW_GIT_CREDENTIAL_DESCRIPTION\n\n\nGitHub SSH Private Key\n\n\nA description for checking out the \nWORKFLOW_REPOSITORY\n.\n\n\n\n\n\n\nDEFAULT_SLACK_DOMAIN\n\n\nconcur\n\n\nThe Slack team domain to send requests to.\n\n\n\n\n\n\nDEFAULT_SLACK_TOKEN_DESC\n\n\nSlack Token\n\n\nA credential description for sending to the Slack API\n\n\n\n\n\n\n\n\nConcepts and Philosophies\n\n\nCredential Management\n\n\nWe use lookups for credentials instead of hard-coding credential IDs. This ensures if the Jenkins master has to be rebuilt from scratch jobs will not fail due to the credential no longer existing.\n\n\nWorkflows (jenkins-workflows) vs WorkflowLibs (jenkins-yml-workflowLibs)\n\n\nWorkflowLibs are a set of common methods/closures that can be used across any number of workflows. For example this could encapsulate code for publishing artifacts to Artifactory or Nexus, or it could be a method for replacing text in a string.\n\n\nWorkflows are a series of steps for working with tools. We group the steps by overall tool, for instance Glide is a dependency manager for Golang so the steps for interacting with it are in the golang.groovy file.\n\n\nExamples\n\n\nJenkinsfile:\n\n\n@Library(\"plWorkflowLibs@v0.5.0\")_\n\nplWorkflow {  }\n\n\n\n\npipelines.yml for building a \nGolang\n project, packaging the result into a \nDocker\n container and then pushing that image to \nQuay.io\n.\n\n\npipelines:\n  general:\n    debug: true\n    dateFormat: \"yyyyMMdd-Hmmss\"\n  tools:\n    branches:\n      patterns:\n        feature: .+\n    docker:\n      buildArgs:\n        CommitSHA: \"{{ git_commit }}\"\n        BuildVersion: \"{{ build_version }}\"\n      credentials:\n        description: quay.io robot\n      imageName: concur/example-docker-image\n      uri: quay.io\n    golang:\n      buildImage: golang:1.9.2\n    slack:\n      channel: 'git-notifications'\n  branches:\n    feature:\n      steps:\n        - golang:\n          - glide:\n          - test:\n              additionalArgs: \"./...\"\n          - build:\n              goEnv:\n                GOOS: linux\n                GOARCH: amd64\n                CGO_ENABLED: 0\n              outFile: publish/example\n              additionalArgs: \"-ldflags \\\"-X main.buildVersion={{ BUILD_VERSION }} -X main.commit={{ GIT_COMMIT }} -X main.buildDate={{ TIMESTAMP }}\\\"\"\n              mainPath: cmd/example/main.go\n        - docker:\n          - build:\n          - push:\n              additionalTags:\n                - \"{{ GIT_COMMIT }}\"\n\n\n\n\n\nContributing\n\n\nSee our \ncontributing\n guide.",
+            "title": "Home"
+        },
+        {
+            "location": "/#jenkins-yml-workflow",
+            "text": "This is a pipeline library for Jenkins 2.x that allows execution to be defined in YML rather than in a Jenkinsfile. Originally developed by the Workflow team at Concur in Bellevue.",
+            "title": "Jenkins YML Workflow"
+        },
+        {
+            "location": "/#requirements",
+            "text": "",
+            "title": "Requirements"
+        },
+        {
+            "location": "/#plugins",
+            "text": "Pipeline Shared Groovy Libraries  Pipeline Remote Loader  Pipeline Utility Steps  AnsiColor",
+            "title": "Plugins"
+        },
+        {
+            "location": "/#workflows",
+            "text": "Workflows are stored in a separate repo, this allows us to iterate at different speeds and so adoption can be more at will. To view the workflows we provide you can go to the  jenkins-workflows  repository.",
+            "title": "Workflows"
+        },
+        {
+            "location": "/#usage",
+            "text": "This must be added as a global pipeline library in Jenkins.",
+            "title": "Usage"
+        },
+        {
+            "location": "/#required-environment-variables",
+            "text": "Variable  Example  Description      WORKFLOW_REPOSITORY  git@github.com:concur/jenkins-workflows.git  Points to a repository containing Groovy workflow files.    WORKFLOW_GIT_CREDENTIAL_DESCRIPTION  GitHub SSH Private Key  A description for checking out the  WORKFLOW_REPOSITORY .    DEFAULT_SLACK_DOMAIN  concur  The Slack team domain to send requests to.    DEFAULT_SLACK_TOKEN_DESC  Slack Token  A credential description for sending to the Slack API",
+            "title": "Required Environment Variables"
+        },
+        {
+            "location": "/#concepts-and-philosophies",
+            "text": "",
+            "title": "Concepts and Philosophies"
+        },
+        {
+            "location": "/#credential-management",
+            "text": "We use lookups for credentials instead of hard-coding credential IDs. This ensures if the Jenkins master has to be rebuilt from scratch jobs will not fail due to the credential no longer existing.",
+            "title": "Credential Management"
+        },
+        {
+            "location": "/#workflows-jenkins-workflows-vs-workflowlibs-jenkins-yml-workflowlibs",
+            "text": "WorkflowLibs are a set of common methods/closures that can be used across any number of workflows. For example this could encapsulate code for publishing artifacts to Artifactory or Nexus, or it could be a method for replacing text in a string.  Workflows are a series of steps for working with tools. We group the steps by overall tool, for instance Glide is a dependency manager for Golang so the steps for interacting with it are in the golang.groovy file.",
+            "title": "Workflows (jenkins-workflows) vs WorkflowLibs (jenkins-yml-workflowLibs)"
+        },
+        {
+            "location": "/#examples",
+            "text": "Jenkinsfile:  @Library(\"plWorkflowLibs@v0.5.0\")_\n\nplWorkflow {  }  pipelines.yml for building a  Golang  project, packaging the result into a  Docker  container and then pushing that image to  Quay.io .  pipelines:\n  general:\n    debug: true\n    dateFormat: \"yyyyMMdd-Hmmss\"\n  tools:\n    branches:\n      patterns:\n        feature: .+\n    docker:\n      buildArgs:\n        CommitSHA: \"{{ git_commit }}\"\n        BuildVersion: \"{{ build_version }}\"\n      credentials:\n        description: quay.io robot\n      imageName: concur/example-docker-image\n      uri: quay.io\n    golang:\n      buildImage: golang:1.9.2\n    slack:\n      channel: 'git-notifications'\n  branches:\n    feature:\n      steps:\n        - golang:\n          - glide:\n          - test:\n              additionalArgs: \"./...\"\n          - build:\n              goEnv:\n                GOOS: linux\n                GOARCH: amd64\n                CGO_ENABLED: 0\n              outFile: publish/example\n              additionalArgs: \"-ldflags \\\"-X main.buildVersion={{ BUILD_VERSION }} -X main.commit={{ GIT_COMMIT }} -X main.buildDate={{ TIMESTAMP }}\\\"\"\n              mainPath: cmd/example/main.go\n        - docker:\n          - build:\n          - push:\n              additionalTags:\n                - \"{{ GIT_COMMIT }}\"",
+            "title": "Examples"
+        },
+        {
+            "location": "/#contributing",
+            "text": "See our  contributing  guide.",
+            "title": "Contributing"
+        },
+        {
+            "location": "/CHANGELOG/",
+            "text": "Jenkins-YML-WorkflowLibs changes by release\n\n\nv0.6.0\n\n\nUpdated\n\n\n\n\nMoved documentation to being generated from \nMkdocs\n instead of being converted from Markdown to HTML via GitHub pages Jekyll.\n\n\n\n\nv0.5.0\n\n\nAdded\n\n\n\n\nSlack: New class \ncom.concur.Slack\n for sending directly to the Slack API, initially is a drop in replacement for the Jenkins plugin but does not make guarantees about future compatibility.\n\n\n\n\nUpdated\n\n\n\n\nplNotify: Switch to the new Slack class for sending. Richer notification on end of build.\n\n\n\n\nFixed\n\n\n\n\nGit.getVersion: Set increment minor to true by default. This restores the old functionality.\n\n\n\n\nFixed\n\n\n\n\nplNotify: Fixed end of build notification.\n\n\n\n\nv0.4.0\n\n\nAdded\n\n\n\n\nAdd SHORT_VERSION to default replacement option, this is the version provided by Git().getVersion() without the build number.\n\n\n\n\nUpdated\n\n\n\n\nGit.getVersion: Update to be more flexible with tag retrieval, will now get latest from the current branch using \ngit describe --tags\n\n\nGit.timeSinceLatestTag: Signature changed to accept a tag string that is used in the underlying git command.\n\n\n\n\nv0.3.0\n\n\nAdded\n\n\n\n\nAdded script to automatically generate documentation on commit.\n\n\nUpdate com.concur.* groovy files with documentation.\n\n\nUpdated documentation in vars/*.txt, these are viewable in Pipeline Syntax -> Global Variable Reference from a pipeline job.\n\n\nAdd to setup.groovy script to set Markup formatter to Safe HTML so the vars documentation shows appropriately.\n\n\n\n\nv0.2.0\n\n\nAdded\n\n\n\n\nscripts/setup.groovy: Will configure a Jenkins instance to use these workflows/workflow libraries. Including adding as a global library, adding environment variables and adding a SSH credential.\n\n\nUtil.parseChangelog: Reads a changelog file to determine what releases are in it.\n\n\nGitHubApi.getReleases: Use GitHub's GraphQL API to get information about a repositories releases.\n\n\nGitHubApi.createRelease: Create a release in GitHub with release notes.\n\n\n\n\nChanged\n\n\n\n\nWorking towards a more strongly typed system, updated vars from \ndef\n to a static type in many areas.\n\n\nCommands.getStageName: Added a default stage name if the method is not available or doesn't return anything.\n\n\nAll: Adding more descriptive assertion/errors so it is easier to determine where an error is happening.\n\n\nCommands.getCredentialsWithCriteria: Will search global credentials first and return the credential if found before looking through the folder structure.\n\n\nCommands.getJavaStackTrace: If provided a \nthrowable\n will return the stacktrace for it as a \n\\n\n joined string. \nthrowable.getStackTrace()\n is blocked by Jenkins by default.\n\n\nGit.runGitShellCommand: Uses \npowershell\n or \nsh\n step with \nreturnStdout\n turned on instead of writing a file to the workspace.\n\n\nGit.getVersion: Updated to remove \nprintln\n or move them to \ndebugPrint\n.\n\n\nGitHubApi.githubRequestWrapper: Add missing \nwithCredentials\n block as well as set the \nAuthorization\n header based on credentials.\n\n\nGitHubApi.getPullRequests: Moved to use GraphQL instead of the v3 Rest API.\n\n\nplNotify: Moved to a closure so instead of calling like this: \nplNotify(...)\n it must now be called like this \nplNotify { ... }\n.\n\n\n\n\nv0.1.0\n\n\nAdded\n\n\n\n\nAbility to load local and remote workflows.\n\n\ndebugPrint\n method with the ability to control whether to print or not by level.\n\n\nError handling when executing at various levels.\n\n\nText manipulation including replacements using mustache templating style.\n\n\nVersion generation by looking at existing tags on the repo and generating a semantic compatible version number.\n\n\nVarious helper for setting environment variables for Git information.\n\n\nSimplified execution using \nplWorkflow\n closure.",
+            "title": "Changelog"
+        },
+        {
+            "location": "/CHANGELOG/#jenkins-yml-workflowlibs-changes-by-release",
+            "text": "",
+            "title": "Jenkins-YML-WorkflowLibs changes by release"
+        },
+        {
+            "location": "/CHANGELOG/#v060",
+            "text": "",
+            "title": "v0.6.0"
+        },
+        {
+            "location": "/CHANGELOG/#updated",
+            "text": "Moved documentation to being generated from  Mkdocs  instead of being converted from Markdown to HTML via GitHub pages Jekyll.",
+            "title": "Updated"
+        },
+        {
+            "location": "/CHANGELOG/#v050",
+            "text": "",
+            "title": "v0.5.0"
+        },
+        {
+            "location": "/CHANGELOG/#added",
+            "text": "Slack: New class  com.concur.Slack  for sending directly to the Slack API, initially is a drop in replacement for the Jenkins plugin but does not make guarantees about future compatibility.",
+            "title": "Added"
+        },
+        {
+            "location": "/CHANGELOG/#updated_1",
+            "text": "plNotify: Switch to the new Slack class for sending. Richer notification on end of build.",
+            "title": "Updated"
+        },
+        {
+            "location": "/CHANGELOG/#fixed",
+            "text": "Git.getVersion: Set increment minor to true by default. This restores the old functionality.",
+            "title": "Fixed"
+        },
+        {
+            "location": "/CHANGELOG/#fixed_1",
+            "text": "plNotify: Fixed end of build notification.",
+            "title": "Fixed"
+        },
+        {
+            "location": "/CHANGELOG/#v040",
+            "text": "",
+            "title": "v0.4.0"
+        },
+        {
+            "location": "/CHANGELOG/#added_1",
+            "text": "Add SHORT_VERSION to default replacement option, this is the version provided by Git().getVersion() without the build number.",
+            "title": "Added"
+        },
+        {
+            "location": "/CHANGELOG/#updated_2",
+            "text": "Git.getVersion: Update to be more flexible with tag retrieval, will now get latest from the current branch using  git describe --tags  Git.timeSinceLatestTag: Signature changed to accept a tag string that is used in the underlying git command.",
+            "title": "Updated"
+        },
+        {
+            "location": "/CHANGELOG/#v030",
+            "text": "",
+            "title": "v0.3.0"
+        },
+        {
+            "location": "/CHANGELOG/#added_2",
+            "text": "Added script to automatically generate documentation on commit.  Update com.concur.* groovy files with documentation.  Updated documentation in vars/*.txt, these are viewable in Pipeline Syntax -> Global Variable Reference from a pipeline job.  Add to setup.groovy script to set Markup formatter to Safe HTML so the vars documentation shows appropriately.",
+            "title": "Added"
+        },
+        {
+            "location": "/CHANGELOG/#v020",
+            "text": "",
+            "title": "v0.2.0"
+        },
+        {
+            "location": "/CHANGELOG/#added_3",
+            "text": "scripts/setup.groovy: Will configure a Jenkins instance to use these workflows/workflow libraries. Including adding as a global library, adding environment variables and adding a SSH credential.  Util.parseChangelog: Reads a changelog file to determine what releases are in it.  GitHubApi.getReleases: Use GitHub's GraphQL API to get information about a repositories releases.  GitHubApi.createRelease: Create a release in GitHub with release notes.",
+            "title": "Added"
+        },
+        {
+            "location": "/CHANGELOG/#changed",
+            "text": "Working towards a more strongly typed system, updated vars from  def  to a static type in many areas.  Commands.getStageName: Added a default stage name if the method is not available or doesn't return anything.  All: Adding more descriptive assertion/errors so it is easier to determine where an error is happening.  Commands.getCredentialsWithCriteria: Will search global credentials first and return the credential if found before looking through the folder structure.  Commands.getJavaStackTrace: If provided a  throwable  will return the stacktrace for it as a  \\n  joined string.  throwable.getStackTrace()  is blocked by Jenkins by default.  Git.runGitShellCommand: Uses  powershell  or  sh  step with  returnStdout  turned on instead of writing a file to the workspace.  Git.getVersion: Updated to remove  println  or move them to  debugPrint .  GitHubApi.githubRequestWrapper: Add missing  withCredentials  block as well as set the  Authorization  header based on credentials.  GitHubApi.getPullRequests: Moved to use GraphQL instead of the v3 Rest API.  plNotify: Moved to a closure so instead of calling like this:  plNotify(...)  it must now be called like this  plNotify { ... } .",
+            "title": "Changed"
+        },
+        {
+            "location": "/CHANGELOG/#v010",
+            "text": "",
+            "title": "v0.1.0"
+        },
+        {
+            "location": "/CHANGELOG/#added_4",
+            "text": "Ability to load local and remote workflows.  debugPrint  method with the ability to control whether to print or not by level.  Error handling when executing at various levels.  Text manipulation including replacements using mustache templating style.  Version generation by looking at existing tags on the repo and generating a semantic compatible version number.  Various helper for setting environment variables for Git information.  Simplified execution using  plWorkflow  closure.",
+            "title": "Added"
+        },
+        {
+            "location": "/CONTRIBUTING/",
+            "text": "Contributing",
+            "title": "Guide"
+        },
+        {
+            "location": "/CONTRIBUTING/#contributing",
+            "text": "",
+            "title": "Contributing"
+        },
+        {
+            "location": "/STYLE_GUIDE/",
+            "text": "Style Guide",
+            "title": "Style"
+        },
+        {
+            "location": "/STYLE_GUIDE/#style-guide",
+            "text": "",
+            "title": "Style Guide"
+        },
+        {
+            "location": "/steps/plGitCheckout/",
+            "text": "Description\n\n\nCheckout from Github and set environment variables\n\n\nParameters\n\n\n\n\nrepo - Github repository to checkout if you need to get something other than the project repo (optional)\n\n\ncredentials - ID of the credentials to use for this checkout, if not supplied uses checkout credentials defined in the job (optional)\n\n\nwithSubmodules - If true will checkout the configured git repository including any configured submodules (optional)\n\n\n\n\nExample\n\n\n      plGitCheckout { } // will checkout the project configured by this job\n\n\n\nSubmodule example\n\n\n      plGitCheckout { // will checkout the project configured by this job\n        withSubmodules = true\n      }\n\n\n\nSpecific repo example\n\n\n      def credentialId = concurPipeline.getCredentialsWithCriteria(['description': 'Primary GitHub clone/checkout credentials'])\n      plGitCheckout { // will checkout the project configured by this job\n        credentials = credentialId\n        repo = 'https://github.com/ansible/ansible.git'\n      }",
+            "title": "plGitCheckout"
+        },
+        {
+            "location": "/steps/plGitCheckout/#description",
+            "text": "Checkout from Github and set environment variables",
+            "title": "Description"
+        },
+        {
+            "location": "/steps/plGitCheckout/#parameters",
+            "text": "repo - Github repository to checkout if you need to get something other than the project repo (optional)  credentials - ID of the credentials to use for this checkout, if not supplied uses checkout credentials defined in the job (optional)  withSubmodules - If true will checkout the configured git repository including any configured submodules (optional)",
+            "title": "Parameters"
+        },
+        {
+            "location": "/steps/plGitCheckout/#example",
+            "text": "plGitCheckout { } // will checkout the project configured by this job",
+            "title": "Example"
+        },
+        {
+            "location": "/steps/plGitCheckout/#submodule-example",
+            "text": "plGitCheckout { // will checkout the project configured by this job\n        withSubmodules = true\n      }",
+            "title": "Submodule example"
+        },
+        {
+            "location": "/steps/plGitCheckout/#specific-repo-example",
+            "text": "def credentialId = concurPipeline.getCredentialsWithCriteria(['description': 'Primary GitHub clone/checkout credentials'])\n      plGitCheckout { // will checkout the project configured by this job\n        credentials = credentialId\n        repo = 'https://github.com/ansible/ansible.git'\n      }",
+            "title": "Specific repo example"
+        },
+        {
+            "location": "/steps/plNode/",
+            "text": "Description\n\n\nRun commands on an agent with a given label, and cleans up the workspace. This\nmodule allows you to specify a timeout, but will default to one hour if not\nspecified.\n\n\nOptional Parameters\n\n\n\n\nlabel - Label identifying agent to run on.\n\n\nduration - Integer value representing the amount of time.\n\n\nunit - Unit of time. Valid values are: NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS.\n\n\n\n\nFor more information checkout the \ntimeout step\ndocumentation\n on\n\njenkins.io\n.\n\n\nBasic Example\n\n\n      plNode {\n        sh 'printenv'\n      }\n\n\n\nAdvanced Example\n\n\n      plNode 'docker', 5, \"MINUTES\", {\n        docker.image('alpine').inside {\n          sh 'printenv'\n        }\n      }\n\n\n\nWindows Example\n\n\n      plNode 'windows', 5, \"MINUTES\", {\n        powershell 'Get-ChildItem env:'\n      }\n\n\n\nNode with multiple identifiers Example\n\n\n      // Must be an agent with both docker and linux labels on it\n      plNode 'linux && docker', 5, \"MINUTES\", {\n        docker.image('alpine').inside {\n          sh 'printenv'\n        }\n      }",
+            "title": "plNode"
+        },
+        {
+            "location": "/steps/plNode/#description",
+            "text": "Run commands on an agent with a given label, and cleans up the workspace. This\nmodule allows you to specify a timeout, but will default to one hour if not\nspecified.",
+            "title": "Description"
+        },
+        {
+            "location": "/steps/plNode/#optional-parameters",
+            "text": "label - Label identifying agent to run on.  duration - Integer value representing the amount of time.  unit - Unit of time. Valid values are: NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS.   For more information checkout the  timeout step\ndocumentation  on jenkins.io .",
+            "title": "Optional Parameters"
+        },
+        {
+            "location": "/steps/plNode/#basic-example",
+            "text": "plNode {\n        sh 'printenv'\n      }",
+            "title": "Basic Example"
+        },
+        {
+            "location": "/steps/plNode/#advanced-example",
+            "text": "plNode 'docker', 5, \"MINUTES\", {\n        docker.image('alpine').inside {\n          sh 'printenv'\n        }\n      }",
+            "title": "Advanced Example"
+        },
+        {
+            "location": "/steps/plNode/#windows-example",
+            "text": "plNode 'windows', 5, \"MINUTES\", {\n        powershell 'Get-ChildItem env:'\n      }",
+            "title": "Windows Example"
+        },
+        {
+            "location": "/steps/plNode/#node-with-multiple-identifiers-example",
+            "text": "// Must be an agent with both docker and linux labels on it\n      plNode 'linux && docker', 5, \"MINUTES\", {\n        docker.image('alpine').inside {\n          sh 'printenv'\n        }\n      }",
+            "title": "Node with multiple identifiers Example"
+        },
+        {
+            "location": "/steps/plNotify/",
+            "text": "Description\n\n\nNotify a channel in Slack\n\n\nParameters\n\n\n\n\nbuildStatus - Should be either STARTED or SUCCESS sets the color of the message in Slack\n\n\nchannel - Channel to send message to, can be to a user (via @) or a channel (via #). If sending to a channel the # can be omitted.\n\n\ntoken - The authentication token for the Slack API (refer to Slack plugin documentation on \nhow to generate a token\n).\n\n\ndomain - The Slack team the token and channel belong to.\n\n\n\n\nExample 1\n\n\n      plNotify {\n        buildStatus = currentBuild.status\n        channel = 'auto-team-pipeline'\n        token = 'oaiuwjvu908043iounfvou'\n        domain = 'concur-test'\n      }\n\n\n\nExample 2\n\n\nIf the domain is set in the global config (Manage Jenkins -> Configure System\n-> Global Slack Notifier Settings) the domain can be ignored.\n\n\n      plNotify {\n        buildStatus = currentBuild.status\n        channel = 'auto-team-pipeline'\n        token = 'oaiuwjvu908043iounfvou'\n      }\n\n\n\nExample 3\n\n\nIf you do not have a slack token, you can use Buildhub's default.\n\n\n      plNotify {\n        buildStatus = currentBuild.status\n        channel = 'auto-team-pipeline'\n      }",
+            "title": "plNotify"
+        },
+        {
+            "location": "/steps/plNotify/#description",
+            "text": "Notify a channel in Slack",
+            "title": "Description"
+        },
+        {
+            "location": "/steps/plNotify/#parameters",
+            "text": "buildStatus - Should be either STARTED or SUCCESS sets the color of the message in Slack  channel - Channel to send message to, can be to a user (via @) or a channel (via #). If sending to a channel the # can be omitted.  token - The authentication token for the Slack API (refer to Slack plugin documentation on  how to generate a token ).  domain - The Slack team the token and channel belong to.",
+            "title": "Parameters"
+        },
+        {
+            "location": "/steps/plNotify/#example-1",
+            "text": "plNotify {\n        buildStatus = currentBuild.status\n        channel = 'auto-team-pipeline'\n        token = 'oaiuwjvu908043iounfvou'\n        domain = 'concur-test'\n      }",
+            "title": "Example 1"
+        },
+        {
+            "location": "/steps/plNotify/#example-2",
+            "text": "If the domain is set in the global config (Manage Jenkins -> Configure System\n-> Global Slack Notifier Settings) the domain can be ignored.        plNotify {\n        buildStatus = currentBuild.status\n        channel = 'auto-team-pipeline'\n        token = 'oaiuwjvu908043iounfvou'\n      }",
+            "title": "Example 2"
+        },
+        {
+            "location": "/steps/plNotify/#example-3",
+            "text": "If you do not have a slack token, you can use Buildhub's default.        plNotify {\n        buildStatus = currentBuild.status\n        channel = 'auto-team-pipeline'\n      }",
+            "title": "Example 3"
+        },
+        {
+            "location": "/steps/plWorkflow/",
+            "text": "Description\n\n\nRun a workflow based on the YAML structure defined. All of these are optional,\nand you can add as many as you need.\n\n\nParameters\n\n\n\n\nnodeType - The type of machine to build on, should be Windows or Linux (Optional: Default linux).\n\n\nnotify - Whether or not to send notifications at the beginning and end of the pipeline (Optional: Default true)\n\n\nyamlPath - The relative path to the YAML file used to describe your pipeline (Optional: Default pipelines.yml)\n\n\nrepo - Used to specify a GitHub repository for GitHub deployments when on a deployhub server. (Optional: Default inferred from your project\n\n\ngithubDeployments - Whether or not to send the deployment status to GitHub. This is only relevant for deploy hubs. (Optional: Default true)\n\n\nnotify - Whether or not to send a slack notification for the start and completion of the build (Optional: Default true)\n\n\nuseSubmodules - Used to clone submodules if they exist in your repository (Optional: Default true)\n\n\ntimeoutDuration - Set the timeout duration for the build (Optional: Default 1)\n\n\ntimeoutUnit - Set the Unit for the timeout duration (Optional: Default 'HOURS')\n\n\nyamlText - Used to troubleshoot pipelines.yml (Optional: Default null)\n\n\n\n\nSlack Notification Example\n\n\n      plWorkflow {\n        notify = false\n      }\n\n\n\nYAML Path and Node Type Example\n\n\n      plWorkflow {\n        yamlPath = 'data.yml'\n        nodeType = 'windows'\n      }",
+            "title": "plWorkflow"
+        },
+        {
+            "location": "/steps/plWorkflow/#description",
+            "text": "Run a workflow based on the YAML structure defined. All of these are optional,\nand you can add as many as you need.",
+            "title": "Description"
+        },
+        {
+            "location": "/steps/plWorkflow/#parameters",
+            "text": "nodeType - The type of machine to build on, should be Windows or Linux (Optional: Default linux).  notify - Whether or not to send notifications at the beginning and end of the pipeline (Optional: Default true)  yamlPath - The relative path to the YAML file used to describe your pipeline (Optional: Default pipelines.yml)  repo - Used to specify a GitHub repository for GitHub deployments when on a deployhub server. (Optional: Default inferred from your project  githubDeployments - Whether or not to send the deployment status to GitHub. This is only relevant for deploy hubs. (Optional: Default true)  notify - Whether or not to send a slack notification for the start and completion of the build (Optional: Default true)  useSubmodules - Used to clone submodules if they exist in your repository (Optional: Default true)  timeoutDuration - Set the timeout duration for the build (Optional: Default 1)  timeoutUnit - Set the Unit for the timeout duration (Optional: Default 'HOURS')  yamlText - Used to troubleshoot pipelines.yml (Optional: Default null)",
+            "title": "Parameters"
+        },
+        {
+            "location": "/steps/plWorkflow/#slack-notification-example",
+            "text": "plWorkflow {\n        notify = false\n      }",
+            "title": "Slack Notification Example"
+        },
+        {
+            "location": "/steps/plWorkflow/#yaml-path-and-node-type-example",
+            "text": "plWorkflow {\n        yamlPath = 'data.yml'\n        nodeType = 'windows'\n      }",
+            "title": "YAML Path and Node Type Example"
+        },
+        {
+            "location": "/COMMANDS/",
+            "text": "com.concur.Commands\n\n\nrunSteps(Map, String)\n\n\n\n\nRun the workflow steps for the appropriate sections\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nyml\n\n\n\n\n\n\n\n\nString\n\n\nbranch\n\n\nenv.BRANCH_NAME\n\n\n\n\n\n\n\n\nExample 1\n\n\ndef concurCommands = new com.concur.Commands()\ndef yaml = readYaml 'pipelines.yml'\nconcurCommands.runSteps(yaml.pipelines)\n\n\n\n\ncheckBranch(Map, String)\n\n\n\n\nCheck branch patterns against what is available in a YAML file, uses regular expressions to match\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nyml\n\n\n\n\n\n\n\n\nString\n\n\nbranch\n\n\nenv.BRANCH_NAME\n\n\n\n\n\n\n\n\nExample 1\n\n\ndef concurCommands = new com.concur.Commands()\ndef yaml = readYaml 'pipelines.yml'\nconcurCommands.checkBranch(yaml.pipelines, 'master')\n\n\n\n\ngetCredentialsWithCriteria(Map)\n\n\n\n\nGet the credentials based on criteria defined in a map\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\ncriteria\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\n// Find credential by description\ndef concurCommands = new com.concur.Commands()\nprintln concurCommands.getCredentialsWithCriteria(['description': 'Example credential def']).id\n// b709b4ac-f2f6-4e54-aca3-002270a92657\n\n\n\n\nExample 2\n\n\n// Find only SSH credentials with a particular description\ndef concurCommands = new com.concur.Commands()\nprintln concurCommands.getCredentialsWithCriteria(['description': 'Example credential def', 'class': com.concur.CredentialTypes.sshPrivateKey]).id\n// 1ae2ff9b-0d8a-4f75-ac21-8368c983d607\n\n\n\n\nexecuteWithCredentials(Map, Closure)\n\n\n\n\nExecute contents of a Closure with an appropriate credential wrapper. For a username/password credential the username will be an environment variable called CRED_USERNAME and the password will be CRED_PASSWORD. For a secret text password type the environment variable will be called CRED_SECRET. SSH credentials get put into an SSH agent and should be available to use without specifying a path to the key.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\ncredentialDef\n\n\n\n\n\n\n\n\nClosure\n\n\nfunc\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\n// Execute an SSH Command \ndef concurCommands = new com.concur.Commands()\nconcurCommands.executeWithCredentials(['description': 'Example credential def', 'class': com.concur.CredentialTypes.sshPrivateKey], { sh \"ssh user@example.local uname -a\" })\n// Linux example 4.4.0-97-generic #120-Ubuntu SMP Tue Sep 19 17:28:18 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux\n\n\n\n\nExample 2\n\n\n// Use username and password\ndef concurCommands = new com.concur.Commands()\nconcurCommands.executeWithCredentials(['description': 'Example credential def'], { powershell '''\n    $username = \"$env:CRED_USERNAME\"\n    $password = \"$env:CRED_PASSWORD\"\n    $secureStringPwd = $password | ConvertTo-SecureString -AsPlainText -Force \n    $creds = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $secureStringPwd\n    Invoke-Command -Credential $creds -Computername \"remote.example.local\" -Scriptblock { Write-Host \"Hello from $($env:COMPUTERNAME)\" }''' })\n\n\n\n\ngetPluginVersion(String)\n\n\n\n\nGet the version number for the provided plugin name\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\npluginShortName\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Commands().getPluginVersion('pipeline-githubnotify-step')\n// 1.0.3\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Commands().getPluginVersion('blueocean-dashboard')\n// 1.3.5\n\n\n\n\ngetJavaStackTrace(Throwable)\n\n\n\n\nReturn a string of the stack trace, this is blocked by default by Jenkins\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nThrowable\n\n\ne\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\ntry {\n  error('m')\n} catch (e) {\n  println new com.concur.Commands().getJavaStackTrace(e)\n}\n// org.jenkinsci.plugins.workflow.steps.ErrorStep$Execution.run(ErrorStep.java:63)\n// org.jenkinsci.plugins.workflow.steps.ErrorStep$Execution.run(ErrorStep.java:50)....\n\n\n\n\ngetPipelineDataFile(String, String, String)\n\n\n\n\nCheck the environment to see if we are in debug mode\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nfileName\n\n\n'pipelines.yml\n\n\n\n\n\n\nString\n\n\nformat\n\n\n'yml\n\n\n\n\n\n\nString\n\n\nbaseNode\n\n\n'pipelines\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Commands().isDebug()\n// false\n\n\n\n\nExample 2\n\n\nenv.\"${com.concur.Constants.Env.DEBUG}\" = true\nprintln new com.concur.Commands().isDebug()\n// true\n\n\n\n\ndebugPrint(String, Map, int)\n\n\n\n\nPrint a string of data to the Jenkins console output, only if the user wants to get debug information. Allows developers to set a specific title.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ntitle\n\n\n\n\n\n\n\n\nMap\n\n\nmsgdata\n\n\n\n\n\n\n\n\nint\n\n\ndebugLevelToPrint\n\n\n1\n\n\n\n\n\n\n\n\nExample\n\n\ndef concurCommands = new com.concur.Commands()\nenv.DEBUG_MODE = true\nconcurCommands.debugPrint('example message')\n// Console output will show\n// ### Debug output for [Script1] ###\n// ### Debug >>> example message\n// ### End Debug ###\n\n\n\n\ndebugPrint(Map, int)\n\n\n\n\nPrint a map of data to the Jenkins console output, only if the user wants to get debug information, title will be automatically generated\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nmsgdata\n\n\n\n\n\n\n\n\nint\n\n\ndebugLevelToPrint\n\n\n1\n\n\n\n\n\n\n\n\nExample\n\n\ndef concurCommands = new com.concur.Commands()\nenv.DEBUG_MODE = true\nconcurCommands.debugPrint(['example': 'message'])\n// Console output will show\n// ### Debug output for [Script1] ###\n// ### Debug >>> example: message\n// ### End Debug ###\n\n\n\n\ndebugPrint(List, int)\n\n\n\n\nPrint a list of data to the Jenkins console output, only if the user wants to get debug information, title will be automatically generated\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nList\n\n\nmsgdata\n\n\n\n\n\n\n\n\nint\n\n\ndebugLevelToPrint\n\n\n1\n\n\n\n\n\n\n\n\nExample\n\n\ndef concurCommands = new com.concur.Commands()\nenv.DEBUG_MODE = true\nconcurCommands.debugPrint(['example', 'message'])\n// Console output will show\n// ### Debug output for [Script1] ###\n// ### Debug >>> example\n// ### Debug >>> message\n// ### End Debug ###\n\n\n\n\ndebugPrint(String, int)\n\n\n\n\nPrint a string of data to the Jenkins console output, only if the user wants to get debug information, title will be automatically generated\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nmsgdata\n\n\n\n\n\n\n\n\nint\n\n\ndebugLevelToPrint\n\n\n1\n\n\n\n\n\n\n\n\nExample\n\n\ndef concurCommands = new com.concur.Commands()\nenv.DEBUG_MODE = true\nconcurCommands.debugPrint('example message')\n// Console output will show\n// ### Debug output for [Script1] ###\n// ### Debug >>> example message\n// ### End Debug ###",
+            "title": "Commands"
+        },
+        {
+            "location": "/COMMANDS/#comconcurcommands",
+            "text": "",
+            "title": "com.concur.Commands"
+        },
+        {
+            "location": "/COMMANDS/#runstepsmap-string",
+            "text": "Run the workflow steps for the appropriate sections      Type  Name  Default      Map  yml     String  branch  env.BRANCH_NAME",
+            "title": "runSteps(Map, String)"
+        },
+        {
+            "location": "/COMMANDS/#example-1",
+            "text": "def concurCommands = new com.concur.Commands()\ndef yaml = readYaml 'pipelines.yml'\nconcurCommands.runSteps(yaml.pipelines)",
+            "title": "Example 1"
+        },
+        {
+            "location": "/COMMANDS/#checkbranchmap-string",
+            "text": "Check branch patterns against what is available in a YAML file, uses regular expressions to match      Type  Name  Default      Map  yml     String  branch  env.BRANCH_NAME",
+            "title": "checkBranch(Map, String)"
+        },
+        {
+            "location": "/COMMANDS/#example-1_1",
+            "text": "def concurCommands = new com.concur.Commands()\ndef yaml = readYaml 'pipelines.yml'\nconcurCommands.checkBranch(yaml.pipelines, 'master')",
+            "title": "Example 1"
+        },
+        {
+            "location": "/COMMANDS/#getcredentialswithcriteriamap",
+            "text": "Get the credentials based on criteria defined in a map      Type  Name  Default      Map  criteria",
+            "title": "getCredentialsWithCriteria(Map)"
+        },
+        {
+            "location": "/COMMANDS/#example-1_2",
+            "text": "// Find credential by description\ndef concurCommands = new com.concur.Commands()\nprintln concurCommands.getCredentialsWithCriteria(['description': 'Example credential def']).id\n// b709b4ac-f2f6-4e54-aca3-002270a92657",
+            "title": "Example 1"
+        },
+        {
+            "location": "/COMMANDS/#example-2",
+            "text": "// Find only SSH credentials with a particular description\ndef concurCommands = new com.concur.Commands()\nprintln concurCommands.getCredentialsWithCriteria(['description': 'Example credential def', 'class': com.concur.CredentialTypes.sshPrivateKey]).id\n// 1ae2ff9b-0d8a-4f75-ac21-8368c983d607",
+            "title": "Example 2"
+        },
+        {
+            "location": "/COMMANDS/#executewithcredentialsmap-closure",
+            "text": "Execute contents of a Closure with an appropriate credential wrapper. For a username/password credential the username will be an environment variable called CRED_USERNAME and the password will be CRED_PASSWORD. For a secret text password type the environment variable will be called CRED_SECRET. SSH credentials get put into an SSH agent and should be available to use without specifying a path to the key.      Type  Name  Default      Map  credentialDef     Closure  func",
+            "title": "executeWithCredentials(Map, Closure)"
+        },
+        {
+            "location": "/COMMANDS/#example-1_3",
+            "text": "// Execute an SSH Command \ndef concurCommands = new com.concur.Commands()\nconcurCommands.executeWithCredentials(['description': 'Example credential def', 'class': com.concur.CredentialTypes.sshPrivateKey], { sh \"ssh user@example.local uname -a\" })\n// Linux example 4.4.0-97-generic #120-Ubuntu SMP Tue Sep 19 17:28:18 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux",
+            "title": "Example 1"
+        },
+        {
+            "location": "/COMMANDS/#example-2_1",
+            "text": "// Use username and password\ndef concurCommands = new com.concur.Commands()\nconcurCommands.executeWithCredentials(['description': 'Example credential def'], { powershell '''\n    $username = \"$env:CRED_USERNAME\"\n    $password = \"$env:CRED_PASSWORD\"\n    $secureStringPwd = $password | ConvertTo-SecureString -AsPlainText -Force \n    $creds = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $secureStringPwd\n    Invoke-Command -Credential $creds -Computername \"remote.example.local\" -Scriptblock { Write-Host \"Hello from $($env:COMPUTERNAME)\" }''' })",
+            "title": "Example 2"
+        },
+        {
+            "location": "/COMMANDS/#getpluginversionstring",
+            "text": "Get the version number for the provided plugin name      Type  Name  Default      String  pluginShortName",
+            "title": "getPluginVersion(String)"
+        },
+        {
+            "location": "/COMMANDS/#example-1_4",
+            "text": "println new com.concur.Commands().getPluginVersion('pipeline-githubnotify-step')\n// 1.0.3",
+            "title": "Example 1"
+        },
+        {
+            "location": "/COMMANDS/#example-2_2",
+            "text": "println new com.concur.Commands().getPluginVersion('blueocean-dashboard')\n// 1.3.5",
+            "title": "Example 2"
+        },
+        {
+            "location": "/COMMANDS/#getjavastacktracethrowable",
+            "text": "Return a string of the stack trace, this is blocked by default by Jenkins      Type  Name  Default      Throwable  e",
+            "title": "getJavaStackTrace(Throwable)"
+        },
+        {
+            "location": "/COMMANDS/#example-1_5",
+            "text": "try {\n  error('m')\n} catch (e) {\n  println new com.concur.Commands().getJavaStackTrace(e)\n}\n// org.jenkinsci.plugins.workflow.steps.ErrorStep$Execution.run(ErrorStep.java:63)\n// org.jenkinsci.plugins.workflow.steps.ErrorStep$Execution.run(ErrorStep.java:50)....",
+            "title": "Example 1"
+        },
+        {
+            "location": "/COMMANDS/#getpipelinedatafilestring-string-string",
+            "text": "Check the environment to see if we are in debug mode      Type  Name  Default      String  fileName  'pipelines.yml    String  format  'yml    String  baseNode  'pipelines",
+            "title": "getPipelineDataFile(String, String, String)"
+        },
+        {
+            "location": "/COMMANDS/#example-1_6",
+            "text": "println new com.concur.Commands().isDebug()\n// false",
+            "title": "Example 1"
+        },
+        {
+            "location": "/COMMANDS/#example-2_3",
+            "text": "env.\"${com.concur.Constants.Env.DEBUG}\" = true\nprintln new com.concur.Commands().isDebug()\n// true",
+            "title": "Example 2"
+        },
+        {
+            "location": "/COMMANDS/#debugprintstring-map-int",
+            "text": "Print a string of data to the Jenkins console output, only if the user wants to get debug information. Allows developers to set a specific title.      Type  Name  Default      String  title     Map  msgdata     int  debugLevelToPrint  1",
+            "title": "debugPrint(String, Map, int)"
+        },
+        {
+            "location": "/COMMANDS/#example",
+            "text": "def concurCommands = new com.concur.Commands()\nenv.DEBUG_MODE = true\nconcurCommands.debugPrint('example message')\n// Console output will show\n// ### Debug output for [Script1] ###\n// ### Debug >>> example message\n// ### End Debug ###",
+            "title": "Example"
+        },
+        {
+            "location": "/COMMANDS/#debugprintmap-int",
+            "text": "Print a map of data to the Jenkins console output, only if the user wants to get debug information, title will be automatically generated      Type  Name  Default      Map  msgdata     int  debugLevelToPrint  1",
+            "title": "debugPrint(Map, int)"
+        },
+        {
+            "location": "/COMMANDS/#example_1",
+            "text": "def concurCommands = new com.concur.Commands()\nenv.DEBUG_MODE = true\nconcurCommands.debugPrint(['example': 'message'])\n// Console output will show\n// ### Debug output for [Script1] ###\n// ### Debug >>> example: message\n// ### End Debug ###",
+            "title": "Example"
+        },
+        {
+            "location": "/COMMANDS/#debugprintlist-int",
+            "text": "Print a list of data to the Jenkins console output, only if the user wants to get debug information, title will be automatically generated      Type  Name  Default      List  msgdata     int  debugLevelToPrint  1",
+            "title": "debugPrint(List, int)"
+        },
+        {
+            "location": "/COMMANDS/#example_2",
+            "text": "def concurCommands = new com.concur.Commands()\nenv.DEBUG_MODE = true\nconcurCommands.debugPrint(['example', 'message'])\n// Console output will show\n// ### Debug output for [Script1] ###\n// ### Debug >>> example\n// ### Debug >>> message\n// ### End Debug ###",
+            "title": "Example"
+        },
+        {
+            "location": "/COMMANDS/#debugprintstring-int",
+            "text": "Print a string of data to the Jenkins console output, only if the user wants to get debug information, title will be automatically generated      Type  Name  Default      String  msgdata     int  debugLevelToPrint  1",
+            "title": "debugPrint(String, int)"
+        },
+        {
+            "location": "/COMMANDS/#example_3",
+            "text": "def concurCommands = new com.concur.Commands()\nenv.DEBUG_MODE = true\nconcurCommands.debugPrint('example message')\n// Console output will show\n// ### Debug output for [Script1] ###\n// ### Debug >>> example message\n// ### End Debug ###",
+            "title": "Example"
+        },
+        {
+            "location": "/GIT/",
+            "text": "com.concur.Git\n\n\ngetCommitSHA(String, int)\n\n\n\n\nGet the commit SHA for the last file or folder changed.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nfolder\n\n\n.\n\n\n\n\n\n\nint\n\n\ndepth\n\n\n1\n\n\n\n\n\n\n\n\ngetFilesChanged(String)\n\n\n\n\nGet a list of files that were changed in the current commit.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ncommitSha\n\n\n\n\n\n\n\n\n\n\nrunGitShellCommand(String, String)\n\n\n\n\nRun a command, set the command for Linux and Windows and this method will determine which one to use.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ngitCommand\n\n\n\n\n\n\n\n\nString\n\n\nwinGitCommand\n\n\n\n\n\n\n\n\n\n\nsaveGitProperties(Map)\n\n\n\n\nSave git properties to environment variables\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nscmVars\n\n\n\n\n\n\n\n\n\n\nExample\n\n\nnew com.concur.Git().saveGitProperties()\nsh \"env\"\n// GIT_SHORT_COMMIT=b828c9\n// GIT_COMMIT=b828c94aba486ac0416bf95e387d860b79e6343f\n// GIT_URL=git@github.com:concur/jenkins-yml-workflowLibs\n// GIT_COMMIT_MESSAGE=Fix workflow version lock.\n// GIT_AUTHOR=Nic Patterson\n// GIT_EMAIL=arasureynn@gmail.com\n// GIT_PREVIOUS_COMMIT=597563389d144c7098dd3b71b1fc1e600b215ff7\n// GIT_OWNER=concur\n// GIT_HOST=github.com\n// GIT_REPO=jenkins-yml-workflowLibs\n// ....\n\n\n\n\ngetGitData(String)\n\n\n\n\nGet the Git owner, repo and host\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nurl\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Git().getGitData('https://github.com/concur/jenkins-yml-workflowLibs.git')\n// ['host': 'github.com', 'owner': 'concur', 'repo': 'jenkins-yml-workflowLibs']\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Git().getGitData('https://github.example.com/awesome/repo.git')\n// ['host': 'github.example.com', 'owner': 'awesome', 'repo': 'repo']\n\n\n\n\ngetVersion(Map)\n\n\n\n\nDetermine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.\nYou can indicate how to increment the semantic version in your pipelines.yml file:\n\n\n\n\npipelines:\n  general:\n    version:\n      increment: # all of these nodes can be either a static boolean or a map matching the patterns from tools.git.patterns\n        major: true\n        minor:\n          master: true\n          feature: false\n        patch:\n          master: false\n          feature: true\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nyml\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\n// Latest tag in the repo is 1.3.1 and it was tagged 5 hours ago\nprintln new com.concur.Git().getVersion(yml)\n// 1.4.0-0018000000\n\n\n\n\nExample 2\n\n\n// New repo with no tags, repository was created 1 hour ago\nprintln new com.concur.Git().getVersion(yml)\n// 0.1.0-0003600000\n\n\n\n\nExample 3\n\n\n// No tags in repo, override default version, created 18 days ago\nprintln new com.concur.Git().getVersion(yml)\n// 3.7.0-1555200000\n\n\n\n\ntimeSinceTag(String)\n\n\n\n\nGet the amount of time since the last Git tag was created.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ntag\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\n// Last tag was 3 hours ago\nprintln new com.concur.Git().timeSinceTag('v3.1.0')\n// 0010800000 - Padded with 0s on the left.\n\n\n\n\nExample 2\n\n\n// last tag was 6 months ago\nprintln new com.concur.Git().timeSinceTag('v0.1.0')\n// 1555200000 - Chunked to keep it at 10 characters",
+            "title": "Git"
+        },
+        {
+            "location": "/GIT/#comconcurgit",
+            "text": "",
+            "title": "com.concur.Git"
+        },
+        {
+            "location": "/GIT/#getcommitshastring-int",
+            "text": "Get the commit SHA for the last file or folder changed.      Type  Name  Default      String  folder  .    int  depth  1",
+            "title": "getCommitSHA(String, int)"
+        },
+        {
+            "location": "/GIT/#getfileschangedstring",
+            "text": "Get a list of files that were changed in the current commit.      Type  Name  Default      String  commitSha",
+            "title": "getFilesChanged(String)"
+        },
+        {
+            "location": "/GIT/#rungitshellcommandstring-string",
+            "text": "Run a command, set the command for Linux and Windows and this method will determine which one to use.      Type  Name  Default      String  gitCommand     String  winGitCommand",
+            "title": "runGitShellCommand(String, String)"
+        },
+        {
+            "location": "/GIT/#savegitpropertiesmap",
+            "text": "Save git properties to environment variables      Type  Name  Default      Map  scmVars",
+            "title": "saveGitProperties(Map)"
+        },
+        {
+            "location": "/GIT/#example",
+            "text": "new com.concur.Git().saveGitProperties()\nsh \"env\"\n// GIT_SHORT_COMMIT=b828c9\n// GIT_COMMIT=b828c94aba486ac0416bf95e387d860b79e6343f\n// GIT_URL=git@github.com:concur/jenkins-yml-workflowLibs\n// GIT_COMMIT_MESSAGE=Fix workflow version lock.\n// GIT_AUTHOR=Nic Patterson\n// GIT_EMAIL=arasureynn@gmail.com\n// GIT_PREVIOUS_COMMIT=597563389d144c7098dd3b71b1fc1e600b215ff7\n// GIT_OWNER=concur\n// GIT_HOST=github.com\n// GIT_REPO=jenkins-yml-workflowLibs\n// ....",
+            "title": "Example"
+        },
+        {
+            "location": "/GIT/#getgitdatastring",
+            "text": "Get the Git owner, repo and host      Type  Name  Default      String  url",
+            "title": "getGitData(String)"
+        },
+        {
+            "location": "/GIT/#example-1",
+            "text": "println new com.concur.Git().getGitData('https://github.com/concur/jenkins-yml-workflowLibs.git')\n// ['host': 'github.com', 'owner': 'concur', 'repo': 'jenkins-yml-workflowLibs']",
+            "title": "Example 1"
+        },
+        {
+            "location": "/GIT/#example-2",
+            "text": "println new com.concur.Git().getGitData('https://github.example.com/awesome/repo.git')\n// ['host': 'github.example.com', 'owner': 'awesome', 'repo': 'repo']",
+            "title": "Example 2"
+        },
+        {
+            "location": "/GIT/#getversionmap",
+            "text": "Determine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.\nYou can indicate how to increment the semantic version in your pipelines.yml file:   pipelines:\n  general:\n    version:\n      increment: # all of these nodes can be either a static boolean or a map matching the patterns from tools.git.patterns\n        major: true\n        minor:\n          master: true\n          feature: false\n        patch:\n          master: false\n          feature: true     Type  Name  Default      Map  yml",
+            "title": "getVersion(Map)"
+        },
+        {
+            "location": "/GIT/#example-1_1",
+            "text": "// Latest tag in the repo is 1.3.1 and it was tagged 5 hours ago\nprintln new com.concur.Git().getVersion(yml)\n// 1.4.0-0018000000",
+            "title": "Example 1"
+        },
+        {
+            "location": "/GIT/#example-2_1",
+            "text": "// New repo with no tags, repository was created 1 hour ago\nprintln new com.concur.Git().getVersion(yml)\n// 0.1.0-0003600000",
+            "title": "Example 2"
+        },
+        {
+            "location": "/GIT/#example-3",
+            "text": "// No tags in repo, override default version, created 18 days ago\nprintln new com.concur.Git().getVersion(yml)\n// 3.7.0-1555200000",
+            "title": "Example 3"
+        },
+        {
+            "location": "/GIT/#timesincetagstring",
+            "text": "Get the amount of time since the last Git tag was created.      Type  Name  Default      String  tag",
+            "title": "timeSinceTag(String)"
+        },
+        {
+            "location": "/GIT/#example-1_2",
+            "text": "// Last tag was 3 hours ago\nprintln new com.concur.Git().timeSinceTag('v3.1.0')\n// 0010800000 - Padded with 0s on the left.",
+            "title": "Example 1"
+        },
+        {
+            "location": "/GIT/#example-2_2",
+            "text": "// last tag was 6 months ago\nprintln new com.concur.Git().timeSinceTag('v0.1.0')\n// 1555200000 - Chunked to keep it at 10 characters",
+            "title": "Example 2"
+        },
+        {
+            "location": "/GITHUBAPI/",
+            "text": "com.concur.GitHubApi\n\n\ngithubRequestWrapper(String, String, Map, Map, String, Boolean, Boolean, String)\n\n\n\n\nWrapper for contacting the GitHub API v3, this will load the credential, set the Authorization header and convert any post data to JSON. If you want to make requests against the GraphQL endpoint see githubGraphqlRequestWrapper. More information is available at \ndeveloper.github.com/v3/\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nmethod\n\n\n\n\n\n\n\n\nString\n\n\nendpoint\n\n\n\n\n\n\n\n\nMap\n\n\npostData\n\n\n[:]\n\n\n\n\n\n\nMap\n\n\nadditionalHeaders\n\n\n[:]\n\n\n\n\n\n\nString\n\n\ncredentialId\n\n\n\n\n\n\n\n\nBoolean\n\n\noutputResponse\n\n\nfalse\n\n\n\n\n\n\nBoolean\n\n\nignoreErrors\n\n\nfalse\n\n\n\n\n\n\nString\n\n\nhost\n\n\nnull\n\n\n\n\n\n\n\n\nExample 1\n\n\ndef concurGitHub = new com.concur.GitHubApi()\nprintln concurGitHub.githubRequestWrapper('GET', '/user/repos')\n// [{\"name\": \"jenkins-yml-workflowLibs\",\"full_name\": \"concur/jenkins-yml-workflowLibs\",\"owner\": {\"login\": \"concur\",....\n\n\n\n\ngithubGraphqlRequestWrapper(String, Map, String, String, Boolean, Boolean)\n\n\n\n\nWrapper for contacting the GitHub v4 API, this will load the credential, set the Authorization header and convert setup the post data for the query with variables if provided. This is specific to the v4 (GraphQL) api, for the rest API use githubRequestWrapper. More information about the API can be found at \ndeveloper.github.com/v4/\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nquery\n\n\n\n\n\n\n\n\nMap\n\n\nvariables\n\n\nnull\n\n\n\n\n\n\nString\n\n\nhost\n\n\nnull\n\n\n\n\n\n\nString\n\n\ncredentialId\n\n\nnull\n\n\n\n\n\n\nBoolean\n\n\noutputResponse\n\n\nfalse\n\n\n\n\n\n\nBoolean\n\n\nignoreSslErrors\n\n\nfalse\n\n\n\n\n\n\n\n\nExample 1\n\n\ndef concurGitHub = new com.concur.GitHubApi()\ndef query = '''query{\n                viewer{\n                  login\n                }\n              }'''\nprintln concurGitHub.githubGraphqlRequestWrapper('query')\n// {\"data\": {\"viewer\": {\"login\": \"concur\"}}}\n\n\n\n\ngetPullRequests(Map, String, String, String, String, String, String)\n\n\n\n\nGet a list of all pull requests for a given repository. Information is retrieved using the GraphQL API so not all data is returned. Provided credentials must have at least read access.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\ncredentialData\n\n\n\n\n\n\n\n\nString\n\n\nowner\n\n\n\n\n\n\n\n\nString\n\n\nrepo\n\n\n\n\n\n\n\n\nString\n\n\nhost\n\n\n\n\n\n\n\n\nString\n\n\nfromBranch\n\n\n\n\n\n\n\n\nString\n\n\nbaseBranch\n\n\n\n\n\n\n\n\nString\n\n\nstate\n\n\nOPEN\n\n\n\n\n\n\n\n\nExample\n\n\nprintln new com.concur.GitHubApi().getPullRequests(['description': 'Example Github token'], 'concur', 'jenkins-yml-workflowLibs')\n// [{\"id\":\"MDExOlB1bGxSZXF1ZXN0MTUzMzk0NTk1\",\"number\":1,\"title\":\"...\",\"headRefName\":\"develop\",\"baseRefName\":\"master\",\"labels\":{\"nodes\":[]},\"mergeable\":\"UNKNOWN\"}...]\n\n\n\n\ngetReleases(Map, String, String, String, int)\n\n\n\n\nGet a list of $limit number of releases. Information is retrieved using the GraphQL API so not all data is returned. Provided credentials must have at least read access.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\ncredentialData\n\n\n\n\n\n\n\n\nString\n\n\nowner\n\n\n\n\n\n\n\n\nString\n\n\nrepo\n\n\n\n\n\n\n\n\nString\n\n\nhost\n\n\n\n\n\n\n\n\nint\n\n\nlimit\n\n\n10\n\n\n\n\n\n\n\n\nExample\n\n\nprintln new com.concur.GitHubApi().getReleases(['description': 'Example Github token'], 'concur', 'jenkins-yml-workflowLibs')\n// [{\"tag\":{\"name\":\"v0.2.0\",\"target\":{\"oid\":\"b828c94aba486ac0416bf95e387d860b79e6343f\"}},\"createdAt\":\"2018-01-07T01:37:49Z\",\"isPrerelease\":false,\"name\":\"v0.2.0\"}...]\n\n\n\n\ncreatePullRequest(String, String, String, String, String, String, Map, String, Boolean)\n\n\n\n\nCreate a pull request for the specified repository. Provided credentials need write access. Uses Rest API for this call, more information provided at \ndeveloper.github.com/v3/pulls/#create-a-pull-request\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ntitle\n\n\n\n\n\n\n\n\nString\n\n\nfromBranch\n\n\n\n\n\n\n\n\nString\n\n\ntoBranch\n\n\n\n\n\n\n\n\nString\n\n\nowner\n\n\n\n\n\n\n\n\nString\n\n\nrepo\n\n\n\n\n\n\n\n\nString\n\n\nhost\n\n\n\n\n\n\n\n\nMap\n\n\ncredentialData\n\n\n\n\n\n\n\n\nString\n\n\nsummary\n\n\nAutomatically created at ${env.BUILD_URL}\n\n\n\n\n\n\nBoolean\n\n\nmaintainer_can_modify\n\n\ntrue\n\n\n\n\n\n\n\n\nExample\n\n\nprintln new com.concur.GitHubApi().createPullRequest('Example PR Title', 'develop', 'master', 'concur', 'jenkins-yml-workflowLibs', 'github.com', ['description': 'example GitHub credentials'])\n// {\"id\":1,\"url\":\"https://api.github.com/repos/concur/jenkins-yml-workflowLibs/pulls/1347\",\"html_url\":\"https://github.com/concur/jenkins-yml-workflowLibs/pull/1347\".....\n\n\n\n\ncreateRelease(Map, String, String, String, Boolean, Boolean, String, String, String, String)\n\n\n\n\nCreate a new release with release notes. Uses Rest API, more information at \ndeveloper.github.com/v3/repos/releases/#create-a-release\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\ncredentialData\n\n\n\n\n\n\n\n\nString\n\n\nnotes\n\n\n\n\n\n\n\n\nString\n\n\ntag\n\n\n\n\n\n\n\n\nString\n\n\nname\n\n\n\n\n\n\n\n\nBoolean\n\n\npreRelease\n\n\nfalse\n\n\n\n\n\n\nBoolean\n\n\ndraft\n\n\nfalse\n\n\n\n\n\n\nString\n\n\ncommitish\n\n\nenv.GIT_COMMIT\n\n\n\n\n\n\nString\n\n\nowner\n\n\n\n\n\n\n\n\nString\n\n\nrepo\n\n\n\n\n\n\n\n\nString\n\n\nhost\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\n// create a new full release\nprintln new com.concur.GitHubApi().createRelease(['description': 'example GitHub credential'], '### Added\\n\\n* New Feature A', 'v0.1.0', 'v0.1.0')\n// {\"url\": \"https://api.github.com/repos/concur/jenkins-yml-workflowLibs/releases/1\",\"html_url\": \"https://github.com/concur/jenkins-yml-workflowLibs/releases/v0.1.0\"...\n\n\n\n\nExample 2\n\n\n// createa a draft release\nprintln new com.concur.GitHubApi().createRelease(['description': 'example GitHub credential'], '### Added\\n\\n* New Feature A', 'v0.1.0', 'v0.1.0', false, true)\n// {\"url\": \"https://api.github.com/repos/concur/jenkins-yml-workflowLibs/releases/1\",\"html_url\": \"https://github.com/concur/jenkins-yml-workflowLibs/releases/v0.1.0\"...\n\n\n\n\nExample 3\n\n\n// create a pre-release\nprintln new com.concur.GitHubApi().createRelease(['description': 'example GitHub credential'], '### Added\\n\\n* New Feature A', 'v0.1.0', 'v0.1.0', true false)\n// {\"url\": \"https://api.github.com/repos/concur/jenkins-yml-workflowLibs/releases/1\",\"html_url\": \"https://github.com/concur/jenkins-yml-workflowLibs/releases/v0.1.0\"...",
+            "title": "GitHubApi"
+        },
+        {
+            "location": "/GITHUBAPI/#comconcurgithubapi",
+            "text": "",
+            "title": "com.concur.GitHubApi"
+        },
+        {
+            "location": "/GITHUBAPI/#githubrequestwrapperstring-string-map-map-string-boolean-boolean-string",
+            "text": "Wrapper for contacting the GitHub API v3, this will load the credential, set the Authorization header and convert any post data to JSON. If you want to make requests against the GraphQL endpoint see githubGraphqlRequestWrapper. More information is available at  developer.github.com/v3/      Type  Name  Default      String  method     String  endpoint     Map  postData  [:]    Map  additionalHeaders  [:]    String  credentialId     Boolean  outputResponse  false    Boolean  ignoreErrors  false    String  host  null",
+            "title": "githubRequestWrapper(String, String, Map, Map, String, Boolean, Boolean, String)"
+        },
+        {
+            "location": "/GITHUBAPI/#example-1",
+            "text": "def concurGitHub = new com.concur.GitHubApi()\nprintln concurGitHub.githubRequestWrapper('GET', '/user/repos')\n// [{\"name\": \"jenkins-yml-workflowLibs\",\"full_name\": \"concur/jenkins-yml-workflowLibs\",\"owner\": {\"login\": \"concur\",....",
+            "title": "Example 1"
+        },
+        {
+            "location": "/GITHUBAPI/#githubgraphqlrequestwrapperstring-map-string-string-boolean-boolean",
+            "text": "Wrapper for contacting the GitHub v4 API, this will load the credential, set the Authorization header and convert setup the post data for the query with variables if provided. This is specific to the v4 (GraphQL) api, for the rest API use githubRequestWrapper. More information about the API can be found at  developer.github.com/v4/      Type  Name  Default      String  query     Map  variables  null    String  host  null    String  credentialId  null    Boolean  outputResponse  false    Boolean  ignoreSslErrors  false",
+            "title": "githubGraphqlRequestWrapper(String, Map, String, String, Boolean, Boolean)"
+        },
+        {
+            "location": "/GITHUBAPI/#example-1_1",
+            "text": "def concurGitHub = new com.concur.GitHubApi()\ndef query = '''query{\n                viewer{\n                  login\n                }\n              }'''\nprintln concurGitHub.githubGraphqlRequestWrapper('query')\n// {\"data\": {\"viewer\": {\"login\": \"concur\"}}}",
+            "title": "Example 1"
+        },
+        {
+            "location": "/GITHUBAPI/#getpullrequestsmap-string-string-string-string-string-string",
+            "text": "Get a list of all pull requests for a given repository. Information is retrieved using the GraphQL API so not all data is returned. Provided credentials must have at least read access.      Type  Name  Default      Map  credentialData     String  owner     String  repo     String  host     String  fromBranch     String  baseBranch     String  state  OPEN",
+            "title": "getPullRequests(Map, String, String, String, String, String, String)"
+        },
+        {
+            "location": "/GITHUBAPI/#example",
+            "text": "println new com.concur.GitHubApi().getPullRequests(['description': 'Example Github token'], 'concur', 'jenkins-yml-workflowLibs')\n// [{\"id\":\"MDExOlB1bGxSZXF1ZXN0MTUzMzk0NTk1\",\"number\":1,\"title\":\"...\",\"headRefName\":\"develop\",\"baseRefName\":\"master\",\"labels\":{\"nodes\":[]},\"mergeable\":\"UNKNOWN\"}...]",
+            "title": "Example"
+        },
+        {
+            "location": "/GITHUBAPI/#getreleasesmap-string-string-string-int",
+            "text": "Get a list of $limit number of releases. Information is retrieved using the GraphQL API so not all data is returned. Provided credentials must have at least read access.      Type  Name  Default      Map  credentialData     String  owner     String  repo     String  host     int  limit  10",
+            "title": "getReleases(Map, String, String, String, int)"
+        },
+        {
+            "location": "/GITHUBAPI/#example_1",
+            "text": "println new com.concur.GitHubApi().getReleases(['description': 'Example Github token'], 'concur', 'jenkins-yml-workflowLibs')\n// [{\"tag\":{\"name\":\"v0.2.0\",\"target\":{\"oid\":\"b828c94aba486ac0416bf95e387d860b79e6343f\"}},\"createdAt\":\"2018-01-07T01:37:49Z\",\"isPrerelease\":false,\"name\":\"v0.2.0\"}...]",
+            "title": "Example"
+        },
+        {
+            "location": "/GITHUBAPI/#createpullrequeststring-string-string-string-string-string-map-string-boolean",
+            "text": "Create a pull request for the specified repository. Provided credentials need write access. Uses Rest API for this call, more information provided at  developer.github.com/v3/pulls/#create-a-pull-request      Type  Name  Default      String  title     String  fromBranch     String  toBranch     String  owner     String  repo     String  host     Map  credentialData     String  summary  Automatically created at ${env.BUILD_URL}    Boolean  maintainer_can_modify  true",
+            "title": "createPullRequest(String, String, String, String, String, String, Map, String, Boolean)"
+        },
+        {
+            "location": "/GITHUBAPI/#example_2",
+            "text": "println new com.concur.GitHubApi().createPullRequest('Example PR Title', 'develop', 'master', 'concur', 'jenkins-yml-workflowLibs', 'github.com', ['description': 'example GitHub credentials'])\n// {\"id\":1,\"url\":\"https://api.github.com/repos/concur/jenkins-yml-workflowLibs/pulls/1347\",\"html_url\":\"https://github.com/concur/jenkins-yml-workflowLibs/pull/1347\".....",
+            "title": "Example"
+        },
+        {
+            "location": "/GITHUBAPI/#createreleasemap-string-string-string-boolean-boolean-string-string-string-string",
+            "text": "Create a new release with release notes. Uses Rest API, more information at  developer.github.com/v3/repos/releases/#create-a-release      Type  Name  Default      Map  credentialData     String  notes     String  tag     String  name     Boolean  preRelease  false    Boolean  draft  false    String  commitish  env.GIT_COMMIT    String  owner     String  repo     String  host",
+            "title": "createRelease(Map, String, String, String, Boolean, Boolean, String, String, String, String)"
+        },
+        {
+            "location": "/GITHUBAPI/#example-1_2",
+            "text": "// create a new full release\nprintln new com.concur.GitHubApi().createRelease(['description': 'example GitHub credential'], '### Added\\n\\n* New Feature A', 'v0.1.0', 'v0.1.0')\n// {\"url\": \"https://api.github.com/repos/concur/jenkins-yml-workflowLibs/releases/1\",\"html_url\": \"https://github.com/concur/jenkins-yml-workflowLibs/releases/v0.1.0\"...",
+            "title": "Example 1"
+        },
+        {
+            "location": "/GITHUBAPI/#example-2",
+            "text": "// createa a draft release\nprintln new com.concur.GitHubApi().createRelease(['description': 'example GitHub credential'], '### Added\\n\\n* New Feature A', 'v0.1.0', 'v0.1.0', false, true)\n// {\"url\": \"https://api.github.com/repos/concur/jenkins-yml-workflowLibs/releases/1\",\"html_url\": \"https://github.com/concur/jenkins-yml-workflowLibs/releases/v0.1.0\"...",
+            "title": "Example 2"
+        },
+        {
+            "location": "/GITHUBAPI/#example-3",
+            "text": "// create a pre-release\nprintln new com.concur.GitHubApi().createRelease(['description': 'example GitHub credential'], '### Added\\n\\n* New Feature A', 'v0.1.0', 'v0.1.0', true false)\n// {\"url\": \"https://api.github.com/repos/concur/jenkins-yml-workflowLibs/releases/1\",\"html_url\": \"https://github.com/concur/jenkins-yml-workflowLibs/releases/v0.1.0\"...",
+            "title": "Example 3"
+        },
+        {
+            "location": "/HTTP/",
+            "text": "com.concur.Http\n\n\naddToUriQueryString(String, String, String)\n\n\n\n\nAdds a key/value to a URL and ensures it is formatted appropriately.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nuri\n\n\n\n\n\n\n\n\nString\n\n\nk\n\n\n\n\n\n\n\n\nString\n\n\nv\n\n\n\n\n\n\n\n\n\n\nExample\n\n\nprintln new com.concur.Http().addToUriQueryString('https://example.com/api', 'a', 'd')\n// https://example.com/api?a=d\n\n\n\n\naddMapToQueryString(String, Map)\n\n\n\n\nAppends the provided Map to the URL with appropriate HTTP formatting\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nuri\n\n\n\n\n\n\n\n\nMap\n\n\ndata\n\n\n\n\n\n\n\n\n\n\nExample\n\n\nprintln new com.concur.Http().addMapToQueryString('https://example.com/api', ['a': 'b', 'c': 'd'])\n// https://example.com/api?a=b&c=d\n\n\n\n\nsendSlackMessage(Map)\n\n\n\n\nSend a slack message. Prior to sending a message there is a check to see if the Slack plugin is installed. Can see more about the parameters for slackSend from \nSlack Plugin\n.\n\n\n\n\nThis does not currently do anything if the plugin is installed.\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nslackData\n\n\n[:]\n\n\n\n\n\n\n\n\nExample\n\n\nnew com.concur.Http().sendSlackMessage(['channel': 'notifications', 'tokenCredentialId': 'f7136118-359a-4fcb-aba8-a1c6ee7ecb9b', 'message': 'example slack message'])",
+            "title": "Http"
+        },
+        {
+            "location": "/HTTP/#comconcurhttp",
+            "text": "",
+            "title": "com.concur.Http"
+        },
+        {
+            "location": "/HTTP/#addtouriquerystringstring-string-string",
+            "text": "Adds a key/value to a URL and ensures it is formatted appropriately.      Type  Name  Default      String  uri     String  k     String  v",
+            "title": "addToUriQueryString(String, String, String)"
+        },
+        {
+            "location": "/HTTP/#example",
+            "text": "println new com.concur.Http().addToUriQueryString('https://example.com/api', 'a', 'd')\n// https://example.com/api?a=d",
+            "title": "Example"
+        },
+        {
+            "location": "/HTTP/#addmaptoquerystringstring-map",
+            "text": "Appends the provided Map to the URL with appropriate HTTP formatting      Type  Name  Default      String  uri     Map  data",
+            "title": "addMapToQueryString(String, Map)"
+        },
+        {
+            "location": "/HTTP/#example_1",
+            "text": "println new com.concur.Http().addMapToQueryString('https://example.com/api', ['a': 'b', 'c': 'd'])\n// https://example.com/api?a=b&c=d",
+            "title": "Example"
+        },
+        {
+            "location": "/HTTP/#sendslackmessagemap",
+            "text": "Send a slack message. Prior to sending a message there is a check to see if the Slack plugin is installed. Can see more about the parameters for slackSend from  Slack Plugin .   This does not currently do anything if the plugin is installed.     Type  Name  Default      Map  slackData  [:]",
+            "title": "sendSlackMessage(Map)"
+        },
+        {
+            "location": "/HTTP/#example_2",
+            "text": "new com.concur.Http().sendSlackMessage(['channel': 'notifications', 'tokenCredentialId': 'f7136118-359a-4fcb-aba8-a1c6ee7ecb9b', 'message': 'example slack message'])",
+            "title": "Example"
+        },
+        {
+            "location": "/SLACK/",
+            "text": "com.concur.Slack\n\n\nsend(Map)\n\n\n\n\nMake a request to the Slack API, attempts are made to ensure the request will be valid.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nslackData\n\n\n\n\n\n\n\n\n\n\nExample\n\n\ndef concurSlack = new com.concur.Slack()\ndef credential = new com.concur.Commands().getCredentialsWithCriteria(['description': 'example credential description'])\ndef slackData = ['tokenCredentialId': tokenCredential.id,'channel': 'auto-workflow-libs','message': 'Hello from custom com.concur.Slack.send','color': 'good']\nprintln concurSlack.send(slackData)\n// Ok assuming successful send",
+            "title": "Slack"
+        },
+        {
+            "location": "/SLACK/#comconcurslack",
+            "text": "",
+            "title": "com.concur.Slack"
+        },
+        {
+            "location": "/SLACK/#sendmap",
+            "text": "Make a request to the Slack API, attempts are made to ensure the request will be valid.      Type  Name  Default      Map  slackData",
+            "title": "send(Map)"
+        },
+        {
+            "location": "/SLACK/#example",
+            "text": "def concurSlack = new com.concur.Slack()\ndef credential = new com.concur.Commands().getCredentialsWithCriteria(['description': 'example credential description'])\ndef slackData = ['tokenCredentialId': tokenCredential.id,'channel': 'auto-workflow-libs','message': 'Hello from custom com.concur.Slack.send','color': 'good']\nprintln concurSlack.send(slackData)\n// Ok assuming successful send",
+            "title": "Example"
+        },
+        {
+            "location": "/UTIL/",
+            "text": "com.concur.Util\n\n\ndateFromString(String, String)\n\n\n\n\ndefault format is to match how a Git tag date is formatted\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ndateString\n\n\n\n\n\n\n\n\nString\n\n\nformat\n\n\n'yyyy-MM-dd HH:mm:ss Z\n\n\n\n\n\n\n\n\nExample 1\n\n\ndef dateStr = sh returnStdout: true, script: \"git log --pretty=\"format:%ci\" $(git tag --sort -v:refname) | head -1\"\nprintln new com.concur.Util().dateFromString(dateStr)\n// Sun Jan 07 01:37:49 GMT 2018\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Util().dateFromString('01-02-2018', 'MM-dd-yyyy')\n// Tue Jan 02 00:00:00 GMT 2018\n\n\n\n\nparseJSON(String)\n\n\n\n\nParses the provided string as if it is YAML\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nstringContent\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Util().parseJSON('{\"content\": \"JSON content\"}')\n// {content=JSON content}\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Util().parseJSON(readFile('results.json'))\n// {content=JSON content}\n\n\n\n\ntoJSON(Object)\n\n\n\n\nConvert the provided content into a valid JSON string\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nObject\n\n\ncontent\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Util().toJSON(['key1': 'value1', 'key2': 'value2'])\n// {\"key1\":\"value1\",\"key2\":\"value2\"}\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Util().toJSON(['item1', 'item2', 'item3', 'item4'])\n// [\"item1\",\"item2\",\"item3\",\"item4\"]\n\n\n\n\nExample 3\n\n\nprintln new com.concur.Util().toJSON('Valid JSON string \\'\"\"')\n// \"Valid JSON string '\\\"\\\"\"\n\n\n\n\nparseYAML(String)\n\n\n\n\nParses the provided string as if it is YAML\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nstringContent\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Util().parseYAML('''\ncontent: |\n  multiline string in YAML\n'''.stripIndent())\n// {content=multiline string in YAML}\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Util().parseYAML(readFile('pipelines.yml'))\n// {pipelines={tools={git={...}}}}\n\n\n\n\nparseChangelog(String, String)\n\n\n\n\nLoads the changelog file specified and gathers the release information. More information about good ways to format changelogs can be found at \nKeep a Changelog\n\n\n\n\nChangelog must have consistent usage of headers and follow markdown standards.\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nchangelogFile\n\n\nCHANGELOG.md\n\n\n\n\n\n\nString\n\n\nreleaseHeader\n\n\n##\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Util().parseChangelog()\n// {0.2.0=\n// ### Added....\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Util().parseChangelog('docs/CHANGELOG.md', '# ')\n// {0.2.0=\n// ### Added....\n\n\n\n\ninstallGoPkg(String, String)\n\n\n\n\nChecks if a Go binary is installed and if not install it using provided information.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ncmd\n\n\n\n\n\n\n\n\nString\n\n\nrepo\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nnew com.concur.Util().installGoPkg('glide', 'github.com/Masterminds/glide')\n\n\n\n\nExample 2\n\n\nnew com.concur.Util().installGoPkg('dep', 'github.com/golang/dep')\n\n\n\n\nbinAvailable(String)\n\n\n\n\nUse which command to determine if a binary/command is available on the linux system\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nbin\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Util().binAvailable('python')\n// true\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Util().binAvailable('go')\n// false\n\n\n\n\nkebab(String)\n\n\n\n\nconvert a string to lower-case kebab-case\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ns\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Util().kebab('Jenkins Workflow Libraries')\n// jenkins-workflow-libraries\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Util().kebab('alpha_release-0.2.3')\n// alpha-release-0-2-3\n\n\n\n\nreplaceLast(String, String, String)\n\n\n\n\nReplace the last instance of a provided regex with a provided replacement.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ntext\n\n\n\n\n\n\n\n\nString\n\n\nregex\n\n\n\n\n\n\n\n\nString\n\n\nreplacement\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nnew com.concur.Util().replaceLast('0.1.0.32984', /\\./, '-')\n// 0.1.0-32984\n\n\n\n\nmustacheReplaceAll(String, Map)\n\n\n\n\nReplace text in a provided String that contains mustache style templates.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nstr\n\n\n\n\n\n\n\n\nMap\n\n\nreplaceOptions\n\n\n[:]\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Util().mustacheReplaceAll('Hello {{ git_owner }}')\n// Hello Concur\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Util().mustacheReplaceAll('{{ non_standard }} | {{ git_repo }}', ['non_standard': 'This is not provided as an environment variable'])\n// This is not provided as an environment variable | jenkins-yml-workflowLibs",
+            "title": "Util"
+        },
+        {
+            "location": "/UTIL/#comconcurutil",
+            "text": "",
+            "title": "com.concur.Util"
+        },
+        {
+            "location": "/UTIL/#datefromstringstring-string",
+            "text": "default format is to match how a Git tag date is formatted      Type  Name  Default      String  dateString     String  format  'yyyy-MM-dd HH:mm:ss Z",
+            "title": "dateFromString(String, String)"
+        },
+        {
+            "location": "/UTIL/#example-1",
+            "text": "def dateStr = sh returnStdout: true, script: \"git log --pretty=\"format:%ci\" $(git tag --sort -v:refname) | head -1\"\nprintln new com.concur.Util().dateFromString(dateStr)\n// Sun Jan 07 01:37:49 GMT 2018",
+            "title": "Example 1"
+        },
+        {
+            "location": "/UTIL/#example-2",
+            "text": "println new com.concur.Util().dateFromString('01-02-2018', 'MM-dd-yyyy')\n// Tue Jan 02 00:00:00 GMT 2018",
+            "title": "Example 2"
+        },
+        {
+            "location": "/UTIL/#parsejsonstring",
+            "text": "Parses the provided string as if it is YAML      Type  Name  Default      String  stringContent",
+            "title": "parseJSON(String)"
+        },
+        {
+            "location": "/UTIL/#example-1_1",
+            "text": "println new com.concur.Util().parseJSON('{\"content\": \"JSON content\"}')\n// {content=JSON content}",
+            "title": "Example 1"
+        },
+        {
+            "location": "/UTIL/#example-2_1",
+            "text": "println new com.concur.Util().parseJSON(readFile('results.json'))\n// {content=JSON content}",
+            "title": "Example 2"
+        },
+        {
+            "location": "/UTIL/#tojsonobject",
+            "text": "Convert the provided content into a valid JSON string      Type  Name  Default      Object  content",
+            "title": "toJSON(Object)"
+        },
+        {
+            "location": "/UTIL/#example-1_2",
+            "text": "println new com.concur.Util().toJSON(['key1': 'value1', 'key2': 'value2'])\n// {\"key1\":\"value1\",\"key2\":\"value2\"}",
+            "title": "Example 1"
+        },
+        {
+            "location": "/UTIL/#example-2_2",
+            "text": "println new com.concur.Util().toJSON(['item1', 'item2', 'item3', 'item4'])\n// [\"item1\",\"item2\",\"item3\",\"item4\"]",
+            "title": "Example 2"
+        },
+        {
+            "location": "/UTIL/#example-3",
+            "text": "println new com.concur.Util().toJSON('Valid JSON string \\'\"\"')\n// \"Valid JSON string '\\\"\\\"\"",
+            "title": "Example 3"
+        },
+        {
+            "location": "/UTIL/#parseyamlstring",
+            "text": "Parses the provided string as if it is YAML      Type  Name  Default      String  stringContent",
+            "title": "parseYAML(String)"
+        },
+        {
+            "location": "/UTIL/#example-1_3",
+            "text": "println new com.concur.Util().parseYAML('''\ncontent: |\n  multiline string in YAML\n'''.stripIndent())\n// {content=multiline string in YAML}",
+            "title": "Example 1"
+        },
+        {
+            "location": "/UTIL/#example-2_3",
+            "text": "println new com.concur.Util().parseYAML(readFile('pipelines.yml'))\n// {pipelines={tools={git={...}}}}",
+            "title": "Example 2"
+        },
+        {
+            "location": "/UTIL/#parsechangelogstring-string",
+            "text": "Loads the changelog file specified and gathers the release information. More information about good ways to format changelogs can be found at  Keep a Changelog   Changelog must have consistent usage of headers and follow markdown standards.     Type  Name  Default      String  changelogFile  CHANGELOG.md    String  releaseHeader  ##",
+            "title": "parseChangelog(String, String)"
+        },
+        {
+            "location": "/UTIL/#example-1_4",
+            "text": "println new com.concur.Util().parseChangelog()\n// {0.2.0=\n// ### Added....",
+            "title": "Example 1"
+        },
+        {
+            "location": "/UTIL/#example-2_4",
+            "text": "println new com.concur.Util().parseChangelog('docs/CHANGELOG.md', '# ')\n// {0.2.0=\n// ### Added....",
+            "title": "Example 2"
+        },
+        {
+            "location": "/UTIL/#installgopkgstring-string",
+            "text": "Checks if a Go binary is installed and if not install it using provided information.      Type  Name  Default      String  cmd     String  repo",
+            "title": "installGoPkg(String, String)"
+        },
+        {
+            "location": "/UTIL/#example-1_5",
+            "text": "new com.concur.Util().installGoPkg('glide', 'github.com/Masterminds/glide')",
+            "title": "Example 1"
+        },
+        {
+            "location": "/UTIL/#example-2_5",
+            "text": "new com.concur.Util().installGoPkg('dep', 'github.com/golang/dep')",
+            "title": "Example 2"
+        },
+        {
+            "location": "/UTIL/#binavailablestring",
+            "text": "Use which command to determine if a binary/command is available on the linux system      Type  Name  Default      String  bin",
+            "title": "binAvailable(String)"
+        },
+        {
+            "location": "/UTIL/#example-1_6",
+            "text": "println new com.concur.Util().binAvailable('python')\n// true",
+            "title": "Example 1"
+        },
+        {
+            "location": "/UTIL/#example-2_6",
+            "text": "println new com.concur.Util().binAvailable('go')\n// false",
+            "title": "Example 2"
+        },
+        {
+            "location": "/UTIL/#kebabstring",
+            "text": "convert a string to lower-case kebab-case      Type  Name  Default      String  s",
+            "title": "kebab(String)"
+        },
+        {
+            "location": "/UTIL/#example-1_7",
+            "text": "println new com.concur.Util().kebab('Jenkins Workflow Libraries')\n// jenkins-workflow-libraries",
+            "title": "Example 1"
+        },
+        {
+            "location": "/UTIL/#example-2_7",
+            "text": "println new com.concur.Util().kebab('alpha_release-0.2.3')\n// alpha-release-0-2-3",
+            "title": "Example 2"
+        },
+        {
+            "location": "/UTIL/#replacelaststring-string-string",
+            "text": "Replace the last instance of a provided regex with a provided replacement.      Type  Name  Default      String  text     String  regex     String  replacement",
+            "title": "replaceLast(String, String, String)"
+        },
+        {
+            "location": "/UTIL/#example-1_8",
+            "text": "new com.concur.Util().replaceLast('0.1.0.32984', /\\./, '-')\n// 0.1.0-32984",
+            "title": "Example 1"
+        },
+        {
+            "location": "/UTIL/#mustachereplaceallstring-map",
+            "text": "Replace text in a provided String that contains mustache style templates.      Type  Name  Default      String  str     Map  replaceOptions  [:]",
+            "title": "mustacheReplaceAll(String, Map)"
+        },
+        {
+            "location": "/UTIL/#example-1_9",
+            "text": "println new com.concur.Util().mustacheReplaceAll('Hello {{ git_owner }}')\n// Hello Concur",
+            "title": "Example 1"
+        },
+        {
+            "location": "/UTIL/#example-2_8",
+            "text": "println new com.concur.Util().mustacheReplaceAll('{{ non_standard }} | {{ git_repo }}', ['non_standard': 'This is not provided as an environment variable'])\n// This is not provided as an environment variable | jenkins-yml-workflowLibs",
+            "title": "Example 2"
+        }
+    ]
+}

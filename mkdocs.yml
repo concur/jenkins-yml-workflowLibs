@@ -11,13 +11,12 @@ pages:
   - plNotify: steps/plNotify.md
   - plWorkflow: steps/plWorkflow.md
 - Classes:
-  - Commands: Commands.md
-  - Git: Git.md
-  - GitHubApi: GitHubApi.md
-  - Http: Http.md
-  - Slack: Slack.md
-  - Util: Util.md
-  - Versioning: Versioning.md
+  - Commands: COMMANDS.md
+  - Git: GIT.md
+  - GitHubApi: GITHUBAPI.md
+  - Http: HTTP.md
+  - Slack: SLACK.md
+  - Util: UTIL.md
 site_dir: docs
 site_name: jenkins-yml-workflow
 theme:
