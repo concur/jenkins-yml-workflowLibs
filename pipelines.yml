@@ -12,6 +12,8 @@ pipelines:
     github:
       credentials:
         description: GitHub Secret Text Access Token
+    mkdocs:
+      buildImage: quay.io/reynn/mkdocs:0.17.3
     python:
       buildImage: python:3.6-alpine3.7
       binary: python3
