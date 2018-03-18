@@ -39,10 +39,14 @@ def getVersion(Map yml) {
     return env."${Constants.Env.VERSION}"
   }
   String branchPattern  = concurPipeline.checkBranch(yml)
-  String dockerImage    = yml.general?.version?.versionImage  ?: 'quay.io/reynn/docker-versioner:0.2.0'
-  String executable     = yml.general?.version?.executable    ?: 'versioning'
+  Map versioningData    = yml.general?.version ?: [
+    'image': 'quay.io/reynn/docker-versioner:0.2.0',
+    'executable': 'versioning'
+  ]
+  String dockerImage    = versioningData?.versionImage
+  String executable     = versioningData?.executable
 
-  List envs = concurUtil.mustacheReplaceAll((yml.general?.version ?: [:]).collect{ 
+  List envs = concurUtil.mustacheReplaceAll((yml.general?.version ?: [:]).collect{
     "versioning_${it.key}=${concurUtil.mustacheReplaceAll(it.value)}"
   }.join(';')).split(';') ?: []
 
