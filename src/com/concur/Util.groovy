@@ -200,12 +200,13 @@ examples:
     // 0.1.0-32984
  */
 def replaceLast(String text, String regex, String replacement) {
-  return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
+  return text.replaceFirst("(?s)$regex(?!.*?$regex)", replacement);
 }
 
 // Text Replacement/Transformations
 private addCommonReplacements(Map providedOptions) {
   // this will replace the existing map with everything from providedOptions
+  def version = env."${Constants.Env.VERSION}"
   return ([
     'BUILD_VERSION' : version,
     'SHORT_VERSION' : version.split('-')[0],
