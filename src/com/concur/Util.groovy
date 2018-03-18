@@ -206,7 +206,11 @@ def replaceLast(String text, String regex, String replacement) {
 // Text Replacement/Transformations
 private addCommonReplacements(providedOptions) {
   // this will replace the existing map with everything from providedOptions
-  def version = new Versioning().getVersion([:])
+  def version = env."${Constants.Env.VERSION}"
+  if (!version) {
+    version = new Versioning().getVersion([:])
+  }
+
   return ([
     'BUILD_VERSION' : version,
     'SHORT_VERSION' : version.split('-')[0],
@@ -237,3 +241,4 @@ def mustacheReplaceAll(String str, Map replaceOptions=[:]) {
   }
   return str
 }
+ 
