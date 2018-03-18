@@ -33,30 +33,31 @@ examples:
     // 3.7.0-1555200000
  */
 def getVersion(Map yml) {
-  println "getVersion entry"
   if (env."${Constants.Env.VERSION}") {
     concurPipeline.debugPrint('Returning previously determined version.', 3)
     return env."${Constants.Env.VERSION}"
   }
-  println "after return if set"
-  Map versioningData    = yml.general?.version ?: [
+  Map versioningData    = [
     'image'     : 'quay.io/reynn/docker-versioner:0.2.0',
     'executable': 'versioning'
-  ]
+  ] << yml.general?.version
+
   String dockerImage    = versioningData?.versionImage
   String executable     = versioningData?.executable
-  println "before versionData.collect"
-  List x = versioningData.collect{
+  
+  List envs = concurUtil.mustacheReplaceAll(versioningData.collect{
     "versioning_${it.key}=${concurUtil.mustacheReplaceAll(it.value)}"
-  }
-  println "X: $x"
-  List envs = concurUtil.mustacheReplaceAll(x.join(';')).split(';') ?: []
+  }.join(';')).split(';') ?: []
 
   concurPipeline.debugPrint(['data': versioningData, 'envs': envs])
   
   String returnVal = ''
 
+  assert dockerImage  : '[versionImage] must be provided under general.version.'
+  assert executable   : '[executable] must be provided under general.version.'
+  
   withEnv(envs) {
+    sh "printenv"
     docker.image(dockerImage).inside {
       returnVal = sh(returnStdout: true, script: executable).trim()
     }
