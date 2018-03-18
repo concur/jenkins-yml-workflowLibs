@@ -45,7 +45,7 @@ class Constants {
     public static String WORKFLOWS_DEPRECATED_METHOD = "${Colors.ORANGE_ON_BLACK}Usage of this method has been deprecated, please refer to the documentation for information on migrating your pipeline.${Colors.CLEAR}"
   }
   static class Env {
-    public static String VERSION        = "BUILDHUB_VERSION"
+    public static String VERSION        = "PIPELINE_VERSION"
     public static String DEBUG          = "DEBUG_MODE"
     public static String DEBUG_LEVEL    = "DEBUG_LEVEL"
     public static String DATE_FORMAT    = "DATE_FORMAT"

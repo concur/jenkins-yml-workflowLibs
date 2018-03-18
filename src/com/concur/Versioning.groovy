@@ -5,7 +5,6 @@ import groovy.transform.Field
 
 @Field def concurPipeline = new Commands()
 @Field def concurUtil     = new Util()
-@Field def concurGit      = new Git()
 
 /*
 description: |
@@ -34,18 +33,19 @@ examples:
     // 3.7.0-1555200000
  */
 def getVersion(Map yml) {
+  println "getVersion entry"
   if (env."${Constants.Env.VERSION}") {
     concurPipeline.debugPrint('Returning previously determined version.', 3)
     return env."${Constants.Env.VERSION}"
   }
-
+  println "after return if set"
   Map versioningData    = yml.general?.version ?: [
     'image'     : 'quay.io/reynn/docker-versioner:0.2.0',
     'executable': 'versioning'
   ]
   String dockerImage    = versioningData?.versionImage
   String executable     = versioningData?.executable
-
+  println "before versionData.collect"
   List x = versioningData.collect{
     "versioning_${it.key}=${concurUtil.mustacheReplaceAll(it.value)}"
   }
