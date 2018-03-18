@@ -52,7 +52,7 @@ def getVersion(Map yml) {
 
   withEnv(envs) {
     docker.image(dockerImage).inside {
-      returnVal = (sh returnStdout: true, script: executable).trim()
+      returnVal = sh(returnStdout: true, script: executable).trim()
     }
   }
   env."${Constants.Env.VERSION}" = returnVal
