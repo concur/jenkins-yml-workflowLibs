@@ -38,7 +38,7 @@ def getVersion(Map yml) {
     concurPipeline.debugPrint('Returning previously determined version.', 3)
     return env."${Constants.Env.VERSION}"
   }
-  String branchPattern  = concurPipeline.checkBranch(yml)
+
   Map versioningData    = yml.general?.version ?: [
     'image'     : 'quay.io/reynn/docker-versioner:0.2.0',
     'executable': 'versioning'

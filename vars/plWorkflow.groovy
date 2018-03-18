@@ -37,7 +37,7 @@ def call(body) {
       'timeoutDuration' : timeoutDurationInt,
       'timeoutUnit'     : timeoutUnitStr
     ])
-    println "YAML: $yml"
+
     println "Setting build version..."
     new Versioning().getVersion(yml)
 
