@@ -46,11 +46,11 @@ def getVersion(Map yml) {
   String dockerImage    = versioningData?.versionImage
   String executable     = versioningData?.executable
 
-  List envs = concurUtil.mustacheReplaceAll((yml.general?.version ?: [:]).collect{
+  List envs = concurUtil.mustacheReplaceAll(versioningData.collect{
     "versioning_${it.key}=${concurUtil.mustacheReplaceAll(it.value)}"
   }.join(';')).split(';') ?: []
 
-  concurPipeline.debugPrint(['data':yml.general?.version, 'envs': envs])
+  concurPipeline.debugPrint(['data': versioningData, 'envs': envs])
   
   String returnVal = ''
 
