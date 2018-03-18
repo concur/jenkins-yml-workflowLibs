@@ -206,7 +206,7 @@ def replaceLast(String text, String regex, String replacement) {
 // Text Replacement/Transformations
 private addCommonReplacements(providedOptions) {
   // this will replace the existing map with everything from providedOptions
-  def version = new Git().getVersion([:])
+  def version = new Versioning().getVersion([:])
   return ([
     'BUILD_VERSION' : version,
     'SHORT_VERSION' : version.split('-')[0],

@@ -39,7 +39,7 @@ def call(body) {
     ])
 
     println "Setting build version..."
-    new Git().getVersion(yml)
+    new Versioning().getVersion(yml)
 
     if (yml.general?.dateFormat) {
       env."${Constants.Env.DATE_FORMAT}" = yml.general.dateFormat
