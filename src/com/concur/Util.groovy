@@ -206,12 +206,15 @@ def replaceLast(String text, String regex, String replacement) {
 // Text Replacement/Transformations
 private addCommonReplacements(Map providedOptions) {
   // this will replace the existing map with everything from providedOptions
-  def version = env."${Constants.Env.VERSION}"
-  return ([
-    'BUILD_VERSION' : version,
-    'SHORT_VERSION' : version.split('-')[0],
-    'TIMESTAMP'     : new Date().format(env."${Constants.Env.DATE_FORMAT}" ?: 'yyyyMMdd-Hmmss')
-  ] << env.getEnvironment() << providedOptions)
+  String version = env."${Constants.Env.VERSION}"
+  Map defaults = [
+    'TIMESTAMP': new Date().format(env."${Constants.Env.DATE_FORMAT}" ?: 'yyyyMMdd-Hmmss')
+  ]
+  if (version) {
+    defaults['BUILD_VERSION'] = version
+    defaults['SHORT_VERSION'] = version.split('-')[0]
+  }
+  return (defaults << env.getEnvironment() << providedOptions)
 }
 
 /*
