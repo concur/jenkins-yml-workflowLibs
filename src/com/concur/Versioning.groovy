@@ -42,7 +42,7 @@ def getVersion(Map yml) {
     'executable': 'versioning'
   ] << (yml.general?.version ?: [:])
 
-  String dockerImage    = versioningData?.versionImage
+  String dockerImage    = versioningData?.image
   String executable     = versioningData?.executable
   
   List envs = concurUtil.mustacheReplaceAll(versioningData.collect{
@@ -53,7 +53,7 @@ def getVersion(Map yml) {
   
   String returnVal = ''
 
-  assert dockerImage  : '[versionImage] must be provided under general.version.'
+  assert dockerImage  : '[image] must be provided under general.version.'
   assert executable   : '[executable] must be provided under general.version.'
 
   withEnv(envs) {
