@@ -40,7 +40,7 @@ def getVersion(Map yml) {
   Map versioningData    = [
     'image'     : 'quay.io/reynn/docker-versioner:0.2.0',
     'executable': 'versioning'
-  ] << yml.general?.version
+  ] << (yml.general?.version ?: [:])
 
   String dockerImage    = versioningData?.versionImage
   String executable     = versioningData?.executable
@@ -55,7 +55,7 @@ def getVersion(Map yml) {
 
   assert dockerImage  : '[versionImage] must be provided under general.version.'
   assert executable   : '[executable] must be provided under general.version.'
-  
+
   withEnv(envs) {
     sh "printenv"
     docker.image(dockerImage).inside {
