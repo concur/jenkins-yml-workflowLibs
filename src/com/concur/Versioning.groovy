@@ -46,7 +46,7 @@ def getVersion(Map yml) {
     "versioning_${it.key}=${concurUtil.mustacheReplaceAll(it.value)}"
   }.join(';')).split(';')
 
-  concurPipeline.debugPrint(yml.general?.version)
+  concurPipeline.debugPrint(['data':yml.general?.version])
   
   String returnVal = ''
 
