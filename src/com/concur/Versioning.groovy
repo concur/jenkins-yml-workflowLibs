@@ -40,7 +40,7 @@ def getVersion(Map yml) {
   }
   String branchPattern  = concurPipeline.checkBranch(yml)
   Map versioningData    = yml.general?.version ?: [
-    'image': 'quay.io/reynn/docker-versioner:0.2.0',
+    'image'     : 'quay.io/reynn/docker-versioner:0.2.0',
     'executable': 'versioning'
   ]
   String dockerImage    = versioningData?.versionImage
