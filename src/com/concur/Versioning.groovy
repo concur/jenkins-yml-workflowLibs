@@ -38,7 +38,7 @@ def getVersion(Map yml) {
     return env."${Constants.Env.VERSION}"
   }
   Map versioningData    = [
-    'image'     : 'quay.io/reynn/docker-versioner:0.2.0',
+    'image'     : 'quay.io/reynn/docker-versioner:0.3.0',
     'executable': 'versioning'
   ] << (yml.general?.version ?: [:])
 
@@ -46,7 +46,7 @@ def getVersion(Map yml) {
   String executable     = versioningData?.executable
   
   List envs = concurUtil.mustacheReplaceAll(versioningData.collect{
-    "versioning_${it.key}=${concurUtil.mustacheReplaceAll(it.value)}"
+    "version_${it.key}=${concurUtil.mustacheReplaceAll(it.value)}"
   }.join(';')).split(';') ?: []
 
   concurPipeline.debugPrint(['data': versioningData, 'envs': envs])
