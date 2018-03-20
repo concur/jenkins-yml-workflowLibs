@@ -1,9 +1,6 @@
 pipelines:
   general:
     debug: true
-    version:
-      metadata: "{{ timestamp }}"
-      image: quay.io/reynn/docker-versioner
   tools:
     branches:
       patterns:
