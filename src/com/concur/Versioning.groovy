@@ -58,7 +58,7 @@ def getVersion(Map yml) {
 
   withEnv(envs) {
     sh "printenv"
-    returnVal = sh(returnStdout: true, script: "docker run -v $(pwd):/tmp -w /tmp $dockerImage $executable")
+    returnVal = sh(returnStdout: true, script: "docker run -v ${pwd()}:/tmp -w /tmp $dockerImage $executable")
     // docker.image(dockerImage).inside {
     //   returnVal = sh(returnStdout: true, script: executable).trim()
     // }
