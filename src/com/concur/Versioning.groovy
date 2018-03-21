@@ -38,7 +38,7 @@ def getVersion(Map yml) {
     return env."${Constants.Env.VERSION}"
   }
   Map versioningData    = [
-    'image'     : 'quay.io/reynn/docker-versioner:0.3.0',
+    'image'     : 'quay.io/reynn/docker-versioner:latest',
     'executable': 'versioning'
   ] << (yml.general?.version ?: [:])
 
