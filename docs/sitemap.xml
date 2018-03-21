@@ -4,7 +4,7 @@
     
     <url>
      <loc>/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -13,19 +13,19 @@
         
     <url>
      <loc>/CHANGELOG/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/CONTRIBUTING/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/STYLE_GUIDE/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -35,25 +35,25 @@
         
     <url>
      <loc>/steps/plGitCheckout/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/steps/plNode/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/steps/plNotify/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/steps/plWorkflow/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -63,37 +63,43 @@
         
     <url>
      <loc>/COMMANDS/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/GIT/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/GITHUBAPI/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/HTTP/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/SLACK/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/UTIL/</loc>
-     <lastmod>2018-03-14</lastmod>
+     <lastmod>2018-03-21</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
+     <loc>/VERSIONING/</loc>
+     <lastmod>2018-03-21</lastmod>
      <changefreq>daily</changefreq>
     </url>
         

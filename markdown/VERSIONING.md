@@ -9,6 +9,7 @@ pipelines:
     version:
       base: 1.0.0
       scheme: semantic
+      versionImage: quay.io/reynn/docker-versioner:0.1.0
       pattern: "^.*.*"
 ```
 
@@ -40,5 +41,3 @@ println new com.concur.Versioning().getVersion(yml)
 println new com.concur.Versioning().getVersion(yml)
 // 3.7.0-1555200000
 ```
-
-## isSemantic(String)
