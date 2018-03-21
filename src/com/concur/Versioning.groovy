@@ -39,7 +39,7 @@ def getVersion(Map yml) {
   }
   Map versioningData    = [
     'image'     : 'quay.io/reynn/docker-versioner:latest',
-    'executable': 'versioning'
+    'executable': 'versioner'
   ] << (yml.general?.version ?: [:])
 
   String dockerImage    = versioningData?.image
