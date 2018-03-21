@@ -20,9 +20,8 @@ def call(String label, int duration=1, String unit="HOURS", Closure body) {
           throw e
         } finally {
           String workspace = pwd()
-          // Mount the workspace in the docker container.
           try {
-            cleanWs notFailBuild: true
+            // cleanWs notFailBuild: true
           } catch (e) {
             if (isUnix()) {
               docker.image('alpine:3.7').inside('-u 0:0') {
