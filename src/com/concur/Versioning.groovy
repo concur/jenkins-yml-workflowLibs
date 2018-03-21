@@ -57,12 +57,10 @@ def getVersion(Map yml) {
   assert executable   : '[executable] must be provided under general.version.'
 
   withEnv(envs) {
-    sh "printenv"
     docker.image(dockerImage).inside("--entrypoint=''") {
       returnVal = sh(returnStdout: true, script: executable).trim()
     }
-    // returnVal = sh(returnStdout: true, script: "docker run --rm -v ${pwd()}:/tmp -w /tmp $dockerImage $executable")
   }
   env."${Constants.Env.VERSION}" = returnVal
-  return output
+  return returnVal
 }
