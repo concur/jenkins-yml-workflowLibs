@@ -200,18 +200,21 @@ examples:
     // 0.1.0-32984
  */
 def replaceLast(String text, String regex, String replacement) {
-  return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
+  return text.replaceFirst("(?s)$regex(?!.*?$regex)", replacement);
 }
 
 // Text Replacement/Transformations
-private addCommonReplacements(providedOptions) {
+private addCommonReplacements(Map providedOptions) {
   // this will replace the existing map with everything from providedOptions
-  def version = new Git().getVersion([:])
-  return ([
-    'BUILD_VERSION' : version,
-    'SHORT_VERSION' : version.split('-')[0],
-    'TIMESTAMP'     : new Date().format(env."${Constants.Env.DATE_FORMAT}" ?: 'yyyyMMdd-Hmmss')
-  ] << env.getEnvironment() << providedOptions)
+  String version = env."${Constants.Env.VERSION}"
+  Map defaults = [
+    'TIMESTAMP': new Date().format(env."${Constants.Env.DATE_FORMAT}" ?: 'yyyyMMdd-Hmmss')
+  ]
+  if (version) {
+    defaults['BUILD_VERSION'] = version
+    defaults['SHORT_VERSION'] = version.split('-')[0]
+  }
+  return (defaults << env.getEnvironment() << providedOptions)
 }
 
 /*
@@ -237,3 +240,4 @@ def mustacheReplaceAll(String str, Map replaceOptions=[:]) {
   }
   return str
 }
+ 

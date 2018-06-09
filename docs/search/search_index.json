@@ -437,7 +437,7 @@
         },
         {
             "location": "/GIT/",
-            "text": "com.concur.Git\n\n\ngetCommitSHA(String, int)\n\n\n\n\nGet the commit SHA for the last file or folder changed.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nfolder\n\n\n.\n\n\n\n\n\n\nint\n\n\ndepth\n\n\n1\n\n\n\n\n\n\n\n\ngetFilesChanged(String)\n\n\n\n\nGet a list of files that were changed in the current commit.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ncommitSha\n\n\n\n\n\n\n\n\n\n\nrunGitShellCommand(String, String)\n\n\n\n\nRun a command, set the command for Linux and Windows and this method will determine which one to use.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ngitCommand\n\n\n\n\n\n\n\n\nString\n\n\nwinGitCommand\n\n\n\n\n\n\n\n\n\n\nsaveGitProperties(Map)\n\n\n\n\nSave git properties to environment variables\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nscmVars\n\n\n\n\n\n\n\n\n\n\nExample\n\n\nnew com.concur.Git().saveGitProperties()\nsh \"env\"\n// GIT_SHORT_COMMIT=b828c9\n// GIT_COMMIT=b828c94aba486ac0416bf95e387d860b79e6343f\n// GIT_URL=git@github.com:concur/jenkins-yml-workflowLibs\n// GIT_COMMIT_MESSAGE=Fix workflow version lock.\n// GIT_AUTHOR=Nic Patterson\n// GIT_EMAIL=arasureynn@gmail.com\n// GIT_PREVIOUS_COMMIT=597563389d144c7098dd3b71b1fc1e600b215ff7\n// GIT_OWNER=concur\n// GIT_HOST=github.com\n// GIT_REPO=jenkins-yml-workflowLibs\n// ....\n\n\n\n\ngetGitData(String)\n\n\n\n\nGet the Git owner, repo and host\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nurl\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Git().getGitData('https://github.com/concur/jenkins-yml-workflowLibs.git')\n// ['host': 'github.com', 'owner': 'concur', 'repo': 'jenkins-yml-workflowLibs']\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Git().getGitData('https://github.example.com/awesome/repo.git')\n// ['host': 'github.example.com', 'owner': 'awesome', 'repo': 'repo']\n\n\n\n\ngetVersion(Map)\n\n\n\n\nDetermine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.\nYou can indicate how to increment the semantic version in your pipelines.yml file:\n\n\n\n\npipelines:\n  general:\n    version:\n      increment: # all of these nodes can be either a static boolean or a map matching the patterns from tools.git.patterns\n        major: true\n        minor:\n          master: true\n          feature: false\n        patch:\n          master: false\n          feature: true\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nyml\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\n// Latest tag in the repo is 1.3.1 and it was tagged 5 hours ago\nprintln new com.concur.Git().getVersion(yml)\n// 1.4.0-0018000000\n\n\n\n\nExample 2\n\n\n// New repo with no tags, repository was created 1 hour ago\nprintln new com.concur.Git().getVersion(yml)\n// 0.1.0-0003600000\n\n\n\n\nExample 3\n\n\n// No tags in repo, override default version, created 18 days ago\nprintln new com.concur.Git().getVersion(yml)\n// 3.7.0-1555200000\n\n\n\n\ntimeSinceTag(String)\n\n\n\n\nGet the amount of time since the last Git tag was created.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ntag\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\n// Last tag was 3 hours ago\nprintln new com.concur.Git().timeSinceTag('v3.1.0')\n// 0010800000 - Padded with 0s on the left.\n\n\n\n\nExample 2\n\n\n// last tag was 6 months ago\nprintln new com.concur.Git().timeSinceTag('v0.1.0')\n// 1555200000 - Chunked to keep it at 10 characters",
+            "text": "com.concur.Git\n\n\ngetCommitSHA(String, int)\n\n\n\n\nGet the commit SHA for the last file or folder changed.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nfolder\n\n\n.\n\n\n\n\n\n\nint\n\n\ndepth\n\n\n1\n\n\n\n\n\n\n\n\ngetFilesChanged(String)\n\n\n\n\nGet a list of files that were changed in the current commit.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ncommitSha\n\n\n\n\n\n\n\n\n\n\nrunGitShellCommand(String, String)\n\n\n\n\nRun a command, set the command for Linux and Windows and this method will determine which one to use.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ngitCommand\n\n\n\n\n\n\n\n\nString\n\n\nwinGitCommand\n\n\n\n\n\n\n\n\n\n\nsaveGitProperties(Map)\n\n\n\n\nSave git properties to environment variables\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nscmVars\n\n\n\n\n\n\n\n\n\n\nExample\n\n\nnew com.concur.Git().saveGitProperties()\nsh \"env\"\n// GIT_SHORT_COMMIT=b828c9\n// GIT_COMMIT=b828c94aba486ac0416bf95e387d860b79e6343f\n// GIT_URL=git@github.com:concur/jenkins-yml-workflowLibs\n// GIT_COMMIT_MESSAGE=Fix workflow version lock.\n// GIT_AUTHOR=Nic Patterson\n// GIT_EMAIL=arasureynn@gmail.com\n// GIT_PREVIOUS_COMMIT=597563389d144c7098dd3b71b1fc1e600b215ff7\n// GIT_OWNER=concur\n// GIT_HOST=github.com\n// GIT_REPO=jenkins-yml-workflowLibs\n// ....\n\n\n\n\ngetGitData(String)\n\n\n\n\nGet the Git owner, repo and host\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\nurl\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\nprintln new com.concur.Git().getGitData('https://github.com/concur/jenkins-yml-workflowLibs.git')\n// ['host': 'github.com', 'owner': 'concur', 'repo': 'jenkins-yml-workflowLibs']\n\n\n\n\nExample 2\n\n\nprintln new com.concur.Git().getGitData('https://github.example.com/awesome/repo.git')\n// ['host': 'github.example.com', 'owner': 'awesome', 'repo': 'repo']\n\n\n\n\ntimeSinceTag(String)\n\n\n\n\nGet the amount of time since the last Git tag was created.\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nString\n\n\ntag\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\n// Last tag was 3 hours ago\nprintln new com.concur.Git().timeSinceTag('v3.1.0')\n// 0010800000 - Padded with 0s on the left.\n\n\n\n\nExample 2\n\n\n// last tag was 6 months ago\nprintln new com.concur.Git().timeSinceTag('v0.1.0')\n// 1555200000 - Chunked to keep it at 10 characters",
             "title": "Git"
         },
         {
@@ -486,37 +486,17 @@
             "title": "Example 2"
         },
         {
-            "location": "/GIT/#getversionmap",
-            "text": "Determine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.\nYou can indicate how to increment the semantic version in your pipelines.yml file:   pipelines:\n  general:\n    version:\n      increment: # all of these nodes can be either a static boolean or a map matching the patterns from tools.git.patterns\n        major: true\n        minor:\n          master: true\n          feature: false\n        patch:\n          master: false\n          feature: true     Type  Name  Default      Map  yml",
-            "title": "getVersion(Map)"
-        },
-        {
-            "location": "/GIT/#example-1_1",
-            "text": "// Latest tag in the repo is 1.3.1 and it was tagged 5 hours ago\nprintln new com.concur.Git().getVersion(yml)\n// 1.4.0-0018000000",
-            "title": "Example 1"
-        },
-        {
-            "location": "/GIT/#example-2_1",
-            "text": "// New repo with no tags, repository was created 1 hour ago\nprintln new com.concur.Git().getVersion(yml)\n// 0.1.0-0003600000",
-            "title": "Example 2"
-        },
-        {
-            "location": "/GIT/#example-3",
-            "text": "// No tags in repo, override default version, created 18 days ago\nprintln new com.concur.Git().getVersion(yml)\n// 3.7.0-1555200000",
-            "title": "Example 3"
-        },
-        {
             "location": "/GIT/#timesincetagstring",
             "text": "Get the amount of time since the last Git tag was created.      Type  Name  Default      String  tag",
             "title": "timeSinceTag(String)"
         },
         {
-            "location": "/GIT/#example-1_2",
+            "location": "/GIT/#example-1_1",
             "text": "// Last tag was 3 hours ago\nprintln new com.concur.Git().timeSinceTag('v3.1.0')\n// 0010800000 - Padded with 0s on the left.",
             "title": "Example 1"
         },
         {
-            "location": "/GIT/#example-2_2",
+            "location": "/GIT/#example-2_1",
             "text": "// last tag was 6 months ago\nprintln new com.concur.Git().timeSinceTag('v0.1.0')\n// 1555200000 - Chunked to keep it at 10 characters",
             "title": "Example 2"
         },
@@ -819,6 +799,36 @@
             "location": "/UTIL/#example-2_8",
             "text": "println new com.concur.Util().mustacheReplaceAll('{{ non_standard }} | {{ git_repo }}', ['non_standard': 'This is not provided as an environment variable'])\n// This is not provided as an environment variable | jenkins-yml-workflowLibs",
             "title": "Example 2"
+        },
+        {
+            "location": "/VERSIONING/",
+            "text": "com.concur.Versioning\n\n\ngetVersion(Map)\n\n\n\n\nDetermine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.\n\n\n\n\npipelines:\n  general:\n    version:\n      base: 1.0.0\n      scheme: semantic\n      versionImage: quay.io/reynn/docker-versioner:0.1.0\n      pattern: \"^.*.*\"\n\n\n\n\n\n\n\n\n\n\nType\n\n\nName\n\n\nDefault\n\n\n\n\n\n\n\n\n\n\nMap\n\n\nyml\n\n\n\n\n\n\n\n\n\n\nExample 1\n\n\n// Latest tag in the repo is 1.3.1 and it was tagged 5 hours ago\nprintln new com.concur.Versioning().getVersion(yml)\n// 1.4.0-0018000000\n\n\n\n\nExample 2\n\n\n// New repo with no tags, repository was created 1 hour ago\nprintln new com.concur.Versioning().getVersion(yml)\n// 0.1.0-0003600000\n\n\n\n\nExample 3\n\n\n// No tags in repo, override default version, created 18 days ago\nprintln new com.concur.Versioning().getVersion(yml)\n// 3.7.0-1555200000",
+            "title": "Versioning"
+        },
+        {
+            "location": "/VERSIONING/#comconcurversioning",
+            "text": "",
+            "title": "com.concur.Versioning"
+        },
+        {
+            "location": "/VERSIONING/#getversionmap",
+            "text": "Determine a version number based on the current latest tag in the repository. Will automatically increment the minor version and append a build version.   pipelines:\n  general:\n    version:\n      base: 1.0.0\n      scheme: semantic\n      versionImage: quay.io/reynn/docker-versioner:0.1.0\n      pattern: \"^.*.*\"     Type  Name  Default      Map  yml",
+            "title": "getVersion(Map)"
+        },
+        {
+            "location": "/VERSIONING/#example-1",
+            "text": "// Latest tag in the repo is 1.3.1 and it was tagged 5 hours ago\nprintln new com.concur.Versioning().getVersion(yml)\n// 1.4.0-0018000000",
+            "title": "Example 1"
+        },
+        {
+            "location": "/VERSIONING/#example-2",
+            "text": "// New repo with no tags, repository was created 1 hour ago\nprintln new com.concur.Versioning().getVersion(yml)\n// 0.1.0-0003600000",
+            "title": "Example 2"
+        },
+        {
+            "location": "/VERSIONING/#example-3",
+            "text": "// No tags in repo, override default version, created 18 days ago\nprintln new com.concur.Versioning().getVersion(yml)\n// 3.7.0-1555200000",
+            "title": "Example 3"
         }
     ]
 }

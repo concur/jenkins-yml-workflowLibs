@@ -27,6 +27,7 @@ pipelines:
       steps:
         - github:
           - createRelease:
+              changelogFile: markdown/CHANGELOG.md
     feature:
       steps:
         - python:

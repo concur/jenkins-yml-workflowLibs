@@ -17,6 +17,7 @@ pages:
   - Http: HTTP.md
   - Slack: SLACK.md
   - Util: UTIL.md
+  - Versioning: VERSIONING.md
 site_dir: docs
 site_name: jenkins-yml-workflow
 theme:
